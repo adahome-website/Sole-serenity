@@ -519,7 +519,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
 .found{margin-top:14px;background:rgba(252,249,244,.1);border:1.5px solid var(--ochre);border-radius:14px;padding:14px}
 .found[hidden]{display:none}
 .found p{margin:0 0 12px;font-size:14.5px}
-.found-btns{display:flex;flex-wrap:wrap;gap:8px}
+.found-btns{display:flex;flex-wrap:wrap;gap:8px}.found-btns [hidden],#goBtn[hidden],#giftLink[hidden]{display:none}
 .found-btns .btn{padding:11px 15px;font-size:14px}
 .linkish{appearance:none;border:0;background:none;color:var(--ochre);font:600 14px var(--body);text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:10px 0 0;display:block;margin:0 auto}
 .linkish[hidden]{display:none}
@@ -597,6 +597,12 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   .bk-dlg.step2 .bk-back{display:inline-block}
   .bk-back{appearance:none;border:0;background:transparent;color:var(--ochre);font:600 15px var(--body);padding:4px 0 10px;cursor:pointer}
 }
+
+/* booking is its own page, not a pop-up */
+.book-page{padding:22px 0 64px}
+.bk-dlg{position:static;inset:auto;margin:0 auto;width:100%;height:auto;max-width:none;max-height:none;overflow:visible;box-shadow:none;border:1px solid var(--line);border-radius:28px;display:none}
+.bk-dlg[open]{display:block}
+@media (max-width:899px){.bk-dlg{width:100%;height:auto;max-height:none;border-radius:22px;margin:0}}
 </style>
 
 <svg class="mel-sprite" width="0" height="0" aria-hidden="true" focusable="false">
@@ -631,6 +637,127 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     </button>
   </div>
 </header>
+
+<!-- BOOKING (its own page) -->
+<section class="book-page" id="bookPage" data-view="book" aria-label="Book a session" hidden>
+  <div class="wrap">
+<dialog class="bk-dlg" id="bookDlg" aria-labelledby="bkTitle">
+  <div class="bk-in">
+    <div class="bk-head">
+      <div><h2 id="bkTitle">Book a session</h2><p class="bk-sub">My week, my schedule: Tuesday to Friday, 10 a.m. to 10 p.m. Tap an open start time and you'll see exactly when you arrive and when you leave.</p></div>
+      <button type="button" class="bk-x" id="bkClose" aria-label="Leave booking and go back">×</button>
+    </div>
+    <div class="bk-body">
+      <div class="bk-left" id="bkLeft">
+        <div class="bk-opts">
+        <span class="bk-fl" id="lSess">Session</span>
+        <div class="bk-seg" id="segSess" role="group" aria-labelledby="lSess">
+          <button type="button" data-v="intro">First visit · $99</button>
+          <button type="button" data-v="refl">Reflexology</button>
+          <button type="button" data-v="reiki">Reiki</button>
+          <button type="button" data-v="combo">Reflexology + Reiki</button>
+          <button type="button" data-v="bath">Foot bath</button>
+        </div>
+        <span class="bk-fl" id="lLen">Length</span>
+        <div class="bk-seg" id="segLen" role="group" aria-labelledby="lLen">
+          <button type="button" data-v="60">60 min</button>
+          <button type="button" data-v="90">90 min</button>
+          <button type="button" data-v="120">120 min</button>
+        </div>
+        </div>
+
+        <!-- desktop: weekly schedule -->
+        <div class="tt bk-week">
+          <div class="tt-head">
+            <button type="button" class="bk-nav" id="wkPrev" aria-label="Previous week">‹</button>
+            <h3 id="ttTitle">This week</h3>
+            <button type="button" class="bk-nav" id="wkNext" aria-label="Next week">›</button>
+          </div>
+          <div class="legend" aria-hidden="true">
+            <span><i style="background:var(--paper2)"></i>Open</span>
+            <span><i style="background:repeating-linear-gradient(135deg,var(--held) 0 3px,transparent 3px 6px);border:1px solid var(--line)"></i>Taken (sample)</span>
+            <span><i style="background:var(--sess)"></i>Your visit</span>
+          </div>
+          <div class="grid" id="grid" role="group" aria-label="Weekly schedule, tap a start time"></div>
+          <p class="tt-note">Demo availability: example bookings and Melanie's own calendar block some times. Saturdays by request: call or text 587-216-8588.</p>
+        </div>
+
+        <!-- mobile: month calendar + hourly slots -->
+        <div class="bk-cal">
+          <div class="cal-head">
+            <button type="button" class="bk-nav" id="calPrev" aria-label="Previous month">‹</button>
+            <h3 id="calTitle">Month</h3>
+            <button type="button" class="bk-nav" id="calNext" aria-label="Next month">›</button>
+          </div>
+          <div class="cal-dow" aria-hidden="true"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+          <div class="cal-grid" id="calGrid" role="group" aria-label="Choose a date"></div>
+          <p class="cal-note">Tuesday to Friday. Saturdays by request: call or text 587-216-8588.</p>
+          <span class="bk-fl" id="timesLbl">Times</span>
+          <div class="cal-times" id="calTimes" role="group" aria-labelledby="timesLbl"></div>
+          <button type="button" class="btn btn-ink bk-cont" id="bkCont" disabled>Continue</button>
+          <p class="bk-hint" id="bkHint">Pick a time to continue.</p>
+        </div>
+      </div>
+
+      <div class="bk-right planner" id="bkRight">
+        <button type="button" class="bk-back" id="bkBack">‹ Change time</button>
+        <h3 id="plTitle" tabindex="-1">Your visit</h3>
+        <div class="ticket" aria-live="polite">
+          <p class="sum-when" id="sumWhen">Pick a time on the schedule.</p>
+          <div class="times">
+            <div><small>Arrive</small><b id="tArr">—</b></div>
+            <div><small>Leave</small><b id="tLeave">—</b></div>
+          </div>
+          <div class="vline" id="vline" aria-label="Timeline of your visit"></div>
+          <div class="vscale"><span id="vs0"></span><span id="vs1"></span><span id="vs2"></span></div>
+          <div class="sum"><span id="sumName">Reflexology · 60 min</span><b id="sumTotal">$99</b></div>
+          <div class="sum-gst" id="sumGst" hidden></div>
+          <div class="deposit" id="depRow" hidden></div>
+        </div>
+        <div class="credit contact" id="contactBox">
+          <span class="pay-l" style="margin:6px 0 0">Your details</span>
+          <label for="ctName">Name<input id="ctName" type="text" autocomplete="name" placeholder="First and last name"></label>
+          <div class="ct-row"><label for="ctEmail">Email<input id="ctEmail" type="email" autocomplete="email" placeholder="you@email.com"></label>
+          <label for="ctPhone">Phone<input id="ctPhone" type="tel" autocomplete="tel" placeholder="587-000-0000"></label></div>
+        </div>
+        <span class="pay-l" id="lPay" hidden>How are you booking?</span>
+        <div class="seg" id="segPay" hidden role="group" aria-labelledby="lPay">
+          <button type="button" data-v="deposit" aria-pressed="true">Pay a $40 deposit</button>
+          <button type="button" data-v="credit" aria-pressed="false">I have a membership, package or gift card</button>
+        </div>
+        <div class="credit" id="creditBox" hidden>
+          <label for="crType" id="crTypeL" hidden>What are you using?
+            <select id="crType">
+              <option value="package">3-session package</option>
+              <option value="membership">Monthly membership</option>
+              <option value="gift">Gift card</option>
+            </select>
+          </label>
+          <label for="crRef"><span id="crRefL">Name on your package</span>
+            <input id="crRef" type="text" autocomplete="name" placeholder="Your full name">
+          </label>
+          <p class="cr-warn" id="crWarn" role="note"></p>
+        </div>
+        <div class="found" id="crFound" hidden>
+          <p id="crFoundT"></p>
+          <p class="cr-warn" id="crFoundW"></p>
+          <div class="found-btns"><button class="btn btn-cream" type="button" id="useCred">Use it for this visit</button><button class="btn btn-ghost" type="button" id="payDepInstead" hidden>Pay the $40 deposit</button></div>
+        </div>
+        <ul class="bk-pol">
+          <li id="polDep" hidden><b>Deposit:</b> holds your time and comes off your total. To cancel, text or email me at least 48 hours before and I'll refund it in full; within 48 hours it isn't refunded.</li>
+          <li><b>Late arrival:</b> your session still finishes at the booked time, so the next client's time is protected too.</li>
+          <li><b>Scent-free:</b> just ask. Essential oils are only used with your consent.</li>
+        </ul>
+        <button class="btn go" type="button" id="goBtn" disabled>Continue</button>
+        <button type="button" class="linkish" id="giftLink">Have a gift card code?</button>
+        <div class="note" id="goNote" role="status"></div>
+        <p class="fine" id="goFine">If you don't have an active membership, package or gift card, you'll be asked for a $40 deposit to hold your time. It comes off your session total. Cancel at least 48 hours before your appointment and I'll refund it in full; cancellations within 48 hours and no-shows aren't refunded. Membership and package holders don't pay a deposit, but a no-show or a cancellation within 48 hours uses up that session and isn't refunded.</p>
+      </div>
+    </div>
+  </div>
+</dialog>
+  </div>
+</section>
 
 <!-- BOOKING CONFIRMED (its own page) -->
 <section class="sec booked" id="booked" data-view="booked" aria-labelledby="okTitle" hidden>
@@ -1173,128 +1300,14 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
 <div class="bar" role="region" aria-label="Quick booking">
   <div class="bar-in">
     <span class="bar-dot" aria-hidden="true"></span>
-    <div class="bar-txt"><b id="barT">Reflexology · 60 min · $99</b><span id="barS">Pick a time on my schedule</span></div>
-    <a class="btn" href="#book" id="barBtn">Book a session</a>
+    <div class="bar-txt"><b id="barT">First visit: 2 hours of Reflexology + Reiki · $99</b><span id="barS">50% off (usually $198) · new clients only</span></div>
+    <a class="btn" href="#book" id="barBtn" data-pick="intro">Book my first visit</a>
   </div>
 </div>
 
 <!-- ===== BOOKING DIALOG ===== -->
 
-<dialog class="bk-dlg" id="bookDlg" aria-labelledby="bkTitle">
-  <div class="bk-in">
-    <div class="bk-head">
-      <div><h2 id="bkTitle">Book a session</h2><p class="bk-sub">My week, my schedule: Tuesday to Friday, 10 a.m. to 10 p.m. Tap an open start time and you'll see exactly when you arrive and when you leave.</p></div>
-      <button type="button" class="bk-x" id="bkClose" aria-label="Close booking">×</button>
-    </div>
-    <div class="bk-body">
-      <div class="bk-left" id="bkLeft">
-        <div class="bk-opts">
-        <span class="bk-fl" id="lSess">Session</span>
-        <div class="bk-seg" id="segSess" role="group" aria-labelledby="lSess">
-          <button type="button" data-v="intro">First visit · $99</button>
-          <button type="button" data-v="refl">Reflexology</button>
-          <button type="button" data-v="reiki">Reiki</button>
-          <button type="button" data-v="combo">Reflexology + Reiki</button>
-          <button type="button" data-v="bath">Foot bath</button>
-        </div>
-        <span class="bk-fl" id="lLen">Length</span>
-        <div class="bk-seg" id="segLen" role="group" aria-labelledby="lLen">
-          <button type="button" data-v="60">60 min</button>
-          <button type="button" data-v="90">90 min</button>
-          <button type="button" data-v="120">120 min</button>
-        </div>
-        </div>
 
-        <!-- desktop: weekly schedule -->
-        <div class="tt bk-week">
-          <div class="tt-head">
-            <button type="button" class="bk-nav" id="wkPrev" aria-label="Previous week">‹</button>
-            <h3 id="ttTitle">This week</h3>
-            <button type="button" class="bk-nav" id="wkNext" aria-label="Next week">›</button>
-          </div>
-          <div class="legend" aria-hidden="true">
-            <span><i style="background:var(--paper2)"></i>Open</span>
-            <span><i style="background:repeating-linear-gradient(135deg,var(--held) 0 3px,transparent 3px 6px);border:1px solid var(--line)"></i>Taken (sample)</span>
-            <span><i style="background:var(--sess)"></i>Your visit</span>
-          </div>
-          <div class="grid" id="grid" role="group" aria-label="Weekly schedule, tap a start time"></div>
-          <p class="tt-note">Demo availability: example bookings and Melanie's own calendar block some times. Saturdays by request: call or text 587-216-8588.</p>
-        </div>
-
-        <!-- mobile: month calendar + hourly slots -->
-        <div class="bk-cal">
-          <div class="cal-head">
-            <button type="button" class="bk-nav" id="calPrev" aria-label="Previous month">‹</button>
-            <h3 id="calTitle">Month</h3>
-            <button type="button" class="bk-nav" id="calNext" aria-label="Next month">›</button>
-          </div>
-          <div class="cal-dow" aria-hidden="true"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
-          <div class="cal-grid" id="calGrid" role="group" aria-label="Choose a date"></div>
-          <p class="cal-note">Tuesday to Friday. Saturdays by request: call or text 587-216-8588.</p>
-          <span class="bk-fl" id="timesLbl">Times</span>
-          <div class="cal-times" id="calTimes" role="group" aria-labelledby="timesLbl"></div>
-          <button type="button" class="btn btn-ink bk-cont" id="bkCont" disabled>Continue</button>
-          <p class="bk-hint" id="bkHint">Pick a time to continue.</p>
-        </div>
-      </div>
-
-      <div class="bk-right planner" id="bkRight">
-        <button type="button" class="bk-back" id="bkBack">‹ Change time</button>
-        <h3 id="plTitle" tabindex="-1">Your visit</h3>
-        <div class="ticket" aria-live="polite">
-          <p class="sum-when" id="sumWhen">Pick a time on the schedule.</p>
-          <div class="times">
-            <div><small>Arrive</small><b id="tArr">—</b></div>
-            <div><small>Leave</small><b id="tLeave">—</b></div>
-          </div>
-          <div class="vline" id="vline" aria-label="Timeline of your visit"></div>
-          <div class="vscale"><span id="vs0"></span><span id="vs1"></span><span id="vs2"></span></div>
-          <div class="sum"><span id="sumName">Reflexology · 60 min</span><b id="sumTotal">$99</b></div>
-          <div class="sum-gst" id="sumGst" hidden></div>
-          <div class="deposit" id="depRow" hidden></div>
-        </div>
-        <div class="credit contact" id="contactBox">
-          <span class="pay-l" style="margin:6px 0 0">Your details</span>
-          <label for="ctName">Name<input id="ctName" type="text" autocomplete="name" placeholder="First and last name"></label>
-          <div class="ct-row"><label for="ctEmail">Email<input id="ctEmail" type="email" autocomplete="email" placeholder="you@email.com"></label>
-          <label for="ctPhone">Phone<input id="ctPhone" type="tel" autocomplete="tel" placeholder="587-000-0000"></label></div>
-        </div>
-        <span class="pay-l" id="lPay" hidden>How are you booking?</span>
-        <div class="seg" id="segPay" hidden role="group" aria-labelledby="lPay">
-          <button type="button" data-v="deposit" aria-pressed="true">Pay a $40 deposit</button>
-          <button type="button" data-v="credit" aria-pressed="false">I have a membership, package or gift card</button>
-        </div>
-        <div class="credit" id="creditBox" hidden>
-          <label for="crType" id="crTypeL" hidden>What are you using?
-            <select id="crType">
-              <option value="package">3-session package</option>
-              <option value="membership">Monthly membership</option>
-              <option value="gift">Gift card</option>
-            </select>
-          </label>
-          <label for="crRef"><span id="crRefL">Name on your package</span>
-            <input id="crRef" type="text" autocomplete="name" placeholder="Your full name">
-          </label>
-          <p class="cr-warn" id="crWarn" role="note"></p>
-        </div>
-        <div class="found" id="crFound" hidden>
-          <p id="crFoundT"></p>
-          <p class="cr-warn" id="crFoundW"></p>
-          <div class="found-btns"><button class="btn btn-cream" type="button" id="useCred">Use it for this visit</button><button class="btn btn-ghost" type="button" id="payDepInstead">Pay the $40 deposit instead</button></div>
-        </div>
-        <ul class="bk-pol">
-          <li id="polDep" hidden><b>Deposit:</b> holds your time and comes off your total. To cancel, text or email me at least 48 hours before and I'll refund it in full; within 48 hours it isn't refunded.</li>
-          <li><b>Late arrival:</b> your session still finishes at the booked time, so the next client's time is protected too.</li>
-          <li><b>Scent-free:</b> just ask. Essential oils are only used with your consent.</li>
-        </ul>
-        <button class="btn go" type="button" id="goBtn" disabled>Continue</button>
-        <button type="button" class="linkish" id="giftLink">Have a gift card code?</button>
-        <div class="note" id="goNote" role="status"></div>
-        <p class="fine" id="goFine">If you don't have an active membership, package or gift card, you'll be asked for a $40 deposit to hold your time. It comes off your session total. Cancel at least 48 hours before your appointment and I'll refund it in full; cancellations within 48 hours and no-shows aren't refunded. Membership and package holders don't pay a deposit, but a no-show or a cancellation within 48 hours uses up that session and isn't refunded.</p>
-      </div>
-    </div>
-  </div>
-</dialog>
 
 <script>
 (function(){
@@ -1328,7 +1341,14 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
       BUSY=B;render();
     }).catch(function(){});
   }
-  var st={s:'intro',len:120,date:null,t:null};
+  // Returning client = this browser has completed a booking here before (remembered on this device only)
+  var RETURNING=false;try{RETURNING=localStorage.getItem('ss_booked')==='1'}catch(e){}
+  var st=RETURNING?{s:'refl',len:60,date:null,t:null}:{s:'intro',len:120,date:null,t:null};
+  function barRender(){
+    var b=$('barBtn');
+    if(!RETURNING){$('barT').textContent='First visit: 2 hours of Reflexology + Reiki · $99';$('barS').textContent='50% off (usually $198) · new clients only';b.setAttribute('data-pick','intro');b.textContent='Book my first visit'}
+    else{$('barT').textContent='Welcome back';$('barS').textContent='Book your next session';b.removeAttribute('data-pick');b.textContent='Book a session'}
+  }
   var today=new Date();today.setHours(0,0,0,0);
 
   function fmt(m){var h=Math.floor(m/60),mm=m%60,ap=h>=12?'pm':'am',h12=h%12||12;return h12+':'+(mm<10?'0':'')+mm+' '+ap}
@@ -1462,7 +1482,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     var price=S.price[st.len],has=st.t!==null;
     $('sumName').textContent=S.name+' · '+st.len+' min'+(st.s==='intro'?' · 50% off':'');
     var crb=$('segPay').querySelector('[data-v="credit"]');if(crb){crb.disabled=st.s==='intro';if(st.s==='intro'&&pay==='credit'){pay='deposit';payRender()}}
-    $('giftLink').hidden=st.s==='intro';
+    $('giftLink').hidden=st.s==='intro'||!!FOUND;
     var gst=Math.round(price*GST_RATE*100)/100;
     $('sumTotal').textContent='$'+price;
     $('sumGst').hidden=!GST_RATE;if(GST_RATE)$('sumGst').textContent='+ $'+gst.toFixed(2)+' GST ('+(GST_RATE*100)+'%) = $'+(price+gst).toFixed(2)+' total';
@@ -1473,14 +1493,11 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
       $('tArr').textContent=fmt(st.t);$('tLeave').textContent=fmt(end);
       $('vs0').textContent=fmt(st.t);$('vs1').textContent=fmt(st.t+st.len/2);$('vs2').textContent=fmt(end);
       $('sumWhen').textContent=longDate(st.date);
-      $('barT').textContent=S.name+' · '+st.len+' min · $'+price;
-      $('barS').textContent=longDate(st.date)+' · '+fmt(st.t)+' – '+fmt(end)+' · $40 deposit';
     }else{
       $('tArr').textContent='—';$('tLeave').textContent='—';$('vs0').textContent=$('vs1').textContent=$('vs2').textContent='';
       $('sumWhen').textContent='Pick a time on the schedule.';
-      if(st.s==='intro'){$('barT').textContent='First visit: 2 hours of Reflexology + Reiki · $99';$('barS').textContent='50% off (usually $198) · new clients only'}
-      else{$('barT').textContent=S.name+' · '+st.len+' min · $'+price;$('barS').textContent='Pick a time on my schedule';}
     }
+    barRender();
     $('goBtn').disabled=!has;$('bkCont').disabled=!has;$('bkHint').hidden=has;
     $('goNote').classList.remove('show');
   }
@@ -1522,6 +1539,8 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   $('crType').addEventListener('change',payRender);
 
   var looked=false,FOUND=null,giftMode=false;
+  // Once a membership/package/gift card is recognised, the only choice is the one in the "found" box
+  function foundMode(on){$('goBtn').hidden=on;$('giftLink').hidden=on||st.s==='intro'}
   function firstName(x){x=String(x||'').trim().split(/\s+/)[0]||'';return x.charAt(0).toUpperCase()+x.slice(1).toLowerCase()}
   // prototype only: pretend these names have something on file
   var DEMO_CREDITS={'example member':{kind:'membership',ref:'Example Member',text:'a monthly membership, and this month\'s session is still available'}};
@@ -1529,7 +1548,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     if(!BOOKING_API)return new Promise(function(r){setTimeout(function(){r(DEMO_CREDITS[nm.toLowerCase()]||null)},400)});
     return fetch(BOOKING_API+'/api/lookup',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:nm,email:em,date:st.date?st.date.getFullYear()+'-'+String(st.date.getMonth()+1).padStart(2,'0')+'-'+String(st.date.getDate()).padStart(2,'0'):''})}).then(function(r){return r.json()}).then(function(d){return d.found||null}).catch(function(){return null});
   }
-  ['ctName','ctEmail'].forEach(function(id){$(id).addEventListener('input',function(){looked=false;FOUND=null;$('crFound').hidden=true;if(!giftMode&&pay==='credit'){pay='deposit';payRender()}})});
+  ['ctName','ctEmail'].forEach(function(id){$(id).addEventListener('input',function(){looked=false;FOUND=null;$('crFound').hidden=true;foundMode(false);if(!giftMode&&pay==='credit'){pay='deposit';payRender()}})});
   $('goBtn').addEventListener('click',function(){
     if(st.t===null)return;var n=$('goNote');
     var nm=$('ctName').value.trim(),em=$('ctEmail').value.trim();
@@ -1540,10 +1559,10 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
       looked=true;b.disabled=false;b.textContent='Continue';
       if(!f)return doBook();
       FOUND=f;
-      if(f.blocked){$('crFoundT').textContent='Welcome back, '+firstName(nm)+'. You have '+f.text+'. To book an extra session, pay the $40 deposit as usual.';$('crFoundW').innerHTML='';$('crFoundW').hidden=true;$('useCred').hidden=true;$('payDepInstead').textContent='Pay the $40 deposit';$('crFound').hidden=false;$('payDepInstead').focus();return}
+      if(f.blocked){$('crFoundT').textContent='Welcome back, '+firstName(nm)+'. You have '+f.text+'. To book an extra session, pay the $40 deposit as usual.';$('crFoundW').innerHTML='';$('crFoundW').hidden=true;$('useCred').hidden=true;$('payDepInstead').hidden=false;$('payDepInstead').textContent='Pay the $40 deposit';$('crFound').hidden=false;foundMode(true);$('payDepInstead').focus();return}
       $('crFoundT').textContent='Welcome back, '+firstName(nm)+'. You have '+f.text+'. Use it for this visit? Nothing to pay today.';
-      $('crFoundW').hidden=false;$('useCred').hidden=false;$('payDepInstead').textContent='Pay the $40 deposit instead';
-      $('crFoundW').innerHTML=CREDIT[f.kind].warn;$('crFound').hidden=false;$('useCred').focus();
+      $('crFoundW').hidden=false;$('useCred').hidden=false;$('payDepInstead').hidden=true;
+      $('crFoundW').innerHTML=CREDIT[f.kind].warn;$('crFound').hidden=false;foundMode(true);$('useCred').focus();
     });
   });
   $('useCred').addEventListener('click',function(){if(!FOUND)return;pay='credit';$('crType').value=FOUND.kind;payRender();$('crRef').value=FOUND.ref;$('creditBox').hidden=true;$('crFound').hidden=true;$('goNote').classList.remove('show');
@@ -1585,6 +1604,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   var TZf=function(o){return new Intl.DateTimeFormat('en-US',Object.assign({timeZone:'America/Edmonton'},o))};
   function showConfirmation(c){
     // c: {service, minutes, start, end (Date), pay, deposit, total (dollars), status, email, name, credit}
+    try{localStorage.setItem('ss_booked','1')}catch(e){}RETURNING=true;barRender();looked=false;FOUND=null;$('crFound').hidden=true;foundMode(false);
     var check=c.status==='needs_check',day=TZf({weekday:'long',month:'long',day:'numeric'}).format(c.start),t=function(d){return TZf({hour:'numeric',minute:'2-digit'}).format(d).toLowerCase()};
     $('okNextH').hidden=false;
     $('okTitle').textContent=check?'Request received':'You\'re booked';
@@ -1670,32 +1690,32 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   }
 
   /* ---------- booking dialog ---------- */
-  var dlg=$('bookDlg'),opener=null,mobile=matchMedia('(max-width:899px)');
+  var dlg=$('bookDlg'),opener=null,mobile=matchMedia('(max-width:899px)'),prevView='home';
   function openBook(pick,from){
     if(pick&&SESS[pick]){st.s=pick;st.len=(pick==='combo'||pick==='intro')?120:pick==='bath'?90:60}
     opener=from||document.activeElement;
     dlg.classList.remove('step2');render();
-    if(!dlg.open){dlg.showModal();document.documentElement.classList.add('bk-lock')}
-    dlg.scrollTop=0;
+    if(curView&&curView!=='book'&&curView!=='booked')prevView=curView;
+    if(!dlg.open)dlg.show();
+    showView('book');window.scrollTo(0,0);
     if(location.hash!=='#book')history.pushState({bk:1},'','#book');
     $('bkClose').focus();
   }
   function closeBook(){if(dlg.open)dlg.close()}
   dlg.addEventListener('close',function(){
-    document.documentElement.classList.remove('bk-lock');
-    if(location.hash==='#book'){history.replaceState(null,'','#'+(curView==='home'?'home':curView))}
+    if(location.hash==='#book'){history.replaceState(null,'','#'+prevView);showView(prevView)}
     if(opener&&document.contains(opener)&&opener.offsetParent!==null)opener.focus();
   });
-  dlg.addEventListener('click',function(e){if(e.target===dlg)closeBook()}); // backdrop
   $('bkClose').addEventListener('click',closeBook);
-  $('bkCont').addEventListener('click',function(){if(st.t===null)return;dlg.classList.add('step2');dlg.scrollTop=0;$('plTitle').focus()});
-  $('bkBack').addEventListener('click',function(){dlg.classList.remove('step2');dlg.scrollTop=0;var b=$('calTimes').querySelector('[aria-pressed="true"]')||$('calGrid').querySelector('button:not(:disabled)');if(b)b.focus()});
+  $('bkCont').addEventListener('click',function(){if(st.t===null)return;dlg.classList.add('step2');window.scrollTo(0,0);$('plTitle').focus()});
+  $('bkBack').addEventListener('click',function(){dlg.classList.remove('step2');window.scrollTo(0,0);var b=$('calTimes').querySelector('[aria-pressed="true"]')||$('calGrid').querySelector('button:not(:disabled)');if(b)b.focus()});
 
   /* ---------- views (hash routing) ---------- */
   var VIEWS=['home','melanie','training','questions'],curView=null;
   var SECTION_VIEW={practices:'home',packages:'home',gifts:'home',ground:'home','book-teaser':'home',about:'melanie',reiki:'melanie',workshops:'training',faq:'questions',visit:'questions',policies:'questions',research:'questions'};
   function showView(v,anchor){
     var changed=v!==curView;curView=v;
+    var bar=document.querySelector('.bar');if(bar)bar.hidden=(v==='book'||v==='booked');
     [].forEach.call(document.querySelectorAll('[data-view]'),function(s){s.hidden=s.dataset.view!==v});
     [].forEach.call(document.querySelectorAll('[data-nav]'),function(a){if(a.dataset.nav===v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
     if(changed){stopB();cairnPause()}
@@ -1704,7 +1724,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   }
   function route(){
     var h=decodeURIComponent(location.hash.slice(1));
-    if(h==='book'){if(!curView)showView('home');if(!dlg.open)openBook(null,null);return}
+    if(h==='book'){if(!dlg.open)openBook(null,null);else showView('book');return}
     if(dlg.open)dlg.close();
     if(!h||h==='top'){showView('home');return}
     if(h==='booked'){showView(okReady?'booked':'home');return}

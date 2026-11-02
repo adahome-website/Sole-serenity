@@ -42,8 +42,14 @@ main{flex:1;min-height:0;position:relative}
 /* emails */
 .mail{display:grid;grid-template-columns:minmax(260px,360px) minmax(0,1fr);min-height:0;flex:1}
 .mlist{border-right:1px solid var(--line);overflow:auto;min-width:0}
-.mtools{display:flex;flex-wrap:wrap;gap:6px;padding:12px;border-bottom:1px solid var(--line)}
-.mtools p{flex-basis:100%;margin:0 0 2px;font-size:13px;color:var(--ink2)}
+.mfilt{display:flex;flex-direction:column;border-bottom:1px solid var(--line);padding:6px 0}
+.mfilt button{appearance:none;border:0;background:transparent;color:var(--ink);font:600 14px var(--body);text-align:left;padding:8px 14px;cursor:pointer;display:flex;justify-content:space-between;gap:10px;border-left:3px solid transparent}
+.mfilt button[aria-selected="true"]{border-left-color:var(--terra);background:var(--paper2)}
+.mfilt button span{font:500 12px var(--mono);color:var(--ink2)}
+.mhint{margin:0;padding:12px 14px;font-size:13.5px;color:var(--ink2);border-bottom:1px solid var(--line)}
+.mhint:empty{display:none}
+.mhint .btn{margin-top:8px}
+@media (max-width:760px){.mfilt{flex-direction:row;overflow-x:auto;padding:0}.mfilt button{border-left:0;border-bottom:3px solid transparent;white-space:nowrap}.mfilt button[aria-selected="true"]{border-bottom-color:var(--terra)}}
 .mi{appearance:none;display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);font:inherit;padding:12px 14px;cursor:pointer}
 .mi[aria-current="true"]{background:var(--paper2)}
 .mi b{display:block;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -98,7 +104,7 @@ main{flex:1;min-height:0;position:relative}
     <li><b>Admin:</b> in <b>Past</b>, press <b>Charge balance</b> for Sam Example ($99 − $40 = $59), then see the receipt email.</li>
     <li><b>Admin:</b> Casey typed the wrong gift card code. Press <b>Find their gift card</b>.</li>
     <li><b>Admin:</b> try <b>Cancel</b> (Refund / No refund), <b>No-show</b>, the Gift cards tab and <b>Download</b>.</li>
-    <li><b>Emails:</b> send the reminders, review requests and Monday summary.</li>
+    <li><b>Emails:</b> filter by type. Under Reminders, Review requests and To Melanie you can send the scheduled ones now.</li>
   </ol></div>
 </details><button class="btn ghost" id="reset" type="button">Reset demo</button></div>
 </header>
@@ -432,12 +438,8 @@ main{flex:1;min-height:0;position:relative}
   <section class="pane" id="p-mail" role="tabpanel" aria-labelledby="t-mail" hidden>
     <div class="mail">
       <div class="mlist">
-        <div class="mtools">
-          <p>Some emails go out on a schedule. Send them now to see them:</p>
-          <button class="btn ghost" type="button" id="runRem">Reminders (3 days before)</button>
-          <button class="btn ghost" type="button" id="runRev">Review requests</button>
-          <button class="btn ghost" type="button" id="runSum">Monday summary</button>
-        </div>
+        <div class="mfilt" role="tablist" aria-label="Type of email" id="mfilt"></div>
+        <p class="mhint" id="mhint"></p>
         <div id="mlist"></div>
       </div>
       <div class="mview" id="mview"><p class="empty">Book something on the website and the emails appear here.</p></div>
@@ -469,18 +471,31 @@ main{flex:1;min-height:0;position:relative}
     var n=DEMO.db().emails.length;$('mailN').hidden=n<=seen;$('mailN').textContent=n-seen;
     if(cur==='mail')renderMail();
   });
+  var FILT=[['all','All emails'],['confirmation','Booking confirmations'],['reminder','Reminders, 3 days before'],['receipt','Receipts'],['purchase','Gift cards & purchases'],['review','Review requests'],['melanie','To Melanie (alerts & Monday summary)']];
+  var HINT={confirmation:'Sent the moment someone books, after the deposit or with a package, membership or gift card. Book something on the website to see one.',
+    reminder:'Sent automatically about 3 days before each appointment, with the address and the cancellation deadline.<br><button class="btn ghost" type="button" data-run="rem">Send the reminders now</button>',
+    receipt:'Sent by the booking system (not Stripe) when Melanie presses Charge balance. Try it on Sam Example in the admin\'s Past list.',
+    purchase:'Sent when someone buys a gift card, package or membership on the website. Gift card codes go to the buyer, and to the recipient if their email was given.',
+    review:'Sent a couple of hours after a client\'s first finished session, once per client.<br><button class="btn ghost" type="button" data-run="rev">Send review requests now</button>',
+    melanie:'Melanie gets an alert for each booking and sale, plus a summary every Monday morning.<br><button class="btn ghost" type="button" data-run="sum">Send the Monday summary now</button>'};
+  var flt='all';
+  $('mfilt').addEventListener('click',function(e){var b=e.target.closest('button');if(b){flt=b.dataset.f;sel=null;renderMail()}});
+  $('mhint').addEventListener('click',function(e){var b=e.target.closest('[data-run]');if(!b)return;var k=b.dataset.run;
+    if(k==='rem'){var n=DEMO.runReminders();toast(n?n+' reminder'+(n>1?'s':'')+' sent.':'No upcoming bookings left to remind.')}
+    if(k==='rev'){var m=DEMO.runReviews();toast(m?m+' review request'+(m>1?'s':'')+' sent.':'No finished sessions waiting. Charge balance or Mark done one first.')}
+    if(k==='sum'){DEMO.runSummary();toast('Monday summary sent to Melanie.')}});
   function renderMail(){
-    var E=DEMO.db().emails;seen=E.length;$('mailN').hidden=true;
-    if(!E.length){$('mlist').innerHTML='<p class="empty">No emails yet.</p>';$('mview').innerHTML='<p class="empty">Book something on the website and the emails appear here.</p>';return}
+    var ALL=DEMO.db().emails;seen=ALL.length;$('mailN').hidden=true;
+    $('mfilt').innerHTML=FILT.map(function(f){var c=f[0]==='all'?ALL.length:ALL.filter(function(e){return e.kind===f[0]}).length;return '<button type="button" role="tab" data-f="'+f[0]+'" aria-selected="'+(f[0]===flt)+'">'+f[1]+'<span>'+c+'</span></button>'}).join('');
+    $('mhint').innerHTML=HINT[flt]||'';
+    var E=flt==='all'?ALL:ALL.filter(function(e){return e.kind===flt});
+    if(!E.length){$('mlist').innerHTML='<p class="empty">None of these yet.</p>';$('mview').innerHTML='<p class="empty">'+(flt==='all'?'Book something on the website and the emails appear here.':'Nothing of this type has been sent yet. See the note on the left.')+'</p>';return}
     if(!sel||!E.some(function(e){return e.id===sel}))sel=E[0].id;
     $('mlist').innerHTML=E.map(function(e){var mel=e.kind==='melanie';return '<button class="mi" type="button" data-id="'+e.id+'" aria-current="'+(e.id===sel)+'"><i class="'+(mel?'mel':'')+'">'+(mel?'To Melanie':'To client')+'</i><b>'+esc(e.subject)+'</b><span>'+esc(mel?'Booking alerts and summaries':e.to)+' · '+new Date(e.at).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})+'</span></button>'}).join('');
     var m=E.filter(function(e){return e.id===sel})[0];
     $('mview').innerHTML='<div class="mhead"><b>'+esc(m.subject)+'</b>From: Melanie at Sole Serenity<br>To: '+esc(m.kind==='melanie'?'Melanie (her own inbox)':m.to)+'<br><span class="via">'+(m.kind==='receipt'?'Sent by Melanie\'s booking system (email service: Resend), right after Stripe charges the card. Stripe itself sends no email; its official PDF receipt is linked inside.':'Sent automatically by Melanie\'s booking system (email service: Resend). Stripe sends no emails to clients.')+'</span></div><div class="mbody">'+m.html+'</div>';
   }
   $('mlist').addEventListener('click',function(e){var b=e.target.closest('.mi');if(b){sel=b.dataset.id;renderMail()}});
-  $('runRem').addEventListener('click',function(){var n=DEMO.runReminders();toast(n?n+' reminder'+(n>1?'s':'')+' sent.':'No upcoming bookings left to remind.')});
-  $('runRev').addEventListener('click',function(){var n=DEMO.runReviews();toast(n?n+' review request'+(n>1?'s':'')+' sent.':'No finished sessions waiting. Charge balance or Mark done one first.')});
-  $('runSum').addEventListener('click',function(){DEMO.runSummary();toast('Monday summary sent to Melanie.')});
   $('reset').addEventListener('click',function(){DEMO.reset();sel=null;seen=0;$('f-site').setAttribute('src','site.html?'+Date.now());dirty.site=false;dirty.admin=true;if(cur==='admin')show('admin');if(cur==='mail')renderMail();toast('Demo reset to the example data.')});
 
   /* pretend Stripe checkout */
