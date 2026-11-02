@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sole Serenity · Admin (demo)</title>
+<meta name="robots" content="noindex">
+</head>
+<body>
+
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#fcf9f4;--paper2:#f3ece0;--ink:#2b231a;--ink2:#5a4430;--line:rgba(58,46,34,.16);--teal:#4c6b66;--terra:#a35f3c;--ochre:#d6b48c;--char:#2b231a;--cream:#fcf9f4;--stripe:#635bff;
+  --display:"Bricolage Grotesque",system-ui,sans-serif;--body:"Instrument Sans",system-ui,sans-serif;--mono:"DM Mono",ui-monospace,monospace;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#1a1613;--paper2:#241e19;--ink:#f3ece1;--ink2:#cdbfae;--line:rgba(243,236,225,.16);color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#1a1613;--paper2:#241e19;--ink:#f3ece1;--ink2:#cdbfae;--line:rgba(243,236,225,.16);color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 var(--body);display:flex;flex-direction:column;overflow:hidden}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--terra);outline-offset:2px;border-radius:6px}
+.top{display:flex;align-items:center;gap:10px;padding:10px max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line);flex-wrap:wrap;background:var(--paper)}
+.top h1{font:800 18px/1.1 var(--display);letter-spacing:-.02em;margin:0;white-space:nowrap}
+.top h1 small{display:block;font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.tabs{display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:var(--paper2);border:1px solid var(--line);margin-left:auto;max-width:100%;overflow-x:auto}
+.tabs button{appearance:none;border:0;background:transparent;color:var(--ink);font:600 14px var(--body);padding:9px 14px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected="true"]{background:var(--char);color:var(--cream)}
+:root[data-theme="dark"] .tabs button[aria-selected="true"]{background:var(--cream);color:var(--char)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tabs button[aria-selected="true"]{background:var(--cream);color:var(--char)}}
+.tabs em{font-style:normal;font:600 11px var(--mono);background:var(--terra);color:#fff;border-radius:999px;padding:1px 6px;margin-left:6px}
+.btn{appearance:none;border:0;cursor:pointer;font:700 13.5px/1 var(--body);padding:10px 14px;border-radius:999px;background:var(--char);color:var(--cream);white-space:nowrap}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+:root[data-theme="dark"] .btn:not(.ghost){background:var(--cream);color:var(--char)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn:not(.ghost){background:var(--cream);color:var(--char)}}
+@media (max-width:720px){.tabs{margin-left:0;order:3;width:100%}.top .acts{margin-left:auto}}
+.acts{display:flex;gap:6px}
+main{flex:1;min-height:0;position:relative}
+.pane{position:absolute;inset:0;display:flex;flex-direction:column}
+.pane iframe{border:0;width:100%;flex:1;background:var(--paper)}
+.strip{font-size:13.5px;padding:8px max(16px,env(safe-area-inset-left,0px));background:var(--paper2);border-bottom:1px solid var(--line);color:var(--ink2)}
+.strip b{color:var(--ink)}
+/* emails */
+.mail{display:grid;grid-template-columns:minmax(260px,360px) minmax(0,1fr);min-height:0;flex:1}
+.mlist{border-right:1px solid var(--line);overflow:auto;min-width:0}
+.mfilt{display:flex;flex-direction:column;border-bottom:1px solid var(--line);padding:6px 0}
+.mfilt button{appearance:none;border:0;background:transparent;color:var(--ink);font:600 14px var(--body);text-align:left;padding:8px 14px;cursor:pointer;display:flex;justify-content:space-between;gap:10px;border-left:3px solid transparent}
+.mfilt button[aria-selected="true"]{border-left-color:var(--terra);background:var(--paper2)}
+.mfilt button span{font:500 12px var(--mono);color:var(--ink2)}
+.mhint{margin:0;padding:12px 14px;font-size:13.5px;color:var(--ink2);border-bottom:1px solid var(--line)}
+.mhint:empty{display:none}
+.mhint .btn{margin-top:8px}
+@media (max-width:760px){.mfilt{flex-direction:row;overflow-x:auto;padding:0}.mfilt button{border-left:0;border-bottom:3px solid transparent;white-space:nowrap}.mfilt button[aria-selected="true"]{border-bottom-color:var(--terra)}}
+.mi{appearance:none;display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);font:inherit;padding:12px 14px;cursor:pointer}
+.mi[aria-current="true"]{background:var(--paper2)}
+.mi b{display:block;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mi span{display:block;font-size:12.5px;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mi i{font-style:normal;font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--terra)}
+.mi i.mel{color:var(--teal)}
+.mview{overflow:auto;min-width:0;padding:22px;background:var(--paper)}
+.mhead{border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:16px;font-size:14px;color:var(--ink2)}
+.mhead b{display:block;font:800 22px/1.15 var(--display);color:var(--ink);margin-bottom:6px}
+.via{display:inline-block;margin-top:8px;font-size:13px;background:var(--paper2);border-radius:8px;padding:6px 10px;color:var(--ink)}
+.mbody{background:#fff;color:#2b231a;border-radius:16px;padding:22px;border:1px solid var(--line);max-width:640px}
+.empty{padding:28px;color:var(--ink2);text-align:center}
+@media (max-width:760px){.mail{grid-template-columns:1fr;grid-template-rows:auto 1fr}.mlist{max-height:40vh;border-right:0;border-bottom:1px solid var(--line)}}
+/* pretend Stripe */
+.ov{position:fixed;inset:0;background:rgba(20,16,12,.55);display:grid;place-items:center;z-index:50;padding:16px}
+.co{background:#fff;color:#1a1f36;border-radius:16px;width:min(440px,100%);max-height:calc(100vh - 32px);overflow:auto;box-shadow:0 30px 80px rgba(0,0,0,.35);font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+.co-h{background:#f6f9fc;padding:18px 22px;border-bottom:1px solid #e3e8ee}
+.co-h small{display:block;color:#697386;font-size:13px}
+.co-h b{display:block;font-size:30px;margin-top:4px}
+.co-tag{display:inline-block;margin-top:8px;font-size:12px;color:#635bff;font-weight:600}
+.co-b{padding:18px 22px;display:grid;gap:12px}
+.co label{display:grid;gap:4px;font-size:13px;color:#3c4257;font-weight:500}
+.co input{font:15px -apple-system,BlinkMacSystemFont,sans-serif;padding:10px 12px;border:1px solid #d5dbe1;border-radius:8px;width:100%;color:#1a1f36;background:#fff}
+.co .r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.co .pay{background:#635bff;color:#fff;border:0;border-radius:8px;padding:13px;font:600 16px -apple-system,BlinkMacSystemFont,sans-serif;cursor:pointer}
+.co .cx{background:none;border:0;color:#697386;font-size:14px;cursor:pointer;padding:4px}
+.co .note{font-size:12.5px;color:#697386;text-align:center}
+.co .err{color:#cd3d64;font-size:13.5px;margin:0}
+/* guide */
+.guide{position:relative}
+.guide summary{list-style:none;cursor:pointer;font:700 13.5px/1 var(--body);padding:10px 14px;border-radius:999px;background:var(--terra);color:#fff;white-space:nowrap}
+.guide summary::-webkit-details-marker{display:none}
+.gpanel{position:absolute;right:0;top:calc(100% + 8px);z-index:45;width:min(380px,calc(100vw - 32px));background:var(--char);color:var(--cream);border-radius:16px;box-shadow:0 18px 50px rgba(0,0,0,.35);font-size:14px;padding:14px 16px}
+.gpanel ol{margin:0;padding-left:18px;display:grid;gap:7px;max-height:60vh;overflow:auto}
+.gpanel li b{color:var(--ochre)}
+.toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:var(--teal);color:#fff;padding:10px 16px;border-radius:12px;z-index:60;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:calc(100vw - 32px)}
+</style><style>
+body.live-site .top,body.live-site .strip{display:none!important}
+body.live-site main{padding:0!important;margin:0!important;max-width:none!important}
+body.live-site #p-site{padding:0!important;margin:0!important}
+body.live-site #f-site{position:fixed;inset:0;width:100%;height:100%;border:0;border-radius:0!important}
+body.live-admin #t-site{display:none}
+</style>
+
+<script>document.body.className="live-admin"</script><header class="top">
+  <h1>Sole Serenity<small>Melanie's admin · demo, nothing is real or charged</small></h1>
+  <div class="tabs" role="tablist" aria-label="Demo views">
+    <button role="tab" id="t-site" aria-selected="true" aria-controls="p-site">Client website</button>
+    <button role="tab" id="t-admin" aria-selected="false" aria-controls="p-admin">Melanie's admin</button>
+    <button role="tab" id="t-mail" aria-selected="false" aria-controls="p-mail">Emails sent<em id="mailN" hidden>0</em></button>
+  </div>
+  <div class="acts"><details class="guide" id="guide">
+  <summary>Demo guide</summary><div class="gpanel">
+  <ol>
+    <li><b>Website:</b> book a Reflexology session as a new client. Pay the $40 deposit in the pretend Stripe checkout, then open <b>Emails</b> to see the confirmation.</li>
+    <li><b>Website:</b> book again as <b>Pat Example</b> (package) or <b>Jordan Example</b> (member). It's recognised and there's nothing to pay.</li>
+    <li><b>Website:</b> book as <b>Lee Example</b>: a $50 gift card, so the rest ($49 for a $99 session) is paid in the checkout. <b>Riley Example</b> (or code SS-K7QM-4XPA) has $198, enough for the whole session.</li>
+    <li><b>Website:</b> buy a gift card for a friend, with their email, and see both code emails.</li>
+    <li><b>Admin:</b> your bookings appear here. On a deposit booking, press <b>Charge balance</b> ($99 − $40 = $59), then see the receipt email.</li>
+    <li><b>Admin:</b> try <b>Cancel</b> (Refund / No refund), <b>No-show</b>, the Gift cards tab and <b>Download</b>.</li>
+    <li><b>Emails:</b> filter by type. Under Reminders, Review requests and To Melanie you can send the scheduled ones now.</li>
+  </ol></div>
+</details><button class="btn ghost" id="reset" type="button">Reset demo</button></div>
+</header>
+
+<script>
+window.SS_PERSIST = true;
+/* Sole Serenity demo backend: a stand-in for the real booking system, running in the browser.
+   Same endpoints and rules as src/index.js, with fake Stripe, fake calendar and an email outbox. */
+(function () {
+  var TZ = 'America/Edmonton', DEP = 4000;
+  var SERVICES = {
+    refl: { name: 'Reflexology', prices: { 60: 9900, 90: 14900, 120: 19800 } },
+    reiki: { name: 'Reiki', prices: { 60: 9900, 90: 14900, 120: 19800 } },
+    intro: { name: 'First visit: Reflexology + Reiki', prices: { 120: 9900 } },
+    combo: { name: 'Reflexology + Reiki', prices: { 120: 19800 } },
+    bath: { name: 'Aromatherapy & Restorative Foot Bath', prices: { 90: 14000 } }
+  };
+  var KIND = { package: 'package', membership: 'membership', gift: 'gift card' };
+  var ADDRESS = '123 Example Street NW, Calgary (demo address)';
+  var DB, listeners = [];
+
+  /* ---------- time helpers (Calgary time) ---------- */
+  var DOW = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+  function zparts(d) { var o = {}; new Intl.DateTimeFormat('en-US', { timeZone: TZ, hourCycle: 'h23', weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).formatToParts(d).forEach(function (p) { o[p.type] = p.value }); return o }
+  function offsetMs(d) { var p = zparts(d); return Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute, +p.second) - Math.floor(d.getTime() / 1000) * 1000 }
+  function localToUtc(ymd, hm) { var a = ymd.split('-').map(Number), b = hm.split(':').map(Number), g = Date.UTC(a[0], a[1] - 1, a[2], b[0], b[1]); var t = g - offsetMs(new Date(g)); t = g - offsetMs(new Date(t)); return new Date(t) }
+  function localOf(d) { var p = zparts(d); return { ymd: p.year + '-' + p.month + '-' + p.day, hm: p.hour + ':' + p.minute, dow: DOW[p.weekday] } }
+  function ymdOf(d) { return localOf(d).ymd }
+  function fmtDate(d) { return new Intl.DateTimeFormat('en-US', { timeZone: TZ, weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }).format(d) }
+  function fmtTime(d) { return new Intl.DateTimeFormat('en-US', { timeZone: TZ, hour: 'numeric', minute: '2-digit' }).format(d).replace(':00', '').toLowerCase() }
+  function fmtWhen(s, e) { return fmtDate(s) + ', ' + fmtTime(s) + '–' + fmtTime(e) }
+  function addDaysYmd(ymd, n) { var a = ymd.split('-').map(Number), t = new Date(Date.UTC(a[0], a[1] - 1, a[2] + n)); return t.toISOString().slice(0, 10) }
+  function nextDow(dow, weeks) { var d = new Date(); d.setHours(12); for (var i = 0; i < 14; i++) { if (localOf(d).dow === dow && (i > 0 || weeks === 0)) break; d = new Date(d.getTime() + 864e5) } return addDaysYmd(ymdOf(d), 7 * (weeks || 0)) }
+  function prevDow(dow) { var d = new Date(Date.now() - 864e5); for (var i = 0; i < 8; i++) { if (localOf(d).dow === dow) break; d = new Date(d.getTime() - 864e5) } return ymdOf(d) }
+
+  function money(c) { return '$' + (c / 100).toFixed(2) }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] }) }
+  function rid(p) { return p + '_' + Math.random().toString(36).slice(2, 10) }
+  function giftCode() { var A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', c = ''; for (var i = 0; i < 8; i++) c += A[Math.floor(Math.random() * A.length)]; return 'SS-' + c.slice(0, 4) + '-' + c.slice(4) }
+
+  function view(b) {
+    var S = SERVICES[b.service] || { name: b.service, prices: {} }, price = S.prices[b.minutes] || 0;
+    var o = {}; for (var k in b) o[k] = b[k];
+    o.service_name = S.name; o.price_cents = price; o.gst_cents = 0; o.total_cents = price;
+    o.balance_cents = b.pay === 'deposit' ? price - (b.deposit_cents || 0) : 0;
+    o.when = fmtWhen(new Date(b.start_utc), new Date(b.end_utc)); o.ymd = localOf(new Date(b.start_utc)).ymd;
+    return o;
+  }
+  function usesOf(c) { return DB.uses.filter(function (u) { return u.credit_id === c.id }) }
+
+  /* ---------- emails (same wording as the real system) ---------- */
+  function shell(body) { return '<div style="font-family:Georgia,serif;font-size:16px;line-height:1.5;color:#2b231a;max-width:560px">' + body + '</div>' }
+  function sendEmail(to, subject, html, kind) { DB.emails.unshift({ id: rid('em'), at: new Date().toISOString(), to: to, subject: subject, html: shell(html), kind: kind || 'client' }); notify() }
+  function alertMelanie(subject, text) { sendEmail('Melanie', subject, '<pre style="white-space:pre-wrap;font:15px/1.5 Georgia,serif">' + esc(text) + '</pre>', 'melanie') }
+  function policyLine(bk) {
+    return bk.pay === 'deposit'
+      ? 'Your ' + money(bk.deposit_cents || 0) + ' deposit comes off your total. To cancel or move, text or email me at least 48 hours before and I’ll refund it in full. Within 48 hours, or if you don’t come, it isn’t refunded.'
+      : bk.credit_type === 'gift' && bk.gift_cents != null ? 'Paid in full: ' + money(bk.gift_cents) + ' from your gift card' + (bk.deposit_cents ? ' and ' + money(bk.deposit_cents) + ' by card' : '') + '. To cancel or move, text or email me at least 48 hours before and it all goes back. A no-show, or a cancellation within 48 hours, isn’t refunded.'
+      : 'There’s no deposit. To cancel or move, text or email me at least 48 hours before. A no-show, or a cancellation within 48 hours, uses that session.';
+  }
+  function detailsCard(bk, withAddress) {
+    var v = view(bk), s = new Date(bk.start_utc), e = new Date(bk.end_utc);
+    function row(k, val) { return '<tr><td style="padding:6px 14px 6px 0;color:#5a4430;font-size:13px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;vertical-align:top">' + k + '</td><td style="padding:6px 0;font-size:16px">' + val + '</td></tr>' }
+    return '<table cellpadding="0" cellspacing="0" style="background:#f3ece0;border-radius:14px;padding:14px 18px;margin:16px 0;width:100%;max-width:520px">' +
+      row('Session', '<b>' + esc(v.service_name) + '</b> · ' + bk.minutes + ' min') + row('Date', esc(fmtDate(s))) +
+      row('Arrive', '<b>' + esc(fmtTime(s)) + '</b>') + row('Leave', esc(fmtTime(e))) +
+      row('Total', money(v.total_cents) + (bk.pay === 'deposit' ? ' <span style="color:#5a4430">(' + money(bk.deposit_cents || 0) + ' deposit paid, the rest after your session)</span>' : (bk.credit_type === 'gift' && bk.gift_cents != null ? ' <span style="color:#5a4430">(paid in full: ' + money(bk.gift_cents) + ' gift card' + (bk.deposit_cents ? ' + ' + money(bk.deposit_cents) + ' by card' : '') + ')</span>' : ' <span style="color:#5a4430">(from your ' + esc(KIND[bk.credit_type] || 'credit') + ')</span>'))) +
+      (withAddress ? row('Where', esc(ADDRESS)) : '') + '</table>';
+  }
+  function confirmEmail(bk) {
+    var check = bk.status === 'needs_check', s = new Date(bk.start_utc);
+    sendEmail(bk.email, check ? 'I’ve got your booking request' : 'You’re booked · ' + fmtDate(s) + ' at ' + fmtTime(s),
+      '<h1 style="font-family:Georgia,serif;font-size:26px;margin:0 0 6px">' + (check ? 'Request received' : 'You’re booked') + '</h1>' +
+      '<p>Hi ' + esc(bk.name.split(' ')[0]) + ', ' + (check ? 'thank you. I’ll check your membership, package or gift card and confirm by email shortly.' : 'thank you for booking. Here are your details:') + '</p>' +
+      detailsCard(bk, !check) +
+      '<p><b>Before you come:</b> wear something comfortable. For reflexology only your shoes and socks come off; for Reiki you stay fully clothed. Please arrive a few minutes early; your session ends at the time above. Let me know about any allergies or if you’d like it scent-free.</p>' +
+      '<p style="color:#5a4430;font-size:14px">' + policyLine(bk) + '</p><p>I’ll send you a reminder a few days before. See you soon,<br>Melanie · 587-216-8588</p>', 'confirmation');
+  }
+  function newBookingAlert(bk) {
+    var v = view(bk);
+    alertMelanie((bk.status === 'needs_check' ? 'CHECK: ' : 'New booking: ') + bk.name + ' · ' + v.when, v.service_name + ' ' + bk.minutes + ' min\n' + (bk.phone || '') + ' ' + bk.email + '\n' + (bk.pay === 'deposit' ? 'Deposit paid' : 'Using ' + bk.credit_type + ' (' + (bk.credit_ref || 'no reference') + ')' + (bk.status === 'needs_check' ? ' — no match found, please check in your admin page' : '')));
+  }
+  function purchaseEmails(row) {
+    var what = row.kind === 'gift' ? 'a ' + money(row.total) + ' gift card' : row.kind === 'package' ? 'a ' + row.total + '-session package' : 'a monthly membership';
+    var exp = row.expires ? '<p>Your package is valid until <b>' + esc(fmtDate(localToUtc(row.expires, '12:00'))) + '</b>.</p>' : '';
+    var howTo = exp + '<p>To use it, book on the website with your name and email. I’ll recognise it and there’s no deposit to pay.' + (row.code ? ' You can also tap “Have a gift card code?” and enter the code.' : '') + '</p>';
+    var policy = '<p>If you can’t make a session, text or email me at least 48 hours before. A no-show, or a cancellation within 48 hours, uses that session.</p><p>Melanie</p>';
+    if (row.email) sendEmail(row.email, 'Your Sole Serenity ' + (row.kind === 'gift' ? 'gift card' : row.kind), '<p>Hi ' + esc(row.buyer) + ',</p><p>Thank you for buying ' + what + (row.recipient ? ' for ' + esc(row.recipient) : '') + '.</p>' +
+      (row.code ? '<p>Gift card code: <b style="font-size:20px">' + row.code + '</b></p>' + (row.recipient_email ? '<p>I’ve also emailed the code to ' + esc(row.recipient || 'them') + '.</p>' : '<p>Pass the code on to ' + esc(row.recipient || 'them') + ' with your card or message.</p>') : howTo + policy), 'purchase');
+    if (row.code && row.recipient_email) sendEmail(row.recipient_email, 'A Sole Serenity gift card for you', '<p>Hi ' + esc(row.recipient || 'there') + ',</p><p>' + esc(row.buyer) + ' has given you ' + what + ' for reflexology or Reiki with me in Calgary.</p><p>Your code: <b style="font-size:20px">' + row.code + '</b></p>' + howTo + policy, 'purchase');
+    alertMelanie('New ' + row.kind + ': ' + row.buyer, row.buyer + ' bought ' + what + (row.recipient ? ' for ' + row.recipient : '') + '. ' + (row.code ? 'Code ' + row.code + '. ' : '') + 'It’s in your admin page.');
+  }
+
+  /* ---------- availability + matching ---------- */
+  var ACTIVE = ['held', 'confirmed', 'needs_check', 'completed', 'noshow'];
+  function busy(exceptId) { var now = new Date().toISOString(); return DB.bookings.filter(function (b) { return b.id !== exceptId && ACTIVE.indexOf(b.status) >= 0 && (b.status !== 'held' || b.hold_until > now) }).map(function (b) { return { start: b.start_utc, end: b.end_utc } }).concat(DB.calendar) }
+  function overlaps(s, e) { return busy().some(function (b) { return new Date(b.start) < e && new Date(b.end) > s }) }
+  function creditLeft(c, ym) {
+    var u = usesOf(c);
+    if (c.kind === 'package') return u.length < c.total;
+    if (c.kind === 'membership') return !u.some(function (x) { return x.date_local.slice(0, 7) === ym });
+    return c.total - u.reduce(function (a, x) { return a + (x.amount_cents || 0) }, 0);
+  }
+  function norm(x) { return String(x || '').trim().replace(/\s+/g, ' ').toLowerCase() }
+  function lookupCode(code) {
+    var c = DB.credits.filter(function (x) { return x.kind === 'gift' && x.status === 'active' && norm(x.code) === norm(code) })[0], left = c ? creditLeft(c) : 0;
+    return c && left > 0 ? { kind: 'gift', ref: c.code, balance_cents: left, text: 'a gift card with ' + money(left) + ' left' } : null;
+  }
+  function lookup(name, email, date) {
+    name = norm(name); email = (email || '').trim().toLowerCase();
+    var today = ymdOf(new Date()), ym = (/^\d{4}-\d{2}-\d{2}$/.test(date || '') ? date : today).slice(0, 7), usedMember = null;
+    for (var i = 0; i < DB.credits.length; i++) {
+      var c = DB.credits[i]; if (c.status !== 'active' || (c.expires && c.expires < today)) continue;
+      var names = (c.kind === 'gift' && c.recipient ? [c.recipient] : [c.recipient, c.buyer]).filter(Boolean).map(norm);
+      var mine = (name && names.indexOf(name) >= 0) || (email && ((c.email === email && !(c.kind === 'gift' && c.recipient)) || c.recipient_email === email));
+      if (!mine) continue;
+      var u = usesOf(c);
+      if (c.kind === 'package' && u.length < c.total) { var l = c.total - u.length; return { kind: 'package', ref: c.recipient || c.buyer, text: 'a ' + c.total + '-session package with ' + l + ' session' + (l > 1 ? 's' : '') + ' left' } }
+      if (c.kind === 'membership' && !creditLeft(c, ym)) { usedMember = c; continue }
+      if (c.kind === 'membership') return { kind: 'membership', ref: c.buyer, text: 'a monthly membership, and this month’s session is still available' };
+      if (c.kind === 'gift') { var left = creditLeft(c); if (left > 0) return { kind: 'gift', ref: c.code, balance_cents: left, text: 'a gift card with ' + money(left) + ' left' } }
+    }
+    if (usedMember) return { kind: 'membership', blocked: true, ref: usedMember.buyer, text: 'a monthly membership, but this month’s session is already booked' };
+    return null;
+  }
+  function findCredit(type, ref, email, name, ymd, cents) {
+    var r = norm(ref); name = norm(name);
+    var m = DB.credits.filter(function (c) {
+      if (c.kind !== type || c.status !== 'active') return false;
+      if (type === 'gift') return r && (c.code || '').toLowerCase() === r;
+      var names = [c.recipient, c.buyer].map(function (x) { return (x || '').trim().toLowerCase() });
+      return (c.email && c.email.toLowerCase() === email) || names.indexOf(r) >= 0 || names.indexOf(name) >= 0;
+    });
+    for (var i = 0; i < m.length; i++) {
+      var c = m[i]; if (c.expires && c.expires < ymd) continue;
+      var u = usesOf(c);
+      if (type === 'package' && u.length < c.total) return c;
+      if (type === 'membership' && !u.some(function (x) { return x.date_local.slice(0, 7) === ymd.slice(0, 7) })) return c;
+      if (type === 'gift' && creditLeft(c) > 0) return c;
+    }
+    return null;
+  }
+  function addUse(bk, c, status) {
+    var L = localOf(new Date(bk.start_utc)), Le = localOf(new Date(bk.end_utc)), tot = SERVICES[bk.service].prices[bk.minutes];
+    DB.uses.push({ id: rid('use'), created: new Date().toISOString(), credit_id: c.id, booking_id: bk.id, date_local: L.ymd, start_local: L.hm, end_local: Le.hm, service: SERVICES[bk.service].name, status: status || 'booked', amount_cents: c.kind === 'gift' ? Math.min(tot, Math.max(0, creditLeft(c))) : 0 });
+    if (c.kind === 'gift') bk.gift_cents = DB.uses[DB.uses.length - 1].amount_cents;
+  }
+
+  /* ---------- API ---------- */
+  function err(msg, status) { var e = new Error(msg); e.status = status || 400; e.public = msg; return e }
+  function api(path, body, method) {
+    var u = new URL('https://x' + path), p = u.pathname;
+    if (p === '/api/availability') return { tz: TZ, busy: busy() };
+    if (p === '/api/lookup') return { found: body.code ? lookupCode(body.code) : lookup(body.name, body.email, body.date) };
+    if (p === '/api/book') return book(body);
+    if (p === '/api/booking') { var x = getB(u.searchParams.get('id')); if (!x) throw err('Not found', 404); var v = view(x); return { service_name: v.service_name, minutes: x.minutes, start_utc: x.start_utc, end_utc: x.end_utc, pay: x.pay, deposit_cents: x.deposit_cents, total_cents: v.total_cents, status: x.status, credit_type: x.credit_type, email: x.email, first_name: x.name.split(' ')[0], gift_cents: x.gift_cents, gift_left_cents: x.credit_type === 'gift' && x.credit_id ? creditLeft(DB.credits.filter(function (c) { return c.id === x.credit_id })[0]) : null } }
+    if (p.indexOf('/admin/api') === 0) return admin(p.slice(10), body, u);
+    throw err('Not found', 404);
+  }
+  function book(b) {
+    var S = SERVICES[b.service], minutes = +b.minutes;
+    if (!S || !S.prices[minutes]) throw err('Please choose a session and length.');
+    var name = (b.name || '').trim(), email = (b.email || '').trim().toLowerCase();
+    var start = localToUtc(b.date, b.time), end = new Date(start.getTime() + minutes * 6e4), L = localOf(start), Le = localOf(end);
+    if (overlaps(start, end)) throw err('Sorry, that time was just taken. Please pick another.', 409);
+    var pay = b.service === 'intro' ? 'deposit' : (b.pay === 'credit' ? 'credit' : 'deposit');
+    if (b.service === 'intro' && DB.bookings.some(function (x) { return x.email.toLowerCase() === email && ['confirmed', 'needs_check', 'completed', 'noshow'].indexOf(x.status) >= 0 }))
+      throw err('The first-visit offer is for new clients. Please choose Reflexology + Reiki (2 hours) instead.', 409);
+    var row = { id: rid('bk'), created: new Date().toISOString(), status: 'held', service: b.service, minutes: minutes, start_utc: start.toISOString(), end_utc: end.toISOString(), name: name, email: email, phone: b.phone || '', pay: pay, credit_type: null, credit_ref: null, credit_id: null, hold_until: new Date(Date.now() + 31 * 6e4).toISOString(), deposit_cents: 0, charged_cents: null };
+    if (pay === 'deposit') { DB.bookings.push(row); notify(); return { ok: true, checkout_url: 'demo-checkout:' + row.id } }
+    var type = ['package', 'membership', 'gift'].indexOf(b.credit_type) >= 0 ? b.credit_type : 'package';
+    row.credit_type = type; row.credit_ref = (b.credit_ref || '').trim();
+    var c = findCredit(type, row.credit_ref, email, name, L.ymd, S.prices[minutes]);
+    if (c && type === 'gift') {
+      // Gift cards always pay for the full session: the card covers what it can, the rest is paid by card now
+      var due = S.prices[minutes] - Math.min(S.prices[minutes], creditLeft(c));
+      row.credit_id = c.id; addUse(row, c);
+      if (due > 0) { row.topup_cents = due; DB.bookings.push(row); notify(); return { ok: true, checkout_url: 'demo-checkout:' + row.id } }
+    }
+    row.status = c ? 'confirmed' : 'needs_check'; row.credit_id = c ? c.id : null; row.hold_until = null;
+    DB.bookings.push(row); if (c && type !== 'gift') addUse(row, c);
+    DB.calendar.push({ start: row.start_utc, end: row.end_utc, booking: row.id });
+    confirmEmail(row); newBookingAlert(row); notify();
+    return { ok: true, status: row.status };
+  }
+  function getB(id) { return DB.bookings.filter(function (b) { return b.id === id })[0] }
+  function admin(p, body, u) {
+    if (p === '/appointments') {
+      var scope = u.searchParams.get('scope') || 'upcoming', now = new Date().toISOString(), cut = new Date(Date.now() - 12 * 36e5).toISOString();
+      var list = DB.bookings.filter(function (b) {
+        if (scope === 'past') return b.status !== 'held' && b.start_utc < now;
+        return (b.status !== 'held' || b.hold_until > now) && b.start_utc >= cut && b.status !== 'cancelled';
+      }).sort(function (a, b) { return scope === 'past' ? (a.start_utc < b.start_utc ? 1 : -1) : (a.start_utc < b.start_utc ? -1 : 1) });
+      return { appointments: list.map(view) };
+    }
+    if (p === '/charge') {
+      var bk = getB(body.id); if (!bk || bk.pay !== 'deposit') throw err('Only deposit bookings have a balance to charge.');
+      if (bk.charged_cents != null) throw err('This session has already been charged.');
+      var v = view(bk); bk.charged_cents = v.balance_cents; bk.status = 'completed'; bk.invoice_url = '#receipt-' + bk.id;
+      sendEmail(bk.email, 'Your receipt · Sole Serenity', '<p>Hi ' + esc(bk.name) + ',</p><p>Thank you for coming in. Here is your receipt for ' + esc(v.service_name) + ' (' + bk.minutes + ' min) on ' + esc(v.when) + ':</p>' +
+        '<table cellpadding="4" style="font-size:15px"><tr><td>' + esc(v.service_name) + '</td><td align="right">' + money(v.price_cents) + '</td></tr>' +
+        '<tr><td>Deposit already paid</td><td align="right">−' + money(bk.deposit_cents) + '</td></tr><tr><td>Paid today</td><td align="right">' + money(bk.charged_cents) + '</td></tr>' +
+        '<tr><td style="border-top:1px solid #d9cdbb"><b>Total paid for this session</b></td><td align="right" style="border-top:1px solid #d9cdbb"><b>' + money(v.total_cents) + '</b> · paid in full</td></tr></table>' +
+        '<p><a href="#" style="color:#a35f3c">Download the PDF receipt</a> (includes my RCRT registration for insurance claims).</p><p>Melanie</p>', 'receipt');
+      notify(); return { ok: true, paid_cents: bk.charged_cents, appointment: view(bk) };
+    }
+    if (p === '/complete') { var b1 = getB(body.id); b1.status = 'completed'; DB.uses.forEach(function (x) { if (x.booking_id === b1.id) x.status = 'used' }); notify(); return { ok: true } }
+    if (p === '/noshow') { var b2 = getB(body.id); b2.status = 'noshow'; DB.uses.forEach(function (x) { if (x.booking_id === b2.id) x.status = 'noshow' }); notify(); return { ok: true } }
+    if (p === '/cancel') {
+      var b3 = getB(body.id), refund = !!body.refund;
+      if (b3.credit_id) { if (refund) DB.uses = DB.uses.filter(function (x) { return x.booking_id !== b3.id }); else DB.uses.forEach(function (x) { if (x.booking_id === b3.id) x.status = 'late' }) }
+      DB.calendar = DB.calendar.filter(function (c) { return c.booking !== b3.id });
+      b3.status = 'cancelled'; b3.notes = refund ? 'Cancelled 48h+ ahead · ' + (b3.pay === 'deposit' ? 'deposit refunded' : 'session returned') : 'Cancelled within 48h · ' + (b3.pay === 'deposit' ? 'deposit kept' : 'session used');
+      notify(); return { ok: true };
+    }
+    if (p === '/attach') {
+      var b4 = getB(body.id), c = DB.credits.filter(function (x) { return x.id === body.credit_id })[0];
+      addUse(b4, c); b4.status = 'confirmed'; b4.credit_id = c.id; b4.credit_type = c.kind; confirmEmail(b4); notify(); return { ok: true };
+    }
+    if (p === '/credits') return { credits: DB.credits.map(function (c) { var o = {}; for (var k in c) o[k] = c[k]; o.uses = usesOf(c).slice().sort(function (a, b) { return (a.date_local + a.start_local) < (b.date_local + b.start_local) ? -1 : 1 }); return o }).sort(function (a, b) { return a.bought < b.bought ? 1 : -1 }) };
+    if (p === '/credits/save') {
+      if (body.id) { var c2 = DB.credits.filter(function (x) { return x.id === body.id })[0]; ['buyer', 'recipient', 'recipient_email', 'phone', 'email', 'bought', 'code', 'notes', 'expires', 'status', 'price_cents', 'total'].forEach(function (k) { if (k in body) c2[k] = body[k] === '' ? null : body[k] }); notify(); return { ok: true } }
+      var d = { id: rid('cr'), created: new Date().toISOString(), status: 'active' };
+      ['kind', 'buyer', 'recipient', 'recipient_email', 'phone', 'email', 'bought', 'code', 'notes', 'expires', 'price_cents', 'total'].forEach(function (k) { d[k] = body[k] === '' || body[k] == null ? null : body[k] });
+      if (!d.buyer || !d.kind || !d.total || !d.bought) throw err('Add who bought it, the date and the amount.');
+      if (d.kind === 'gift' && !d.code) d.code = giftCode();
+      if (d.kind !== 'gift') { d.recipient = null; d.recipient_email = null }
+      DB.credits.push(d); if (d.kind === 'gift' && body.send_code) purchaseEmails(d); notify();
+      return { ok: true, id: d.id, code: d.code };
+    }
+    if (p === '/uses/add') { DB.uses.push({ id: rid('use'), credit_id: body.credit_id, date_local: body.date, start_local: body.start, end_local: body.end, service: body.service, status: body.status || 'used', amount_cents: +body.amount_cents || 0 }); notify(); return { ok: true } }
+    if (p === '/uses/delete') { DB.uses = DB.uses.filter(function (x) { return x.id !== body.id }); notify(); return { ok: true } }
+    throw err('Not found', 404);
+  }
+
+  /* ---------- pretend Stripe ---------- */
+  function depositPaid(id) {
+    var bk = getB(id); if (!bk) return;
+    bk.status = 'confirmed'; bk.deposit_cents = DEP; bk.hold_until = null; bk.stripe_pm = 'pm_demo'; bk.deposit_paid_at = new Date().toISOString();
+    DB.calendar.push({ start: bk.start_utc, end: bk.end_utc, booking: bk.id });
+    confirmEmail(bk); newBookingAlert(bk); notify();
+  }
+  function topupPaid(id) {
+    var bk = getB(id); if (!bk) return;
+    bk.status = 'confirmed'; bk.deposit_cents = bk.topup_cents; bk.hold_until = null; bk.deposit_paid_at = new Date().toISOString();
+    bk.notes = 'Gift card ' + money(bk.gift_cents) + ' + ' + money(bk.topup_cents) + ' by card · paid in full';
+    DB.calendar.push({ start: bk.start_utc, end: bk.end_utc, booking: bk.id });
+    confirmEmail(bk); newBookingAlert(bk); notify();
+  }
+  function checkoutCancelled(id) { var bk = getB(id); if (bk && bk.status === 'held') { bk.status = 'cancelled'; bk.notes = bk.topup_cents ? 'Gift card top-up not paid' : 'Deposit checkout not finished'; if (bk.topup_cents) DB.uses = DB.uses.filter(function (u) { return u.booking_id !== id }); notify() } }
+  var PRODUCTS = { reset3: { kind: 'package', total: 3, price: 27900, label: '3-session reset' }, monthly: { kind: 'membership', total: 1, price: 8900, label: 'Monthly ritual membership' }, gift99: { kind: 'gift', total: 9900, price: 9900, label: 'Gift card $99' }, gift198: { kind: 'gift', total: 19800, price: 19800, label: 'Gift card $198' }, giftCustom: { kind: 'gift', custom: true, label: 'Gift card, custom amount' } };
+  function purchase(key, f) {
+    var P = PRODUCTS[key], amt = P.custom ? Math.round(+f.amount * 100) : P.price;
+    var row = { id: rid('cr'), created: new Date().toISOString(), kind: P.kind, code: P.kind === 'gift' ? giftCode() : null, buyer: f.name, recipient: P.kind === 'gift' ? (f.recipient || null) : null,
+      recipient_email: P.kind === 'gift' && f.recipient_email ? f.recipient_email.toLowerCase() : null, email: f.email.toLowerCase(), phone: null, bought: ymdOf(new Date()), price_cents: amt,
+      total: P.kind === 'gift' ? amt : P.total, status: 'active', expires: null };
+    DB.credits.push(row); purchaseEmails(row); notify(); return row;
+  }
+
+  /* ---------- time-based emails, on demand for the demo ---------- */
+  function runReminders() {
+    var n = 0; DB.bookings.forEach(function (bk) {
+      if (bk.status !== 'confirmed' || bk.reminded_at || bk.start_utc < new Date().toISOString()) return;
+      var s = new Date(bk.start_utc), dl = new Date(s.getTime() - 48 * 36e5);
+      sendEmail(bk.email, 'See you ' + fmtDate(s).split(',')[0] + ' · ' + fmtTime(s), '<h1 style="font-family:Georgia,serif;font-size:26px;margin:0 0 6px">See you soon</h1><p>Hi ' + esc(bk.name.split(' ')[0]) + ', a quick reminder of your visit:</p>' + detailsCard(bk, true) +
+        '<p>Need to change it? Text or email me before <b>' + esc(fmtDate(dl)) + ', ' + esc(fmtTime(dl)) + '</b> (48 hours before) ' + (bk.pay === 'deposit' ? 'for a full refund of your deposit' : 'and your session is kept') + '. After that, ' + (bk.pay === 'deposit' ? 'the deposit isn’t refunded' : 'the session is used') + '.</p><p>Melanie · 587-216-8588</p>', 'reminder');
+      bk.reminded_at = new Date().toISOString(); n++;
+    }); notify(); return n;
+  }
+  function runReviews() {
+    var n = 0, asked = {}; DB.bookings.forEach(function (b) { if (b.review_sent_at) asked[b.email] = 1 });
+    DB.bookings.forEach(function (bk) {
+      if (bk.status !== 'completed' || bk.review_sent_at) return;
+      if (asked[bk.email]) { bk.review_sent_at = 'skipped'; return }
+      sendEmail(bk.email, 'How was your session?', '<p>Hi ' + esc(bk.name.split(' ')[0]) + ',</p><p>Thank you for coming in. I hope you’re still feeling light and rested.</p><p>If you have a minute, a short review helps other people find this kind of care. It means a lot to a small practice like mine.</p><p><a href="#" style="display:inline-block;background:#2b231a;color:#fcf9f4;padding:12px 20px;border-radius:999px;text-decoration:none;font-family:Arial,sans-serif;font-weight:bold">Leave a review</a></p><p>Melanie</p>', 'review');
+      bk.review_sent_at = new Date().toISOString(); asked[bk.email] = 1; n++;
+    }); notify(); return n;
+  }
+  function runSummary() {
+    var now = Date.now(), wk = new Date(now - 7 * 864e5).toISOString(), ahead = new Date(now + 7 * 864e5).toISOString(), nowI = new Date(now).toISOString();
+    var last = DB.bookings.filter(function (b) { return b.start_utc >= wk && b.start_utc <= nowI && b.status !== 'held' }), done = DB.bookings.filter(function (b) { return b.status === 'completed' });
+    var next = DB.bookings.filter(function (b) { return b.start_utc >= nowI && b.start_utc <= ahead && ['confirmed', 'needs_check'].indexOf(b.status) >= 0 }).sort(function (a, b) { return a.start_utc < b.start_utc ? -1 : 1 });
+    var taken = done.reduce(function (a, b) { return a + (b.charged_cents || 0) + (b.deposit_cents || 0) }, 0);
+    var unpaid = DB.bookings.filter(function (b) { return b.pay === 'deposit' && b.status === 'confirmed' && b.start_utc < nowI });
+    var lines = ['Last week: ' + done.length + ' sessions done, ' + last.filter(function (b) { return b.status === 'noshow' }).length + ' no-shows, ' + last.filter(function (b) { return b.status === 'cancelled' }).length + ' cancelled.',
+      'Taken in from sessions: ' + money(taken) + '.', unpaid.length ? 'Still to Charge balance: ' + unpaid.map(function (b) { return b.name }).join(', ') + '.' : 'Every past session has been charged.', '', 'This week (' + next.length + '):'].concat(next.map(function (b) { return '  ' + fmtDate(new Date(b.start_utc)) + ' ' + fmtTime(new Date(b.start_utc)) + ' · ' + b.name + ' · ' + SERVICES[b.service].name + (b.status === 'needs_check' ? ' · CHECK their credit' : '') }));
+    alertMelanie('Your week at Sole Serenity', lines.join('\n'));
+  }
+
+  /* ---------- example data ---------- */
+  function seed() {
+    DB = { bookings: [], credits: [], uses: [], emails: [], calendar: [] };
+    var tue = nextDow(2, 0), wed = nextDow(3, 0), thu = nextDow(4, 0), fri = nextDow(5, 0), lastFri = prevDow(5), lastThu = prevDow(4);
+    function mk(id, ymd, hm, s, min, name, email, pay, extra) {
+      var st = localToUtc(ymd, hm), en = new Date(st.getTime() + min * 6e4);
+      var b = { id: id, created: new Date(Date.now() - 6 * 864e5).toISOString(), status: 'confirmed', service: s, minutes: min, start_utc: st.toISOString(), end_utc: en.toISOString(), name: name, email: email, phone: '587-555-01' + (10 + DB.bookings.length), pay: pay, deposit_cents: pay === 'deposit' ? DEP : 0, charged_cents: null, credit_type: null, credit_ref: null };
+      for (var k in extra || {}) b[k] = extra[k];
+      DB.bookings.push(b); if (['confirmed', 'completed', 'needs_check'].indexOf(b.status) >= 0) DB.calendar.push({ start: b.start_utc, end: b.end_utc, booking: id }); return b;
+    }
+    var bought2 = addDaysYmd(ymdOf(new Date()), -16);
+    DB.credits.push({ id: 'cr_pat', kind: 'package', buyer: 'Pat Example', email: 'pat@example.com', phone: '587-555-0141', bought: bought2, price_cents: 27900, total: 3, status: 'active' });
+    DB.credits.push({ id: 'cr_jordan', kind: 'membership', buyer: 'Jordan Example', email: 'jordan@example.com', phone: '587-555-0152', bought: addDaysYmd(ymdOf(new Date()), -70), price_cents: 8900, total: 1, status: 'active' });
+    DB.credits.push({ id: 'cr_lee', kind: 'gift', code: 'SS-3HNW-7RTB', buyer: 'Robin Example', recipient: 'Lee Example', recipient_email: 'lee@example.com', email: 'robin@example.com', bought: addDaysYmd(ymdOf(new Date()), -20), price_cents: 5000, total: 5000, status: 'active' });
+    DB.credits.push({ id: 'cr_riley', kind: 'gift', code: 'SS-K7QM-4XPA', buyer: 'Morgan Example', recipient: 'Riley Example', recipient_email: 'riley@example.com', email: 'morgan@example.com', bought: addDaysYmd(ymdOf(new Date()), -9), price_cents: 19800, total: 19800, status: 'active' });
+    // Appointments start empty: they fill up as you book on the website
+    DB.calendar.push({ start: localToUtc(wed, '17:00').toISOString(), end: localToUtc(wed, '20:00').toISOString() }); // something Melanie put in her own calendar
+    DB.calendar.push({ start: localToUtc(fri, '15:00').toISOString(), end: localToUtc(fri, '17:00').toISOString() });
+    notify();
+  }
+
+  function notify() { listeners.forEach(function (f) { try { f() } catch (e) { } }) }
+
+  window.DEMO = {
+    fetch: function (path, opts) {
+      var body = {}; try { body = opts && opts.body ? JSON.parse(opts.body) : {} } catch (e) { }
+      return new Promise(function (res) {
+        setTimeout(function () {
+          var status = 200, out;
+          try { out = api(path, body, opts && opts.method) } catch (e) { status = e.status || 500; out = { error: e.public || e.message } }
+          res(new Response(JSON.stringify(out), { status: status, headers: { 'content-type': 'application/json' } }));
+        }, 250);
+      });
+    },
+    db: function () { return DB }, on: function (f) { listeners.push(f) }, reset: seed,
+    depositPaid: depositPaid, topupPaid: topupPaid, checkoutCancelled: checkoutCancelled, purchase: purchase, PRODUCTS: PRODUCTS,
+    runReminders: runReminders, runReviews: runReviews, runSummary: runSummary,
+    view: view, money: money, fmtWhen: fmtWhen
+  };
+  // Shared demo (the published website + admin): keep the data in this browser, so both pages see the same bookings
+  var KEY = 'ss_live_demo_v1';
+  if (window.SS_PERSIST) {
+    var saved = null; try { saved = JSON.parse(localStorage.getItem(KEY) || 'null') } catch (e) { }
+    if (saved && saved.bookings) DB = saved; else seed();
+    var save = function () { try { localStorage.setItem(KEY, JSON.stringify(DB)) } catch (e) { } };
+    listeners.push(save); save();
+    window.addEventListener('storage', function (e) {
+      if (e.key !== KEY || !e.newValue) return;
+      try { DB = JSON.parse(e.newValue) } catch (x) { return }
+      listeners.forEach(function (f) { try { f('remote') } catch (x) { } });
+    });
+  } else seed();
+})();
+
+</script>
+<main>
+  <section class="pane" id="p-site" role="tabpanel" aria-labelledby="t-site">
+    <p class="strip"><b>What a client sees.</b> Book a session, buy a gift card, or try booking as <b>Pat Example</b> (has a package) <b>Jordan Example</b> (member) or <b>Lee Example</b> (small gift card). Payments open a pretend Stripe checkout.</p>
+    <iframe id="f-site" src="site.html" title="Client website"></iframe>
+  </section>
+  <section class="pane" id="p-admin" role="tabpanel" aria-labelledby="t-admin" hidden>
+    <p class="strip"><b>What Melanie sees</b> after signing in. Appointments start empty and fill up as you book on the website. Then try <b>Charge balance</b>, <b>Cancel</b> or <b>No-show</b>.</p>
+    <iframe id="f-admin" title="Melanie's admin page"></iframe>
+  </section>
+  <section class="pane" id="p-mail" role="tabpanel" aria-labelledby="t-mail" hidden>
+    <div class="mail">
+      <div class="mlist">
+        <div class="mfilt" role="tablist" aria-label="Type of email" id="mfilt"></div>
+        <p class="mhint" id="mhint"></p>
+        <div id="mlist"></div>
+      </div>
+      <div class="mview" id="mview"><p class="empty">Book something on the website and the emails appear here.</p></div>
+    </div>
+  </section>
+</main>
+
+
+
+<div class="ov" id="ov" hidden><div class="co" role="dialog" aria-modal="true" aria-labelledby="coTitle" id="co"></div></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var tabs=['site','admin','mail'],cur='site',LIVE_ADMIN=true,dirty={site:false,admin:true},sel=null;
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function toast(m){var t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){t.hidden=true},3500)}
+  function show(k){
+    cur=k;tabs.forEach(function(t){$('t-'+t).setAttribute('aria-selected',String(t===k));$('p-'+t).hidden=t!==k});
+    if(k==='admin'){var f=$('f-admin');f.setAttribute('src','admin.html?'+Date.now());dirty.admin=false}
+    if(k==='site'&&dirty.site){$('f-site').setAttribute('src','site.html?'+Date.now());dirty.site=false}
+    if(k==='mail'){renderMail()}
+  }
+  tabs.forEach(function(t){$('t-'+t).addEventListener('click',function(){show(t)})});
+  var seen=0;
+  DEMO.on(function(why){
+    if(why==='remote'&&cur==='admin'){var fd=null;try{fd=$('f-admin').contentDocument}catch(x){}if(!fd||!fd.querySelector('dialog[open]')){$('f-admin').setAttribute('src','admin.html?'+Date.now());dirty.admin=false}}
+    if(cur!=='admin')dirty.admin=true;if(cur!=='site')dirty.site=true;
+    var n=DEMO.db().emails.length;$('mailN').hidden=n<=seen;$('mailN').textContent=n-seen;
+    if(cur==='mail')renderMail();
+  });
+  var FILT=[['all','All emails'],['confirmation','Booking confirmations'],['reminder','Reminders, 3 days before'],['receipt','Receipts'],['purchase','Gift cards & purchases'],['review','Review requests'],['melanie','To Melanie (alerts & Monday summary)']];
+  var HINT={confirmation:'Sent the moment someone books, after the deposit or with a package, membership or gift card. Book something on the website to see one.',
+    reminder:'Sent automatically about 3 days before each appointment, with the address and the cancellation deadline.<br><button class="btn ghost" type="button" data-run="rem">Send the reminders now</button>',
+    receipt:'Sent by the booking system (not Stripe) when Melanie presses Charge balance. Book with the deposit, then press Charge balance on it in the admin.',
+    purchase:'Sent when someone buys a gift card, package or membership on the website. Gift card codes go to the buyer, and to the recipient if their email was given.',
+    review:'Sent a couple of hours after a client\'s first finished session, once per client.<br><button class="btn ghost" type="button" data-run="rev">Send review requests now</button>',
+    melanie:'Melanie gets an alert for each booking and sale, plus a summary every Monday morning.<br><button class="btn ghost" type="button" data-run="sum">Send the Monday summary now</button>'};
+  var flt='all';
+  $('mfilt').addEventListener('click',function(e){var b=e.target.closest('button');if(b){flt=b.dataset.f;sel=null;renderMail()}});
+  $('mhint').addEventListener('click',function(e){var b=e.target.closest('[data-run]');if(!b)return;var k=b.dataset.run;
+    if(k==='rem'){var n=DEMO.runReminders();toast(n?n+' reminder'+(n>1?'s':'')+' sent.':'No upcoming bookings left to remind.')}
+    if(k==='rev'){var m=DEMO.runReviews();toast(m?m+' review request'+(m>1?'s':'')+' sent.':'No finished sessions waiting. Charge balance or Mark done one first.')}
+    if(k==='sum'){DEMO.runSummary();toast('Monday summary sent to Melanie.')}});
+  function renderMail(){
+    var ALL=DEMO.db().emails;seen=ALL.length;$('mailN').hidden=true;
+    $('mfilt').innerHTML=FILT.map(function(f){var c=f[0]==='all'?ALL.length:ALL.filter(function(e){return e.kind===f[0]}).length;return '<button type="button" role="tab" data-f="'+f[0]+'" aria-selected="'+(f[0]===flt)+'">'+f[1]+'<span>'+c+'</span></button>'}).join('');
+    $('mhint').innerHTML=HINT[flt]||'';
+    var E=flt==='all'?ALL:ALL.filter(function(e){return e.kind===flt});
+    if(!E.length){$('mlist').innerHTML='<p class="empty">None of these yet.</p>';$('mview').innerHTML='<p class="empty">'+(flt==='all'?'Book something on the website and the emails appear here.':'Nothing of this type has been sent yet. See the note on the left.')+'</p>';return}
+    if(!sel||!E.some(function(e){return e.id===sel}))sel=E[0].id;
+    $('mlist').innerHTML=E.map(function(e){var mel=e.kind==='melanie';return '<button class="mi" type="button" data-id="'+e.id+'" aria-current="'+(e.id===sel)+'"><i class="'+(mel?'mel':'')+'">'+(mel?'To Melanie':'To client')+'</i><b>'+esc(e.subject)+'</b><span>'+esc(mel?'Booking alerts and summaries':e.to)+' · '+new Date(e.at).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})+'</span></button>'}).join('');
+    var m=E.filter(function(e){return e.id===sel})[0];
+    $('mview').innerHTML='<div class="mhead"><b>'+esc(m.subject)+'</b>From: Melanie at Sole Serenity<br>To: '+esc(m.kind==='melanie'?'Melanie (her own inbox)':m.to)+'<br><span class="via">'+(m.kind==='receipt'?'Sent by Melanie\'s booking system (email service: Resend), right after Stripe charges the card. Stripe itself sends no email; its official PDF receipt is linked inside.':'Sent automatically by Melanie\'s booking system (email service: Resend). Stripe sends no emails to clients.')+'</span></div><div class="mbody">'+m.html+'</div>';
+  }
+  $('mlist').addEventListener('click',function(e){var b=e.target.closest('.mi');if(b){sel=b.dataset.id;renderMail()}});
+  $('reset').addEventListener('click',function(){DEMO.reset();sel=null;seen=0;$('f-site').setAttribute('src','site.html?'+Date.now());dirty.site=false;dirty.admin=true;if(cur==='admin')show('admin');if(cur==='mail')renderMail();toast('Demo reset to the example data.')});
+
+  /* pretend Stripe checkout */
+  var ov=$('ov'),co=$('co'),done=null;
+  function close(ok,data){ov.hidden=true;co.innerHTML='';var d=done;done=null;if(d)d(ok,data)}
+  window.DEMO_UI={
+    checkout:function(id,cb){
+      var bk=DEMO.db().bookings.filter(function(b){return b.id===id})[0];done=cb;
+      var v=DEMO.view(bk),top=bk.topup_cents||0,amt=top?DEMO.money(top):'$40.00';
+      co.innerHTML='<div class="co-h"><small>Sole Serenity · '+(top?'rest after gift card':'deposit')+'</small><b>'+amt+'</b><span>'+esc(v.service_name)+' · '+esc(v.when)+'</span>'+(top?'<br><span>Session '+DEMO.money(v.total_cents)+' · gift card '+DEMO.money(bk.gift_cents)+' · paid in full</span>':'')+'<br><span class="co-tag">Pretend Stripe checkout · no real payment</span></div>'+
+        '<div class="co-b"><label>Email<input value="'+esc(bk.email)+'" readonly></label><label>Card number<input value="4242 4242 4242 4242" inputmode="numeric"></label><div class="r2"><label>Expiry<input value="12 / 30"></label><label>CVC<input value="123"></label></div>'+
+        '<label>Name on card<input value="'+esc(bk.name)+'"></label><button class="pay" type="button" id="coPay">Pay '+amt+'</button><p class="note">'+(top?'This pays the rest of your session. Nothing more is due after it.':'Your card is saved for the rest of the payment after your session.')+'</p><button class="cx" type="button" id="coCx">‹ Back to Sole Serenity</button></div>';
+      ov.hidden=false;$('coPay').focus();
+      $('coPay').onclick=function(){this.textContent='Processing…';this.disabled=true;setTimeout(function(){top?DEMO.topupPaid(id):DEMO.depositPaid(id);close(true)},700)};
+      $('coCx').onclick=function(){DEMO.checkoutCancelled(id);close(false)};
+    },
+    buy:function(key,cb){
+      var P=DEMO.PRODUCTS[key];if(!P)return;var gift=P.kind==='gift';done=cb||null;
+      co.innerHTML='<div class="co-h"><small>Sole Serenity</small><b>'+(P.custom?'Gift card':DEMO.money(P.price))+'</b><span>'+esc(P.label)+(P.kind==='membership'?' · billed monthly':'')+'</span><br><span class="co-tag">Pretend Stripe checkout · no real payment</span></div>'+
+        '<div class="co-b">'+(P.custom?'<label>Amount ($)<input id="bAmt" type="number" min="20" value="150"></label>':'')+
+        '<label>'+(gift?'Your name':'Your name (the person using it)')+'<input id="bName" placeholder="First and last name"></label><label>Your email<input id="bEmail" type="email" placeholder="you@email.com"></label>'+
+        (gift?'<label>Who is the gift for?<input id="bRec" placeholder="Their name"></label><label>Their email (optional, we\'ll send them the code)<input id="bRecE" type="email"></label>':'')+
+        '<label>Card number<input value="4242 4242 4242 4242"></label><p class="err" id="bErr"></p><button class="pay" type="button" id="bPay">Pay</button><button class="cx" type="button" id="bCx">‹ Back to Sole Serenity</button></div>';
+      ov.hidden=false;$('bName').focus();
+      $('bCx').onclick=function(){close(false)};
+      $('bPay').onclick=function(){
+        var f={name:$('bName').value.trim(),email:$('bEmail').value.trim(),recipient:gift?$('bRec').value.trim():'',recipient_email:gift?$('bRecE').value.trim():'',amount:P.custom?$('bAmt').value:0};
+        if(!f.name||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email)){$('bErr').textContent='Add your name and email.';return}
+        if(P.custom&&!(+f.amount>0)){$('bErr').textContent='Enter an amount.';return}
+        var row=DEMO.purchase(key,f);close(true,{kind:row.kind,code:row.code,recipient:row.recipient,recipient_email:row.recipient_email,email:row.email,name:row.buyer,total:row.total,total_cents:row.total,price_cents:row.price_cents});
+      };
+    },
+    receipt:function(id){
+      var bk=DEMO.db().bookings.filter(function(b){return b.id===id})[0];
+      var m=bk&&DEMO.db().emails.filter(function(e){return e.kind==='receipt'&&e.to===bk.email})[0];
+      if(m){sel=m.id;show('mail')}else toast('That receipt was sent before this demo started.');
+    }
+  };
+  document.addEventListener('click',function(e){var g=$('guide');if(g.open&&!g.contains(e.target))g.open=false});
+  // the website and admin pages talk to this page by message (works even when the frames are isolated)
+  window.addEventListener('message',function(e){
+    var d=e.data;if(!d||!d.ssDemo)return;var src=e.source;
+    function reply(r){try{src.postMessage({ssDemoReply:1,id:d.id,result:r},'*')}catch(x){}}
+    if(d.type==='fetch'){DEMO.fetch(d.payload.path,{method:d.payload.method,body:d.payload.body}).then(function(r){return r.text().then(function(t){reply({status:r.status,body:t})})});return}
+    if(d.type==='checkout'){DEMO_UI.checkout(d.payload,function(ok){reply(ok)});return}
+    if(d.type==='buy'){DEMO_UI.buy(d.payload,function(ok,row){reply({ok:ok,row:row})});return}
+    if(d.type==='receipt'){DEMO_UI.receipt(d.payload);reply(true);return}
+  });
+  ov.addEventListener('click',function(e){if(e.target===ov&&done){var b=$('coCx');if(b)b.click()}});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!ov.hidden){var b=$('coCx')||$('bCx');if(b)b.click()}});
+})();
+</script>
+<script>document.getElementById("t-admin").click()</script>
+</body>
+</html>

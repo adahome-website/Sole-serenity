@@ -432,7 +432,19 @@ main{flex:1;min-height:0;position:relative}
     runReminders: runReminders, runReviews: runReviews, runSummary: runSummary,
     view: view, money: money, fmtWhen: fmtWhen
   };
-  seed();
+  // Shared demo (the published website + admin): keep the data in this browser, so both pages see the same bookings
+  var KEY = 'ss_live_demo_v1';
+  if (window.SS_PERSIST) {
+    var saved = null; try { saved = JSON.parse(localStorage.getItem(KEY) || 'null') } catch (e) { }
+    if (saved && saved.bookings) DB = saved; else seed();
+    var save = function () { try { localStorage.setItem(KEY, JSON.stringify(DB)) } catch (e) { } };
+    listeners.push(save); save();
+    window.addEventListener('storage', function (e) {
+      if (e.key !== KEY || !e.newValue) return;
+      try { DB = JSON.parse(e.newValue) } catch (x) { return }
+      listeners.forEach(function (f) { try { f('remote') } catch (x) { } });
+    });
+  } else seed();
 })();
 
 </script>
