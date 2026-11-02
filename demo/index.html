@@ -53,6 +53,7 @@ main{flex:1;min-height:0;position:relative}
 .mview{overflow:auto;min-width:0;padding:22px;background:var(--paper)}
 .mhead{border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:16px;font-size:14px;color:var(--ink2)}
 .mhead b{display:block;font:800 22px/1.15 var(--display);color:var(--ink);margin-bottom:6px}
+.via{display:inline-block;margin-top:8px;font-size:13px;background:var(--paper2);border-radius:8px;padding:6px 10px;color:var(--ink)}
 .mbody{background:#fff;color:#2b231a;border-radius:16px;padding:22px;border:1px solid var(--line);max-width:640px}
 .empty{padding:28px;color:var(--ink2);text-align:center}
 @media (max-width:760px){.mail{grid-template-columns:1fr;grid-template-rows:auto 1fr}.mlist{max-height:40vh;border-right:0;border-bottom:1px solid var(--line)}}
@@ -470,7 +471,7 @@ main{flex:1;min-height:0;position:relative}
     if(!sel||!E.some(function(e){return e.id===sel}))sel=E[0].id;
     $('mlist').innerHTML=E.map(function(e){var mel=e.kind==='melanie';return '<button class="mi" type="button" data-id="'+e.id+'" aria-current="'+(e.id===sel)+'"><i class="'+(mel?'mel':'')+'">'+(mel?'To Melanie':'To client')+'</i><b>'+esc(e.subject)+'</b><span>'+esc(mel?'Booking alerts and summaries':e.to)+' · '+new Date(e.at).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})+'</span></button>'}).join('');
     var m=E.filter(function(e){return e.id===sel})[0];
-    $('mview').innerHTML='<div class="mhead"><b>'+esc(m.subject)+'</b>From: Melanie at Sole Serenity<br>To: '+esc(m.kind==='melanie'?'Melanie (her own inbox)':m.to)+'</div><div class="mbody">'+m.html+'</div>';
+    $('mview').innerHTML='<div class="mhead"><b>'+esc(m.subject)+'</b>From: Melanie at Sole Serenity<br>To: '+esc(m.kind==='melanie'?'Melanie (her own inbox)':m.to)+'<br><span class="via">'+(m.kind==='receipt'?'Sent by Melanie\'s booking system (email service: Resend), right after Stripe charges the card. Stripe itself sends no email; its official PDF receipt is linked inside.':'Sent automatically by Melanie\'s booking system (email service: Resend). Stripe sends no emails to clients.')+'</span></div><div class="mbody">'+m.html+'</div>';
   }
   $('mlist').addEventListener('click',function(e){var b=e.target.closest('.mi');if(b){sel=b.dataset.id;renderMail()}});
   $('runRem').addEventListener('click',function(){var n=DEMO.runReminders();toast(n?n+' reminder'+(n>1?'s':'')+' sent.':'No upcoming bookings left to remind.')});

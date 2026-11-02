@@ -121,7 +121,7 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
   <h2>Charge balance</h2>
   <p id="chWho" style="margin:0"></p>
   <div class="sum" id="chSum"></div>
-  <p style="margin:0;font-size:14px;color:var(--ink2)">This charges the card saved at booking. The client gets one receipt by email for the full session, with the deposit shown.</p>
+  <p style="margin:0;font-size:14px;color:var(--ink2)">Stripe charges the card saved at booking. Your booking system then emails the client one receipt for the full session (not Stripe), with the deposit shown and a link to Stripe's PDF receipt.</p>
   <p class="err" id="chErr" role="alert"></p>
   <div class="end"><button class="btn ghost" type="button" data-close>Not yet</button><button class="btn pay" type="button" id="chGo">Charge</button></div>
 </div></dialog>
