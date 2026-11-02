@@ -1570,7 +1570,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   $('payDepInstead').addEventListener('click',function(){$('crFound').hidden=true;pay='deposit';payRender();doBook()});
   $('giftLink').addEventListener('click',function(){
     if(giftMode){giftMode=false;pay='deposit';payRender();this.textContent='Have a gift card code?';return}
-    giftMode=true;$('crFound').hidden=true;$('crRef').value='';pay='credit';$('crType').value='gift';payRender();this.textContent='Pay the $40 deposit instead';$('crRef').focus()});
+    giftMode=true;$('crFound').hidden=true;$('crRef').value='';pay='credit';$('crType').value='gift';payRender();this.textContent='I don’t have a code';$('crRef').focus()});
   function doBook(){
     if(st.t===null)return;var S=SESS[st.s],n=$('goNote');
     var nm=$('ctName').value.trim(),em=$('ctEmail').value.trim(),ph=$('ctPhone').value.trim();
