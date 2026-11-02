@@ -99,10 +99,10 @@ main{flex:1;min-height:0;position:relative}
   <summary>Demo guide</summary><div class="gpanel">
   <ol>
     <li><b>Website:</b> book a Reflexology session as a new client. Pay the $40 deposit in the pretend Stripe checkout, then open <b>Emails</b> to see the confirmation.</li>
-    <li><b>Website:</b> book again as <b>Pat Example</b> (pat@example.com). Her package is recognised and there's nothing to pay.</li>
+    <li><b>Website:</b> book again as <b>Pat Example</b> (package) or <b>Jordan Example</b> (member). It's recognised and there's nothing to pay.</li>
+    <li><b>Website:</b> book as <b>Lee Example</b>: a $50 gift card, so the rest ($49 for a $99 session) is paid in the checkout. <b>Riley Example</b> (or code SS-K7QM-4XPA) has $198, enough for the whole session.</li>
     <li><b>Website:</b> buy a gift card for a friend, with their email, and see both code emails.</li>
-    <li><b>Admin:</b> in <b>Past</b>, press <b>Charge balance</b> for Sam Example ($99 − $40 = $59), then see the receipt email.</li>
-    <li><b>Admin:</b> Casey typed the wrong gift card code. Press <b>Find their gift card</b>.</li>
+    <li><b>Admin:</b> your bookings appear here. On a deposit booking, press <b>Charge balance</b> ($99 − $40 = $59), then see the receipt email.</li>
     <li><b>Admin:</b> try <b>Cancel</b> (Refund / No refund), <b>No-show</b>, the Gift cards tab and <b>Download</b>.</li>
     <li><b>Emails:</b> filter by type. Under Reminders, Review requests and To Melanie you can send the scheduled ones now.</li>
   </ol></div>
@@ -161,6 +161,7 @@ main{flex:1;min-height:0;position:relative}
   function policyLine(bk) {
     return bk.pay === 'deposit'
       ? 'Your ' + money(bk.deposit_cents || 0) + ' deposit comes off your total. To cancel or move, text or email me at least 48 hours before and I’ll refund it in full. Within 48 hours, or if you don’t come, it isn’t refunded.'
+      : bk.credit_type === 'gift' && bk.gift_cents != null ? 'Paid in full: ' + money(bk.gift_cents) + ' from your gift card' + (bk.deposit_cents ? ' and ' + money(bk.deposit_cents) + ' by card' : '') + '. To cancel or move, text or email me at least 48 hours before and it all goes back. A no-show, or a cancellation within 48 hours, isn’t refunded.'
       : 'There’s no deposit. To cancel or move, text or email me at least 48 hours before. A no-show, or a cancellation within 48 hours, uses that session.';
   }
   function detailsCard(bk, withAddress) {
@@ -169,7 +170,7 @@ main{flex:1;min-height:0;position:relative}
     return '<table cellpadding="0" cellspacing="0" style="background:#f3ece0;border-radius:14px;padding:14px 18px;margin:16px 0;width:100%;max-width:520px">' +
       row('Session', '<b>' + esc(v.service_name) + '</b> · ' + bk.minutes + ' min') + row('Date', esc(fmtDate(s))) +
       row('Arrive', '<b>' + esc(fmtTime(s)) + '</b>') + row('Leave', esc(fmtTime(e))) +
-      row('Total', money(v.total_cents) + (bk.pay === 'deposit' ? ' <span style="color:#5a4430">(' + money(bk.deposit_cents || 0) + ' deposit paid, the rest after your session)</span>' : ' <span style="color:#5a4430">(from your ' + esc(KIND[bk.credit_type] || 'credit') + ')</span>')) +
+      row('Total', money(v.total_cents) + (bk.pay === 'deposit' ? ' <span style="color:#5a4430">(' + money(bk.deposit_cents || 0) + ' deposit paid, the rest after your session)</span>' : (bk.credit_type === 'gift' && bk.gift_cents != null ? ' <span style="color:#5a4430">(paid in full: ' + money(bk.gift_cents) + ' gift card' + (bk.deposit_cents ? ' + ' + money(bk.deposit_cents) + ' by card' : '') + ')</span>' : ' <span style="color:#5a4430">(from your ' + esc(KIND[bk.credit_type] || 'credit') + ')</span>'))) +
       (withAddress ? row('Where', esc(ADDRESS)) : '') + '</table>';
   }
   function confirmEmail(bk) {
@@ -207,6 +208,10 @@ main{flex:1;min-height:0;position:relative}
     return c.total - u.reduce(function (a, x) { return a + (x.amount_cents || 0) }, 0);
   }
   function norm(x) { return String(x || '').trim().replace(/\s+/g, ' ').toLowerCase() }
+  function lookupCode(code) {
+    var c = DB.credits.filter(function (x) { return x.kind === 'gift' && x.status === 'active' && norm(x.code) === norm(code) })[0], left = c ? creditLeft(c) : 0;
+    return c && left > 0 ? { kind: 'gift', ref: c.code, balance_cents: left, text: 'a gift card with ' + money(left) + ' left' } : null;
+  }
   function lookup(name, email, date) {
     name = norm(name); email = (email || '').trim().toLowerCase();
     var today = ymdOf(new Date()), ym = (/^\d{4}-\d{2}-\d{2}$/.test(date || '') ? date : today).slice(0, 7), usedMember = null;
@@ -219,7 +224,7 @@ main{flex:1;min-height:0;position:relative}
       if (c.kind === 'package' && u.length < c.total) { var l = c.total - u.length; return { kind: 'package', ref: c.recipient || c.buyer, text: 'a ' + c.total + '-session package with ' + l + ' session' + (l > 1 ? 's' : '') + ' left' } }
       if (c.kind === 'membership' && !creditLeft(c, ym)) { usedMember = c; continue }
       if (c.kind === 'membership') return { kind: 'membership', ref: c.buyer, text: 'a monthly membership, and this month’s session is still available' };
-      if (c.kind === 'gift') { var left = creditLeft(c); if (left > 0) return { kind: 'gift', ref: c.code, text: 'a gift card with ' + money(left) + ' left' } }
+      if (c.kind === 'gift') { var left = creditLeft(c); if (left > 0) return { kind: 'gift', ref: c.code, balance_cents: left, text: 'a gift card with ' + money(left) + ' left' } }
     }
     if (usedMember) return { kind: 'membership', blocked: true, ref: usedMember.buyer, text: 'a monthly membership, but this month’s session is already booked' };
     return null;
@@ -237,13 +242,14 @@ main{flex:1;min-height:0;position:relative}
       var u = usesOf(c);
       if (type === 'package' && u.length < c.total) return c;
       if (type === 'membership' && !u.some(function (x) { return x.date_local.slice(0, 7) === ymd.slice(0, 7) })) return c;
-      if (type === 'gift' && creditLeft(c) >= cents) return c;
+      if (type === 'gift' && creditLeft(c) > 0) return c;
     }
     return null;
   }
   function addUse(bk, c, status) {
     var L = localOf(new Date(bk.start_utc)), Le = localOf(new Date(bk.end_utc)), tot = SERVICES[bk.service].prices[bk.minutes];
-    DB.uses.push({ id: rid('use'), created: new Date().toISOString(), credit_id: c.id, booking_id: bk.id, date_local: L.ymd, start_local: L.hm, end_local: Le.hm, service: SERVICES[bk.service].name, status: status || 'booked', amount_cents: c.kind === 'gift' ? tot : 0 });
+    DB.uses.push({ id: rid('use'), created: new Date().toISOString(), credit_id: c.id, booking_id: bk.id, date_local: L.ymd, start_local: L.hm, end_local: Le.hm, service: SERVICES[bk.service].name, status: status || 'booked', amount_cents: c.kind === 'gift' ? Math.min(tot, Math.max(0, creditLeft(c))) : 0 });
+    if (c.kind === 'gift') bk.gift_cents = DB.uses[DB.uses.length - 1].amount_cents;
   }
 
   /* ---------- API ---------- */
@@ -251,9 +257,9 @@ main{flex:1;min-height:0;position:relative}
   function api(path, body, method) {
     var u = new URL('https://x' + path), p = u.pathname;
     if (p === '/api/availability') return { tz: TZ, busy: busy() };
-    if (p === '/api/lookup') return { found: lookup(body.name, body.email, body.date) };
+    if (p === '/api/lookup') return { found: body.code ? lookupCode(body.code) : lookup(body.name, body.email, body.date) };
     if (p === '/api/book') return book(body);
-    if (p === '/api/booking') { var x = getB(u.searchParams.get('id')); if (!x) throw err('Not found', 404); var v = view(x); return { service_name: v.service_name, minutes: x.minutes, start_utc: x.start_utc, end_utc: x.end_utc, pay: x.pay, deposit_cents: x.deposit_cents, total_cents: v.total_cents, status: x.status, credit_type: x.credit_type, email: x.email, first_name: x.name.split(' ')[0] } }
+    if (p === '/api/booking') { var x = getB(u.searchParams.get('id')); if (!x) throw err('Not found', 404); var v = view(x); return { service_name: v.service_name, minutes: x.minutes, start_utc: x.start_utc, end_utc: x.end_utc, pay: x.pay, deposit_cents: x.deposit_cents, total_cents: v.total_cents, status: x.status, credit_type: x.credit_type, email: x.email, first_name: x.name.split(' ')[0], gift_cents: x.gift_cents, gift_left_cents: x.credit_type === 'gift' && x.credit_id ? creditLeft(DB.credits.filter(function (c) { return c.id === x.credit_id })[0]) : null } }
     if (p.indexOf('/admin/api') === 0) return admin(p.slice(10), body, u);
     throw err('Not found', 404);
   }
@@ -271,8 +277,14 @@ main{flex:1;min-height:0;position:relative}
     var type = ['package', 'membership', 'gift'].indexOf(b.credit_type) >= 0 ? b.credit_type : 'package';
     row.credit_type = type; row.credit_ref = (b.credit_ref || '').trim();
     var c = findCredit(type, row.credit_ref, email, name, L.ymd, S.prices[minutes]);
+    if (c && type === 'gift') {
+      // Gift cards always pay for the full session: the card covers what it can, the rest is paid by card now
+      var due = S.prices[minutes] - Math.min(S.prices[minutes], creditLeft(c));
+      row.credit_id = c.id; addUse(row, c);
+      if (due > 0) { row.topup_cents = due; DB.bookings.push(row); notify(); return { ok: true, checkout_url: 'demo-checkout:' + row.id } }
+    }
     row.status = c ? 'confirmed' : 'needs_check'; row.credit_id = c ? c.id : null; row.hold_until = null;
-    DB.bookings.push(row); if (c) addUse(row, c);
+    DB.bookings.push(row); if (c && type !== 'gift') addUse(row, c);
     DB.calendar.push({ start: row.start_utc, end: row.end_utc, booking: row.id });
     confirmEmail(row); newBookingAlert(row); notify();
     return { ok: true, status: row.status };
@@ -334,7 +346,14 @@ main{flex:1;min-height:0;position:relative}
     DB.calendar.push({ start: bk.start_utc, end: bk.end_utc, booking: bk.id });
     confirmEmail(bk); newBookingAlert(bk); notify();
   }
-  function checkoutCancelled(id) { var bk = getB(id); if (bk && bk.status === 'held') { bk.status = 'cancelled'; bk.notes = 'Deposit checkout not finished'; notify() } }
+  function topupPaid(id) {
+    var bk = getB(id); if (!bk) return;
+    bk.status = 'confirmed'; bk.deposit_cents = bk.topup_cents; bk.hold_until = null; bk.deposit_paid_at = new Date().toISOString();
+    bk.notes = 'Gift card ' + money(bk.gift_cents) + ' + ' + money(bk.topup_cents) + ' by card · paid in full';
+    DB.calendar.push({ start: bk.start_utc, end: bk.end_utc, booking: bk.id });
+    confirmEmail(bk); newBookingAlert(bk); notify();
+  }
+  function checkoutCancelled(id) { var bk = getB(id); if (bk && bk.status === 'held') { bk.status = 'cancelled'; bk.notes = bk.topup_cents ? 'Gift card top-up not paid' : 'Deposit checkout not finished'; if (bk.topup_cents) DB.uses = DB.uses.filter(function (u) { return u.booking_id !== id }); notify() } }
   var PRODUCTS = { reset3: { kind: 'package', total: 3, price: 27900, label: '3-session reset' }, monthly: { kind: 'membership', total: 1, price: 8900, label: 'Monthly ritual membership' }, gift99: { kind: 'gift', total: 9900, price: 9900, label: 'Gift card $99' }, gift198: { kind: 'gift', total: 19800, price: 19800, label: 'Gift card $198' }, giftCustom: { kind: 'gift', custom: true, label: 'Gift card, custom amount' } };
   function purchase(key, f) {
     var P = PRODUCTS[key], amt = P.custom ? Math.round(+f.amount * 100) : P.price;
@@ -387,18 +406,9 @@ main{flex:1;min-height:0;position:relative}
     var bought2 = addDaysYmd(ymdOf(new Date()), -16);
     DB.credits.push({ id: 'cr_pat', kind: 'package', buyer: 'Pat Example', email: 'pat@example.com', phone: '587-555-0141', bought: bought2, price_cents: 27900, total: 3, status: 'active' });
     DB.credits.push({ id: 'cr_jordan', kind: 'membership', buyer: 'Jordan Example', email: 'jordan@example.com', phone: '587-555-0152', bought: addDaysYmd(ymdOf(new Date()), -70), price_cents: 8900, total: 1, status: 'active' });
+    DB.credits.push({ id: 'cr_lee', kind: 'gift', code: 'SS-3HNW-7RTB', buyer: 'Robin Example', recipient: 'Lee Example', recipient_email: 'lee@example.com', email: 'robin@example.com', bought: addDaysYmd(ymdOf(new Date()), -20), price_cents: 5000, total: 5000, status: 'active' });
     DB.credits.push({ id: 'cr_riley', kind: 'gift', code: 'SS-K7QM-4XPA', buyer: 'Morgan Example', recipient: 'Riley Example', recipient_email: 'riley@example.com', email: 'morgan@example.com', bought: addDaysYmd(ymdOf(new Date()), -9), price_cents: 19800, total: 19800, status: 'active' });
-    var b0 = mk('bk_lastfri', lastFri, '14:00', 'refl', 60, 'Sam Example', 'sam@example.com', 'deposit');
-    mk('bk_lastthu', lastThu, '11:00', 'reiki', 60, 'Alex Example', 'alex@example.com', 'deposit', { status: 'completed', charged_cents: 5900, invoice_url: '#receipt-bk_lastthu', review_sent_at: 'x' });
-    var bp = mk('bk_pat_old', addDaysYmd(lastThu, -7), '10:00', 'refl', 60, 'Pat Example', 'pat@example.com', 'credit', { status: 'completed', credit_type: 'package', credit_id: 'cr_pat', credit_ref: 'Pat Example' });
-    DB.uses.push({ id: 'u1', credit_id: 'cr_pat', booking_id: bp.id, date_local: localOf(new Date(bp.start_utc)).ymd, start_local: '10:00', end_local: '11:00', service: 'Reflexology', status: 'used', amount_cents: 0 });
-    mk('bk_taylor', tue, '10:00', 'intro', 120, 'Taylor Example', 'taylor@example.com', 'deposit');
-    var bj = mk('bk_jordan', (function () { var t = ymdOf(new Date()).split('-').map(Number), y = t[1] === 1 ? t[0] - 1 : t[0], m = t[1] === 1 ? 12 : t[1] - 1; return y + '-' + String(m).padStart(2, '0') + '-15' })(), '18:00', 'reiki', 60, 'Jordan Example', 'jordan@example.com', 'credit', { status: 'completed', credit_type: 'membership', credit_id: 'cr_jordan', credit_ref: 'Jordan Example' });
-    DB.uses.push({ id: 'u2', credit_id: 'cr_jordan', booking_id: bj.id, date_local: localOf(new Date(bj.start_utc)).ymd, start_local: '18:00', end_local: '19:00', service: 'Reiki', status: 'used', amount_cents: 0 });
-    var bq = mk('bk_pat', wed, '13:00', 'refl', 90, 'Pat Example', 'pat@example.com', 'credit', { credit_type: 'package', credit_id: 'cr_pat', credit_ref: 'Pat Example' });
-    DB.uses.push({ id: 'u3', credit_id: 'cr_pat', booking_id: bq.id, date_local: localOf(new Date(bq.start_utc)).ymd, start_local: '13:00', end_local: '14:30', service: 'Reflexology', status: 'booked', amount_cents: 0 });
-    mk('bk_casey', thu, '16:00', 'combo', 120, 'Casey Example', 'casey@example.com', 'credit', { status: 'needs_check', credit_type: 'gift', credit_ref: 'SS-K7QM-4XPZ' });
-    mk('bk_drew', fri, '11:00', 'bath', 90, 'Drew Example', 'drew@example.com', 'deposit');
+    // Appointments start empty: they fill up as you book on the website
     DB.calendar.push({ start: localToUtc(wed, '17:00').toISOString(), end: localToUtc(wed, '20:00').toISOString() }); // something Melanie put in her own calendar
     DB.calendar.push({ start: localToUtc(fri, '15:00').toISOString(), end: localToUtc(fri, '17:00').toISOString() });
     notify();
@@ -418,7 +428,7 @@ main{flex:1;min-height:0;position:relative}
       });
     },
     db: function () { return DB }, on: function (f) { listeners.push(f) }, reset: seed,
-    depositPaid: depositPaid, checkoutCancelled: checkoutCancelled, purchase: purchase, PRODUCTS: PRODUCTS,
+    depositPaid: depositPaid, topupPaid: topupPaid, checkoutCancelled: checkoutCancelled, purchase: purchase, PRODUCTS: PRODUCTS,
     runReminders: runReminders, runReviews: runReviews, runSummary: runSummary,
     view: view, money: money, fmtWhen: fmtWhen
   };
@@ -428,11 +438,11 @@ main{flex:1;min-height:0;position:relative}
 </script>
 <main>
   <section class="pane" id="p-site" role="tabpanel" aria-labelledby="t-site">
-    <p class="strip"><b>What a client sees.</b> Book a session, buy a gift card, or try booking as <b>Pat Example</b> (has a package) or <b>Jordan Example</b> (member). Payments open a pretend Stripe checkout.</p>
+    <p class="strip"><b>What a client sees.</b> Book a session, buy a gift card, or try booking as <b>Pat Example</b> (has a package) <b>Jordan Example</b> (member) or <b>Lee Example</b> (small gift card). Payments open a pretend Stripe checkout.</p>
     <iframe id="f-site" src="site.html" title="Client website"></iframe>
   </section>
   <section class="pane" id="p-admin" role="tabpanel" aria-labelledby="t-admin" hidden>
-    <p class="strip"><b>What Melanie sees</b> after signing in. Try <b>Charge balance</b> on Sam Example (in Past), match Casey's gift card, or cancel a booking.</p>
+    <p class="strip"><b>What Melanie sees</b> after signing in. Appointments start empty and fill up as you book on the website. Then try <b>Charge balance</b>, <b>Cancel</b> or <b>No-show</b>.</p>
     <iframe id="f-admin" title="Melanie's admin page"></iframe>
   </section>
   <section class="pane" id="p-mail" role="tabpanel" aria-labelledby="t-mail" hidden>
@@ -474,7 +484,7 @@ main{flex:1;min-height:0;position:relative}
   var FILT=[['all','All emails'],['confirmation','Booking confirmations'],['reminder','Reminders, 3 days before'],['receipt','Receipts'],['purchase','Gift cards & purchases'],['review','Review requests'],['melanie','To Melanie (alerts & Monday summary)']];
   var HINT={confirmation:'Sent the moment someone books, after the deposit or with a package, membership or gift card. Book something on the website to see one.',
     reminder:'Sent automatically about 3 days before each appointment, with the address and the cancellation deadline.<br><button class="btn ghost" type="button" data-run="rem">Send the reminders now</button>',
-    receipt:'Sent by the booking system (not Stripe) when Melanie presses Charge balance. Try it on Sam Example in the admin\'s Past list.',
+    receipt:'Sent by the booking system (not Stripe) when Melanie presses Charge balance. Book with the deposit, then press Charge balance on it in the admin.',
     purchase:'Sent when someone buys a gift card, package or membership on the website. Gift card codes go to the buyer, and to the recipient if their email was given.',
     review:'Sent a couple of hours after a client\'s first finished session, once per client.<br><button class="btn ghost" type="button" data-run="rev">Send review requests now</button>',
     melanie:'Melanie gets an alert for each booking and sale, plus a summary every Monday morning.<br><button class="btn ghost" type="button" data-run="sum">Send the Monday summary now</button>'};
@@ -504,12 +514,12 @@ main{flex:1;min-height:0;position:relative}
   window.DEMO_UI={
     checkout:function(id,cb){
       var bk=DEMO.db().bookings.filter(function(b){return b.id===id})[0];done=cb;
-      var v=DEMO.view(bk);
-      co.innerHTML='<div class="co-h"><small>Sole Serenity · deposit</small><b>$40.00</b><span>'+esc(v.service_name)+' · '+esc(v.when)+'</span><br><span class="co-tag">Pretend Stripe checkout · no real payment</span></div>'+
+      var v=DEMO.view(bk),top=bk.topup_cents||0,amt=top?DEMO.money(top):'$40.00';
+      co.innerHTML='<div class="co-h"><small>Sole Serenity · '+(top?'rest after gift card':'deposit')+'</small><b>'+amt+'</b><span>'+esc(v.service_name)+' · '+esc(v.when)+'</span>'+(top?'<br><span>Session '+DEMO.money(v.total_cents)+' · gift card '+DEMO.money(bk.gift_cents)+' · paid in full</span>':'')+'<br><span class="co-tag">Pretend Stripe checkout · no real payment</span></div>'+
         '<div class="co-b"><label>Email<input value="'+esc(bk.email)+'" readonly></label><label>Card number<input value="4242 4242 4242 4242" inputmode="numeric"></label><div class="r2"><label>Expiry<input value="12 / 30"></label><label>CVC<input value="123"></label></div>'+
-        '<label>Name on card<input value="'+esc(bk.name)+'"></label><button class="pay" type="button" id="coPay">Pay $40.00</button><p class="note">Your card is saved for the rest of the payment after your session.</p><button class="cx" type="button" id="coCx">‹ Back to Sole Serenity</button></div>';
+        '<label>Name on card<input value="'+esc(bk.name)+'"></label><button class="pay" type="button" id="coPay">Pay '+amt+'</button><p class="note">'+(top?'This pays the rest of your session. Nothing more is due after it.':'Your card is saved for the rest of the payment after your session.')+'</p><button class="cx" type="button" id="coCx">‹ Back to Sole Serenity</button></div>';
       ov.hidden=false;$('coPay').focus();
-      $('coPay').onclick=function(){this.textContent='Processing…';this.disabled=true;setTimeout(function(){DEMO.depositPaid(id);close(true)},700)};
+      $('coPay').onclick=function(){this.textContent='Processing…';this.disabled=true;setTimeout(function(){top?DEMO.topupPaid(id):DEMO.depositPaid(id);close(true)},700)};
       $('coCx').onclick=function(){DEMO.checkoutCancelled(id);close(false)};
     },
     buy:function(key,cb){

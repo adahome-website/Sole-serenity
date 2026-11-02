@@ -1342,7 +1342,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     }).catch(function(){});
   }
   // Returning client = this browser has completed a booking here before (remembered on this device only)
-  var RETURNING=false;try{RETURNING=localStorage.getItem('ss_booked')==='1'}catch(e){}
+  var RETURNING=false;
   var st=RETURNING?{s:'refl',len:60,date:null,t:null}:{s:'intro',len:120,date:null,t:null};
   function barRender(){
     var b=$('barBtn');
@@ -1540,29 +1540,52 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
 
   var looked=false,FOUND=null,giftMode=false;
   // Once a membership/package/gift card is recognised, the only choice is the one in the "found" box
+  // gift cards always pay for the full session: the card covers what it can, the rest is paid by card at booking
+  function giftMath(f){var price=SESS[st.s].price[st.len]*(1+GST_RATE),bal=(f.balance_cents||0)/100,cover=Math.min(bal,price);return {price:price,bal:bal,cover:cover,due:Math.round((price-cover)*100)/100,left:Math.round((bal-cover)*100)/100}}
+  function m2(x){return '$'+(Math.round(x*100)%100?x.toFixed(2):String(Math.round(x)))}
+  function showFound(f,nm){
+    FOUND=f;var hi=nm?'Welcome back, '+firstName(nm)+'. ':'';
+    if(f.blocked){$('crFoundT').textContent=hi+'You have '+f.text+'. To book an extra session, pay the $40 deposit as usual.';$('crFoundW').innerHTML='';$('crFoundW').hidden=true;$('useCred').hidden=true;$('payDepInstead').hidden=false;$('payDepInstead').textContent='Pay the $40 deposit';$('crFound').hidden=false;foundMode(true);$('payDepInstead').focus();return}
+    if(f.kind==='gift'){var g=giftMath(f);
+      $('crFoundT').innerHTML=esc2(hi)+'Your gift card has <b>'+m2(g.bal)+'</b> on it. This session is '+m2(g.price)+'.'+(g.due>0
+        ?' The card covers '+m2(g.cover)+', and the remaining <b>'+m2(g.due)+'</b> is paid by card now, so your session is paid in full.'
+        :' It comes off your card, leaving <b>'+m2(g.left)+'</b>. Nothing to pay today.');
+      $('useCred').textContent=g.due>0?'Use my gift card and pay '+m2(g.due):'Use it for this visit';}
+    else{$('crFoundT').textContent=hi+'You have '+f.text+'. Use it for this visit? Nothing to pay today.';$('useCred').textContent='Use it for this visit'}
+    $('crFoundW').hidden=false;$('useCred').hidden=false;$('payDepInstead').hidden=true;
+    $('crFoundW').innerHTML=CREDIT[f.kind].warn;$('crFound').hidden=false;foundMode(true);$('useCred').focus();
+  }
+  function esc2(x){return String(x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
   function foundMode(on){$('goBtn').hidden=on;$('giftLink').hidden=on||st.s==='intro'}
   function firstName(x){x=String(x||'').trim().split(/\s+/)[0]||'';return x.charAt(0).toUpperCase()+x.slice(1).toLowerCase()}
   // prototype only: pretend these names have something on file
   var DEMO_CREDITS={'example member':{kind:'membership',ref:'Example Member',text:'a monthly membership, and this month\'s session is still available'}};
-  function lookup(nm,em){
-    if(!BOOKING_API)return new Promise(function(r){setTimeout(function(){r(DEMO_CREDITS[nm.toLowerCase()]||null)},400)});
-    return fetch(BOOKING_API+'/api/lookup',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:nm,email:em,date:st.date?st.date.getFullYear()+'-'+String(st.date.getMonth()+1).padStart(2,'0')+'-'+String(st.date.getDate()).padStart(2,'0'):''})}).then(function(r){return r.json()}).then(function(d){return d.found||null}).catch(function(){return null});
+  function lookup(nm,em,code){
+    if(!BOOKING_API)return new Promise(function(r){setTimeout(function(){r(code?(code.trim().toUpperCase()==='SS-DEMO-GIFT'?{kind:'gift',ref:'SS-DEMO-GIFT',balance_cents:5000,text:'a gift card with $50.00 left'}:null):DEMO_CREDITS[nm.toLowerCase()]||null)},400)});
+    return fetch(BOOKING_API+'/api/lookup',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:nm,email:em,code:code||'',date:st.date?st.date.getFullYear()+'-'+String(st.date.getMonth()+1).padStart(2,'0')+'-'+String(st.date.getDate()).padStart(2,'0'):''})}).then(function(r){return r.json()}).then(function(d){return d.found||null}).catch(function(){return null});
   }
+  $('crRef').addEventListener('input',function(){if(giftMode&&FOUND){FOUND=null;$('crFound').hidden=true;foundMode(false)}});
   ['ctName','ctEmail'].forEach(function(id){$(id).addEventListener('input',function(){looked=false;FOUND=null;$('crFound').hidden=true;foundMode(false);if(!giftMode&&pay==='credit'){pay='deposit';payRender()}})});
   $('goBtn').addEventListener('click',function(){
     if(st.t===null)return;var n=$('goNote');
     var nm=$('ctName').value.trim(),em=$('ctEmail').value.trim();
     if(!nm||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){n.textContent='Please add your name and email so I can confirm your booking.';n.classList.add('show');(nm?$('ctEmail'):$('ctName')).focus();return}
+    var b=$('goBtn');
+    if(giftMode){ // check the code first, so they see the balance and anything left to pay
+      var code=$('crRef').value.trim();
+      if(!code){n.textContent='Please add your gift card code.';n.classList.add('show');$('crRef').focus();return}
+      b.disabled=true;b.textContent='Checking…';
+      lookup(nm,em,code).then(function(f){b.disabled=false;b.textContent='Continue';
+        if(!f){n.textContent='I couldn\'t find a gift card with money left for that code. Please check it, or tap “I don\'t have a code”.';n.classList.add('show');$('crRef').focus();return}
+        n.classList.remove('show');showFound(f,'')});
+      return;
+    }
     if(pay==='credit'||st.s==='intro'||looked)return doBook();
-    var b=$('goBtn');b.disabled=true;b.textContent='Checking…';
+    b.disabled=true;b.textContent='Checking…';
     lookup(nm,em).then(function(f){
       looked=true;b.disabled=false;b.textContent='Continue';
       if(!f)return doBook();
-      FOUND=f;
-      if(f.blocked){$('crFoundT').textContent='Welcome back, '+firstName(nm)+'. You have '+f.text+'. To book an extra session, pay the $40 deposit as usual.';$('crFoundW').innerHTML='';$('crFoundW').hidden=true;$('useCred').hidden=true;$('payDepInstead').hidden=false;$('payDepInstead').textContent='Pay the $40 deposit';$('crFound').hidden=false;foundMode(true);$('payDepInstead').focus();return}
-      $('crFoundT').textContent='Welcome back, '+firstName(nm)+'. You have '+f.text+'. Use it for this visit? Nothing to pay today.';
-      $('crFoundW').hidden=false;$('useCred').hidden=false;$('payDepInstead').hidden=true;
-      $('crFoundW').innerHTML=CREDIT[f.kind].warn;$('crFound').hidden=false;foundMode(true);$('useCred').focus();
+      showFound(f,nm);
     });
   });
   $('useCred').addEventListener('click',function(){if(!FOUND)return;pay='credit';$('crType').value=FOUND.kind;payRender();$('crRef').value=FOUND.ref;$('creditBox').hidden=true;$('crFound').hidden=true;$('goNote').classList.remove('show');
@@ -1582,8 +1605,8 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         time:String(Math.floor(st.t/60)).padStart(2,'0')+':00',name:nm,email:em,phone:ph,pay:pay,credit_type:$('crType').value,credit_ref:$('crRef').value.trim()};
       fetch(BOOKING_API+'/api/book',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json().then(function(d){if(!r.ok)throw d;return d})})
         .then(function(d){
-          if(d.checkout_url){window.SSDEMO.checkout(d.checkout_url.split(':')[1],function(ok){if(ok){b.textContent=prev;showConfirmation(confFromState({pay:'deposit'}))}else{b.disabled=false;b.textContent=prev;showIssue({title:'Payment not completed',sub:'The deposit wasn\u2019t paid, so your time isn\u2019t held yet.'})}loadBusy()});return}
-          if(true){showConfirmation(confFromState({status:d.status,pay:'credit'}));b.textContent=prev;loadBusy();return}
+          if(d.checkout_url){window.SSDEMO.checkout(d.checkout_url.split(':')[1],function(ok){var bid=d.checkout_url.split(':')[1];if(ok){b.textContent=prev;showBooked(bid)}else{b.disabled=false;b.textContent=prev;showIssue({title:'Payment not completed',sub:'Nothing was charged, so your time isn\u2019t held yet.'})}loadBusy()});return}
+          if(true){var gx={status:d.status,pay:'credit'};if(FOUND&&FOUND.kind==='gift'&&pay==='credit'){var g=giftMath(FOUND);gx.gift=g.cover;gx.giftLeft=g.left;gx.card=0}showConfirmation(confFromState(gx));b.textContent=prev;loadBusy();return}
           n.textContent=d.status==='needs_check'?'Thank you. I\'ve got your request for '+S.name+' on '+longDate(st.date)+' at '+fmt(st.t)+'. I\'ll check your membership, package or gift card and confirm by email.':'You\'re booked: '+S.name+' on '+longDate(st.date)+', arrive '+fmt(st.t)+', leave '+fmt(st.t+st.len)+'. A confirmation is on its way to your email.';
           n.classList.add('show');b.textContent=prev;loadBusy();
         },function(e){b.disabled=false;b.textContent=prev;loadBusy();showIssue({sub:(e&&e.error)||'Something went wrong on my side, so your time wasn’t booked.',retryLabel:'Back to booking'})});
@@ -1604,18 +1627,19 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   var TZf=function(o){return new Intl.DateTimeFormat('en-US',Object.assign({timeZone:'America/Edmonton'},o))};
   function showConfirmation(c){
     // c: {service, minutes, start, end (Date), pay, deposit, total (dollars), status, email, name, credit}
-    try{localStorage.setItem('ss_booked','1')}catch(e){}RETURNING=true;barRender();looked=false;FOUND=null;$('crFound').hidden=true;foundMode(false);
+    looked=false;FOUND=null;$('crFound').hidden=true;foundMode(false);if(giftMode){giftMode=false;$('giftLink').textContent='Have a gift card code?'}
     var check=c.status==='needs_check',day=TZf({weekday:'long',month:'long',day:'numeric'}).format(c.start),t=function(d){return TZf({hour:'numeric',minute:'2-digit'}).format(d).toLowerCase()};
     $('okNextH').hidden=false;
     $('okTitle').textContent=check?'Request received':'You\'re booked';
     $('okSub').textContent=check?'Thank you'+(c.name?', '+c.name.split(' ')[0]:'')+'. I\'ll check your '+(c.credit||'membership, package or gift card')+' and confirm by email shortly.':'Thank you'+(c.name?', '+c.name.split(' ')[0]:'')+'. Your time is held just for you. A confirmation is on its way to '+(c.email||'your email')+'.';
-    var paid=c.pay==='deposit'?'<div class="ok-row"><span>Deposit paid today</span><span>$'+c.deposit+'</span></div><div class="ok-row"><span>Due after your session</span><span>$'+(c.total-c.deposit)+'</span></div>':'<div class="ok-row"><span>Paid with</span><span>Your '+(c.credit||'credit')+' · $0 today</span></div>';
+    var giftPaid=c.gift!=null;
+    var paid=giftPaid?'<div class="ok-row"><span>From your gift card</span><span>'+m2(c.gift)+'</span></div>'+(c.card?'<div class="ok-row"><span>Paid by card today</span><span>'+m2(c.card)+'</span></div>':'')+'<div class="ok-row"><span>Paid in full</span><span>Nothing more to pay</span></div>'+(c.giftLeft!=null?'<div class="ok-row"><span>Left on your gift card</span><span>'+m2(c.giftLeft)+'</span></div>':''):c.pay==='deposit'?'<div class="ok-row"><span>Deposit paid today</span><span>$'+c.deposit+'</span></div><div class="ok-row"><span>Due after your session</span><span>$'+(c.total-c.deposit)+'</span></div>':'<div class="ok-row"><span>Paid with</span><span>Your '+(c.credit||'credit')+' · $0 today</span></div>';
     $('okCard').innerHTML='<div class="ok-times"><div><small>Arrive</small><b>'+t(c.start)+'</b></div><div><small>Leave</small><b>'+t(c.end)+'</b></div></div>'+
       '<div class="ok-row"><span>'+day+'</span><span>'+c.minutes+' min</span></div><div class="ok-row"><span>'+c.service+'</span><span>$'+c.total+'</span></div>'+paid;
     var next=[check?'I\'ll email you once I\'ve matched your '+(c.credit||'purchase')+'. Nothing to pay today.':'Your confirmation email has the details and the studio address in Northwest Calgary.',
       'I\'ll send you a reminder about 3 days before.',
-      c.pay==='deposit'?'After your session, the rest ($'+(c.total-c.deposit)+') goes on the card you just used, and you get one receipt for the full amount.':'Your session comes off your '+(c.credit||'credit')+' when you come in.',
-      c.pay==='deposit'?'Need to cancel or move? Text or email me at least 48 hours before for a full refund of your deposit.':'Need to cancel or move? Text or email me at least 48 hours before. A no-show or a late cancellation uses that session.'];
+      giftPaid?'Your session is paid in full, so there’s nothing to pay when you come in.':c.pay==='deposit'?'After your session, the rest ($'+(c.total-c.deposit)+') goes on the card you just used, and you get one receipt for the full amount.':'Your session comes off your '+(c.credit||'credit')+' when you come in.',
+      giftPaid?'Need to cancel or move? Text or email me at least 48 hours before and it all goes back'+(c.card?' (the card payment is refunded)':' on your gift card')+'.':c.pay==='deposit'?'Need to cancel or move? Text or email me at least 48 hours before for a full refund of your deposit.':'Need to cancel or move? Text or email me at least 48 hours before. A no-show or a late cancellation uses that session.'];
     $('okNext').innerHTML=next.map(function(x){return '<li>'+x+'</li>'}).join('');
     var g=function(d){return d.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'')};
     $('okCal').href='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent('Sole Serenity · '+c.service)+'&dates='+g(c.start)+'/'+g(c.end)+'&details='+encodeURIComponent('With Melanie MacDougall. The address is in your confirmation email. 587-216-8588')+'&location='+encodeURIComponent('Northwest Calgary');
@@ -1680,14 +1704,17 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
       okFill({title:'Thank you',sub:'Your payment went through. The details are on their way to your email.'});okShow(false,null);
     }).catch(function(){})})();
   }
-  var bkId=(location.search.match(/[?&]booked=([\w-]+)/)||[])[1];
-  if(bkId&&BOOKING_API){
-    fetch(BOOKING_API+'/api/booking?id='+encodeURIComponent(bkId)).then(function(r){return r.json()}).then(function(b){
+  function showBooked(id){
+    return fetch(BOOKING_API+'/api/booking?id='+encodeURIComponent(id)).then(function(r){return r.json()}).then(function(b){
       if(!b||!b.start_utc)return;
-      showConfirmation({service:b.service_name,minutes:b.minutes,start:new Date(b.start_utc),end:new Date(b.end_utc),pay:b.pay,deposit:b.deposit_cents/100,total:b.total_cents/100,status:b.status,email:b.email,name:b.first_name,credit:CREDIT_NAMES[b.credit_type]});
+      var gift=b.credit_type==='gift'&&b.gift_cents!=null;
+      showConfirmation({service:b.service_name,minutes:b.minutes,start:new Date(b.start_utc),end:new Date(b.end_utc),pay:b.pay,deposit:b.deposit_cents/100,total:b.total_cents/100,status:b.status,email:b.email,name:b.first_name,credit:CREDIT_NAMES[b.credit_type],
+        gift:gift?b.gift_cents/100:null,card:gift?(b.deposit_cents||0)/100:null,giftLeft:gift&&b.gift_left_cents!=null?b.gift_left_cents/100:null});
       try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}
     }).catch(function(){});
   }
+  var bkId=(location.search.match(/[?&]booked=([\w-]+)/)||[])[1];
+  if(bkId&&BOOKING_API)showBooked(bkId);
 
   /* ---------- booking dialog ---------- */
   var dlg=$('bookDlg'),opener=null,mobile=matchMedia('(max-width:899px)'),prevView='home';
