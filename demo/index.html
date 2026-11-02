@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Sole Serenity Demo</title>
 <meta name="robots" content="noindex">
 </head>
@@ -200,28 +200,31 @@ main{flex:1;min-height:0;position:relative}
     if (c.kind === 'membership') return !u.some(function (x) { return x.date_local.slice(0, 7) === ym });
     return c.total - u.reduce(function (a, x) { return a + (x.amount_cents || 0) }, 0);
   }
-  function lookup(name, email) {
-    name = (name || '').trim().toLowerCase(); email = (email || '').trim().toLowerCase();
-    var today = ymdOf(new Date()), ym = today.slice(0, 7);
+  function norm(x) { return String(x || '').trim().replace(/\s+/g, ' ').toLowerCase() }
+  function lookup(name, email, date) {
+    name = norm(name); email = (email || '').trim().toLowerCase();
+    var today = ymdOf(new Date()), ym = (/^\d{4}-\d{2}-\d{2}$/.test(date || '') ? date : today).slice(0, 7), usedMember = null;
     for (var i = 0; i < DB.credits.length; i++) {
       var c = DB.credits[i]; if (c.status !== 'active' || (c.expires && c.expires < today)) continue;
-      var names = (c.kind === 'gift' && c.recipient ? [c.recipient] : [c.recipient, c.buyer]).filter(Boolean).map(function (x) { return x.trim().toLowerCase() });
+      var names = (c.kind === 'gift' && c.recipient ? [c.recipient] : [c.recipient, c.buyer]).filter(Boolean).map(norm);
       var mine = (name && names.indexOf(name) >= 0) || (email && ((c.email === email && !(c.kind === 'gift' && c.recipient)) || c.recipient_email === email));
       if (!mine) continue;
       var u = usesOf(c);
       if (c.kind === 'package' && u.length < c.total) { var l = c.total - u.length; return { kind: 'package', ref: c.recipient || c.buyer, text: 'a ' + c.total + '-session package with ' + l + ' session' + (l > 1 ? 's' : '') + ' left' } }
-      if (c.kind === 'membership' && creditLeft(c, ym)) return { kind: 'membership', ref: c.buyer, text: 'a monthly membership, and this month’s session is still available' };
+      if (c.kind === 'membership' && !creditLeft(c, ym)) { usedMember = c; continue }
+      if (c.kind === 'membership') return { kind: 'membership', ref: c.buyer, text: 'a monthly membership, and this month’s session is still available' };
       if (c.kind === 'gift') { var left = creditLeft(c); if (left > 0) return { kind: 'gift', ref: c.code, text: 'a gift card with ' + money(left) + ' left' } }
     }
+    if (usedMember) return { kind: 'membership', blocked: true, ref: usedMember.buyer, text: 'a monthly membership, but this month’s session is already booked' };
     return null;
   }
   function findCredit(type, ref, email, name, ymd, cents) {
-    var r = (ref || '').trim().toLowerCase();
+    var r = norm(ref); name = norm(name);
     var m = DB.credits.filter(function (c) {
       if (c.kind !== type || c.status !== 'active') return false;
       if (type === 'gift') return r && (c.code || '').toLowerCase() === r;
       var names = [c.recipient, c.buyer].map(function (x) { return (x || '').trim().toLowerCase() });
-      return (c.email && c.email.toLowerCase() === email) || names.indexOf(r) >= 0 || names.indexOf(name.toLowerCase()) >= 0;
+      return (c.email && c.email.toLowerCase() === email) || names.indexOf(r) >= 0 || names.indexOf(name) >= 0;
     });
     for (var i = 0; i < m.length; i++) {
       var c = m[i]; if (c.expires && c.expires < ymd) continue;
@@ -242,8 +245,9 @@ main{flex:1;min-height:0;position:relative}
   function api(path, body, method) {
     var u = new URL('https://x' + path), p = u.pathname;
     if (p === '/api/availability') return { tz: TZ, busy: busy() };
-    if (p === '/api/lookup') return { found: lookup(body.name, body.email) };
+    if (p === '/api/lookup') return { found: lookup(body.name, body.email, body.date) };
     if (p === '/api/book') return book(body);
+    if (p === '/api/booking') { var x = getB(u.searchParams.get('id')); if (!x) throw err('Not found', 404); var v = view(x); return { service_name: v.service_name, minutes: x.minutes, start_utc: x.start_utc, end_utc: x.end_utc, pay: x.pay, deposit_cents: x.deposit_cents, total_cents: v.total_cents, status: x.status, credit_type: x.credit_type, email: x.email, first_name: x.name.split(' ')[0] } }
     if (p.indexOf('/admin/api') === 0) return admin(p.slice(10), body, u);
     throw err('Not found', 404);
   }
@@ -383,8 +387,8 @@ main{flex:1;min-height:0;position:relative}
     var bp = mk('bk_pat_old', addDaysYmd(lastThu, -7), '10:00', 'refl', 60, 'Pat Example', 'pat@example.com', 'credit', { status: 'completed', credit_type: 'package', credit_id: 'cr_pat', credit_ref: 'Pat Example' });
     DB.uses.push({ id: 'u1', credit_id: 'cr_pat', booking_id: bp.id, date_local: localOf(new Date(bp.start_utc)).ymd, start_local: '10:00', end_local: '11:00', service: 'Reflexology', status: 'used', amount_cents: 0 });
     mk('bk_taylor', tue, '10:00', 'intro', 120, 'Taylor Example', 'taylor@example.com', 'deposit');
-    var bj = mk('bk_jordan', tue, '18:00', 'reiki', 60, 'Jordan Example', 'jordan@example.com', 'credit', { credit_type: 'membership', credit_id: 'cr_jordan', credit_ref: 'Jordan Example' });
-    DB.uses.push({ id: 'u2', credit_id: 'cr_jordan', booking_id: bj.id, date_local: localOf(new Date(bj.start_utc)).ymd, start_local: '18:00', end_local: '19:00', service: 'Reiki', status: 'booked', amount_cents: 0 });
+    var bj = mk('bk_jordan', (function () { var t = ymdOf(new Date()).split('-').map(Number), y = t[1] === 1 ? t[0] - 1 : t[0], m = t[1] === 1 ? 12 : t[1] - 1; return y + '-' + String(m).padStart(2, '0') + '-15' })(), '18:00', 'reiki', 60, 'Jordan Example', 'jordan@example.com', 'credit', { status: 'completed', credit_type: 'membership', credit_id: 'cr_jordan', credit_ref: 'Jordan Example' });
+    DB.uses.push({ id: 'u2', credit_id: 'cr_jordan', booking_id: bj.id, date_local: localOf(new Date(bj.start_utc)).ymd, start_local: '18:00', end_local: '19:00', service: 'Reiki', status: 'used', amount_cents: 0 });
     var bq = mk('bk_pat', wed, '13:00', 'refl', 90, 'Pat Example', 'pat@example.com', 'credit', { credit_type: 'package', credit_id: 'cr_pat', credit_ref: 'Pat Example' });
     DB.uses.push({ id: 'u3', credit_id: 'cr_pat', booking_id: bq.id, date_local: localOf(new Date(bq.start_utc)).ymd, start_local: '13:00', end_local: '14:30', service: 'Reflexology', status: 'booked', amount_cents: 0 });
     mk('bk_casey', thu, '16:00', 'combo', 120, 'Casey Example', 'casey@example.com', 'credit', { status: 'needs_check', credit_type: 'gift', credit_ref: 'SS-K7QM-4XPZ' });
@@ -454,8 +458,8 @@ main{flex:1;min-height:0;position:relative}
   function toast(m){var t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){t.hidden=true},3500)}
   function show(k){
     cur=k;tabs.forEach(function(t){$('t-'+t).setAttribute('aria-selected',String(t===k));$('p-'+t).hidden=t!==k});
-    if(k==='admin'&&dirty.admin){var f=$('f-admin');if(!f.getAttribute('src'))f.setAttribute('src','admin.html');else f.contentWindow.location.reload();dirty.admin=false}
-    if(k==='site'&&dirty.site){$('f-site').contentWindow.location.reload();dirty.site=false}
+    if(k==='admin'){var f=$('f-admin');f.setAttribute('src','admin.html?'+Date.now());dirty.admin=false}
+    if(k==='site'&&dirty.site){$('f-site').setAttribute('src','site.html?'+Date.now());dirty.site=false}
     if(k==='mail'){renderMail()}
   }
   tabs.forEach(function(t){$('t-'+t).addEventListener('click',function(){show(t)})});
@@ -477,7 +481,7 @@ main{flex:1;min-height:0;position:relative}
   $('runRem').addEventListener('click',function(){var n=DEMO.runReminders();toast(n?n+' reminder'+(n>1?'s':'')+' sent.':'No upcoming bookings left to remind.')});
   $('runRev').addEventListener('click',function(){var n=DEMO.runReviews();toast(n?n+' review request'+(n>1?'s':'')+' sent.':'No finished sessions waiting. Charge balance or Mark done one first.')});
   $('runSum').addEventListener('click',function(){DEMO.runSummary();toast('Monday summary sent to Melanie.')});
-  $('reset').addEventListener('click',function(){DEMO.reset();sel=null;seen=0;$('f-site').contentWindow.location.reload();dirty.site=false;dirty.admin=true;if(cur==='admin')show('admin');if(cur==='mail')renderMail();toast('Demo reset to the example data.')});
+  $('reset').addEventListener('click',function(){DEMO.reset();sel=null;seen=0;$('f-site').setAttribute('src','site.html?'+Date.now());dirty.site=false;dirty.admin=true;if(cur==='admin')show('admin');if(cur==='mail')renderMail();toast('Demo reset to the example data.')});
 
   /* pretend Stripe checkout */
   var ov=$('ov'),co=$('co'),done=null;
@@ -493,8 +497,8 @@ main{flex:1;min-height:0;position:relative}
       $('coPay').onclick=function(){this.textContent='Processing…';this.disabled=true;setTimeout(function(){DEMO.depositPaid(id);close(true)},700)};
       $('coCx').onclick=function(){DEMO.checkoutCancelled(id);close(false)};
     },
-    buy:function(key){
-      var P=DEMO.PRODUCTS[key];if(!P)return;var gift=P.kind==='gift';done=null;
+    buy:function(key,cb){
+      var P=DEMO.PRODUCTS[key];if(!P)return;var gift=P.kind==='gift';done=cb||null;
       co.innerHTML='<div class="co-h"><small>Sole Serenity</small><b>'+(P.custom?'Gift card':DEMO.money(P.price))+'</b><span>'+esc(P.label)+(P.kind==='membership'?' · billed monthly':'')+'</span><br><span class="co-tag">Pretend Stripe checkout · no real payment</span></div>'+
         '<div class="co-b">'+(P.custom?'<label>Amount ($)<input id="bAmt" type="number" min="20" value="150"></label>':'')+
         '<label>'+(gift?'Your name':'Your name (the person using it)')+'<input id="bName" placeholder="First and last name"></label><label>Your email<input id="bEmail" type="email" placeholder="you@email.com"></label>'+
@@ -506,8 +510,7 @@ main{flex:1;min-height:0;position:relative}
         var f={name:$('bName').value.trim(),email:$('bEmail').value.trim(),recipient:gift?$('bRec').value.trim():'',recipient_email:gift?$('bRecE').value.trim():'',amount:P.custom?$('bAmt').value:0};
         if(!f.name||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email)){$('bErr').textContent='Add your name and email.';return}
         if(P.custom&&!(+f.amount>0)){$('bErr').textContent='Enter an amount.';return}
-        var row=DEMO.purchase(key,f);close(true);
-        toast(gift?'Gift card '+row.code+' bought. The code was emailed.':'Bought. It’s now in Melanie’s '+(P.kind==='package'?'Packages':'Memberships')+' tab.');
+        var row=DEMO.purchase(key,f);close(true,{kind:row.kind,code:row.code,recipient:row.recipient,recipient_email:row.recipient_email,email:row.email,name:row.buyer,total:row.total,total_cents:row.total,price_cents:row.price_cents});
       };
     },
     receipt:function(id){
@@ -517,6 +520,15 @@ main{flex:1;min-height:0;position:relative}
     }
   };
   document.addEventListener('click',function(e){var g=$('guide');if(g.open&&!g.contains(e.target))g.open=false});
+  // the website and admin pages talk to this page by message (works even when the frames are isolated)
+  window.addEventListener('message',function(e){
+    var d=e.data;if(!d||!d.ssDemo)return;var src=e.source;
+    function reply(r){try{src.postMessage({ssDemoReply:1,id:d.id,result:r},'*')}catch(x){}}
+    if(d.type==='fetch'){DEMO.fetch(d.payload.path,{method:d.payload.method,body:d.payload.body}).then(function(r){return r.text().then(function(t){reply({status:r.status,body:t})})});return}
+    if(d.type==='checkout'){DEMO_UI.checkout(d.payload,function(ok){reply(ok)});return}
+    if(d.type==='buy'){DEMO_UI.buy(d.payload,function(ok,row){reply({ok:ok,row:row})});return}
+    if(d.type==='receipt'){DEMO_UI.receipt(d.payload);reply(true);return}
+  });
   ov.addEventListener('click',function(e){if(e.target===ov&&done){var b=$('coCx');if(b)b.click()}});
   document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!ov.hidden){var b=$('coCx')||$('bCx');if(b)b.click()}});
 })();

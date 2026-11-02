@@ -3,10 +3,13 @@
 <title>Sole Serenity · Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script>window.SS_API='https://demo.local/admin/api';window.SS_DEPOSIT=4000;</script>
-<script>(function(){var P=window.parent;if(!P||P===window)return;var f=window.fetch.bind(window);
-window.fetch=function(u,o){if(typeof u==='string'&&u.indexOf('https://demo.local')===0)return P.DEMO.fetch(u.slice(18),o);return f(u,o)};
-document.addEventListener('click',function(e){var t=e.target;if(!t.closest)return;var a=t.closest('[data-stripe]');if(a){e.preventDefault();e.stopImmediatePropagation();P.DEMO_UI.buy(a.getAttribute('data-stripe'));return}
-var r=t.closest('a[href^="#receipt-"]');if(r){e.preventDefault();e.stopImmediatePropagation();P.DEMO_UI.receipt(r.getAttribute('href').slice(9))}},true);})();</script>
+<script>(function(){var P=window.parent;if(!P||P===window)return;var pend={},n=0,f=window.fetch.bind(window);
+function call(type,payload){return new Promise(function(res){var id=++n;pend[id]=res;P.postMessage({ssDemo:1,id:id,type:type,payload:payload},'*')})}
+window.addEventListener('message',function(e){var d=e.data;if(d&&d.ssDemoReply&&pend[d.id]){pend[d.id](d.result);delete pend[d.id]}});
+window.fetch=function(u,o){if(typeof u==='string'&&u.indexOf('https://demo.local')===0)return call('fetch',{path:u.slice(18),method:o&&o.method,body:o&&o.body}).then(function(r){return new Response(r.body,{status:r.status,headers:{'content-type':'application/json'}})});return f(u,o)};
+window.SSDEMO={checkout:function(id,cb){call('checkout',id).then(cb)}};
+document.addEventListener('click',function(e){var t=e.target;if(!t.closest)return;var a=t.closest('[data-stripe]');if(a){e.preventDefault();e.stopImmediatePropagation();call('buy',a.getAttribute('data-stripe')).then(function(r){if(r&&r.ok&&window.SS_showPurchase)window.SS_showPurchase(r.row)});return}
+var r=t.closest('a[href^="#receipt-"]');if(r){e.preventDefault();e.stopImmediatePropagation();call('receipt',r.getAttribute('href').slice(9))}},true);})();</script>
 <style>
 :root{--paper:#fcf9f4;--paper2:#f3ece0;--cell:#fffdf9;--ink:#2b231a;--ink2:#5a4430;--line:rgba(58,46,34,.16);
   --teal:#4c6b66;--terra:#a35f3c;--ochre:#d6b48c;--ochre-d:#a87b48;--sage:#6e6b45;--char:#2b231a;--cream:#fcf9f4;--bad:#a8432a;--ok:#3f6b4f;--focus:#a35f3c;
