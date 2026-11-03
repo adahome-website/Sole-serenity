@@ -1006,7 +1006,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         <p>One 60-minute reflexology or Reiki session a month, built right into your calendar.</p>
         <ul><li>One 60-minute Reflexology or Reiki session each month</li><li>Book it like any visit, with no deposit</li><li>Cancel your membership anytime</li></ul>
         <a class="btn btn-cream" href="#contact" data-stripe="monthly">Start membership</a>
-        <p class="pay-fine">Just for you: use your own name at checkout and when you book. Billed monthly through Stripe · cancel anytime.</p>
+        <p class="pay-fine">Just for you: book with the same email you use at checkout, so I can find your membership. Billed monthly through Stripe · cancel anytime.</p>
       </article>
       <article class="pack">
         <div class="k"><span>Series</span></div>
@@ -1015,7 +1015,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         <p>Three 60-minute sessions of reflexology or Reiki. A gentle reset for a stressful season.</p>
         <ul><li>For 60-minute Reflexology or Reiki sessions</li><li>Mix reflexology and Reiki hours</li><li>Book each visit on my schedule</li><li>RCRT receipts for each reflexology visit</li></ul>
         <a class="btn btn-ink" href="#contact" data-stripe="reset3">Buy package</a>
-        <p class="pay-fine">Just for you: use your own name at checkout and when you book, so your sessions match. Secure card checkout with Stripe.</p>
+        <p class="pay-fine">Just for you: book with the same email you use at checkout, so I can find your sessions. Secure card checkout with Stripe.</p>
       </article>
       <article class="pack">
         <div class="k"><span>Series</span><span>Best value</span></div>
@@ -1024,7 +1024,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         <p>Ten 60-minute sessions at $89 each, $100 less than one at a time. Calm, made a habit.</p>
         <ul><li>For 60-minute Reflexology or Reiki sessions</li><li>Mix reflexology and Reiki hours</li><li>Book each visit on my schedule</li><li>RCRT receipts for each reflexology visit</li></ul>
         <a class="btn btn-ink" href="#contact" data-stripe="reset10">Buy package</a>
-        <p class="pay-fine">Just for you: use your own name at checkout and when you book, so your sessions match. Secure card checkout with Stripe.</p>
+        <p class="pay-fine">Just for you: book with the same email you use at checkout, so I can find your sessions. Secure card checkout with Stripe.</p>
       </article>
     </div>
   </div>
@@ -1312,8 +1312,8 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     </div>
     <details open><summary>How do I book, and why a deposit?</summary><div class="a">Pick a time that suits you on my schedule, then pop in a small $40 deposit to hold it for you. It comes off your session total, and it's fully refundable up to 48 hours before your appointment. Within 48 hours I'm not able to refund it, because that time was set aside just for you.</div></details>
     <details><summary>How do I cancel or move my booking?</summary><div class="a">Text me at 587-216-8588 or send me an email at least 48 hours before your appointment, and I'll refund your deposit in full or find you a new time. Within 48 hours I'm not able to refund the deposit, because that time was held just for you.</div></details>
-    <details><summary>I have a package. Do I need to pay a deposit?</summary><div class="a">No. Book with the same name and email you used to buy it, and I'll recognise your package and ask if you'd like to use it, with nothing to pay. Packages are just for the person who bought them, so the names need to match. Packages don't expire. If you need to cancel, text or email me at least 48 hours ahead and your session stays in your package. A no-show or a cancellation within 48 hours uses that session.</div></details>
-    <details><summary>How does booking work with a membership?</summary><div class="a">Book with the same name and email as your membership and I'll recognise you, with nothing to pay at booking. Memberships are just for the member, so the names need to match. Your membership includes one session a month. If you need to cancel, text or email me at least 48 hours ahead so you can rebook within the month. A no-show or a cancellation within 48 hours uses that month's session.</div></details>
+    <details><summary>I have a package. Do I need to pay a deposit?</summary><div class="a">No. Book with the same email you used to buy it, and I'll recognise your package, show how many sessions are left and ask if you'd like to use one, with nothing to pay. Packages are just for the person who bought them, and I find them by email, so it needs to be the same address. Packages don't expire. If you need to cancel, text or email me at least 48 hours ahead and your session stays in your package. A no-show or a cancellation within 48 hours uses that session.</div></details>
+    <details><summary>How does booking work with a membership?</summary><div class="a">Book with the same email as your membership and I'll recognise you, with nothing to pay at booking. Memberships are just for the member, and I find them by email, so it needs to be the same address. Your membership includes one session a month. If you need to cancel, text or email me at least 48 hours ahead so you can rebook within the month. A no-show or a cancellation within 48 hours uses that month's session.</div></details>
     <details><summary>Can I book with a gift card?</summary><div class="a">Yes, and there's no deposit. Gift cards can be bought for anyone: book in the name the card was given to, or tap "Have a gift card code?" and enter the code. I'll take the session from your gift card. A no-show or a cancellation within 48 hours is also taken from your gift card, so please text or email me at least 48 hours ahead if plans change.</div></details>
     <details><summary>Is there an offer for my first visit?</summary><div class="a">Yes. If it's your first time with me, you can book two hours of Reflexology + Reiki (one full hour of each) for $99, half the usual $198. It's for new clients only, once per person. Choose "First visit · $99" when you book.</div></details>
     <details><summary>Can I have some Reiki in my reflexology session?</summary><div class="a">They're two separate sessions, so a reflexology hour is all reflexology. If you'd love both, book the 2-hour Combination. You'll have one full hour of each, back to back, for $198.</div></details>
@@ -1797,7 +1797,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     var pkg=r.kind==='package';
     okFill({title:pkg?'Your package is ready':'Welcome, you’re a member',sub:'Thank you'+(first?', '+first:'')+'. A confirmation is on its way to '+(r.email?escH(r.email):'your email')+'.',
       card:row(pkg?(r.total>=10?'The Deep Ten':r.total+'-session reset'):'Monthly ritual',pkg?(r.total+' sessions'):'1 session a month')+row(pkg?'Paid':'Billed monthly','$'+(r.price_cents/100)),
-      next:[pkg?'Book whenever suits you. Use the same name and email and I’ll recognise your package. Nothing to pay at booking.':'Book your session for this month whenever suits you. Use the same name and email and I’ll recognise your membership. Nothing to pay at booking.',
+      next:[pkg?'Book whenever suits you. Book with this same email and I’ll recognise your package. Nothing to pay at booking.':'Book your session for this month whenever suits you. Book with this same email and I’ll recognise your membership. Nothing to pay at booking.',
         pkg?'Your package doesn’t expire.':'You can cancel your membership anytime.',
         'Cancel or move a session at least 48 hours before; a no-show or a late cancellation uses that session.']});
     okShow(false,{label:'Book my first session',fn:function(){location.hash='home';setTimeout(function(){openBook(null,null)},50)}});

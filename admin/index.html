@@ -228,7 +228,8 @@ window.SS_PERSIST = true;
     for (var i = 0; i < DB.credits.length; i++) {
       var c = DB.credits[i]; if (c.status !== 'active' || (c.expires && c.expires < today)) continue;
       var names = (c.kind === 'gift' && c.recipient ? [c.recipient] : [c.recipient, c.buyer]).filter(Boolean).map(norm);
-      var mine = (name && names.indexOf(name) >= 0) || (email && ((c.email === email && !(c.kind === 'gift' && c.recipient)) || c.recipient_email === email));
+      // packages and memberships: exact email only; gift cards: the recipient's name or email
+      var mine = c.kind === 'gift' ? (name && names.indexOf(name) >= 0) || (email && ((c.email === email && !c.recipient) || c.recipient_email === email)) : !!(email && (c.email || '').trim().toLowerCase() === email);
       if (!mine) continue;
       var u = usesOf(c);
       if (c.kind === 'package' && u.length >= c.total) { usedPackage = usedPackage || c; continue }
@@ -249,8 +250,7 @@ window.SS_PERSIST = true;
     var m = DB.credits.filter(function (c) {
       if (c.kind !== type || c.status !== 'active') return false;
       if (type === 'gift') return r && (c.code || '').toLowerCase() === r;
-      var names = [c.recipient, c.buyer].map(function (x) { return (x || '').trim().toLowerCase() });
-      return (c.email && c.email.toLowerCase() === email) || names.indexOf(r) >= 0 || names.indexOf(name) >= 0;
+      return !!(email && (c.email || '').trim().toLowerCase() === email); // packages and memberships: exact email only
     });
     for (var i = 0; i < m.length; i++) {
       var c = m[i]; if (c.expires && c.expires < ymd) continue;
