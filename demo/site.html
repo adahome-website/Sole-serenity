@@ -1677,7 +1677,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   // returns '' when fine, otherwise a message to show
   function emailProblem(e){
     e=String(e||'').trim();if(!e)return 'Please add your email so I can send your confirmation.';
-    if(!EMAIL_RE.test(e)||/\.\./.test(e))return 'That email doesn\u2019t look right. Please check it (for example name@gmail.com).';
+    if(!EMAIL_RE.test(e)||/\.\./.test(e))return 'That email doesn\u2019t look right. Please check that it\u2019s valid.';
     var dom=e.split('@')[1].toLowerCase();if(TYPO[dom])return 'Did you mean '+e.split('@')[0]+'@'+TYPO[dom]+'? Please fix the email so your confirmation reaches you.';
     return '';
   }
