@@ -507,6 +507,9 @@ section{position:relative}
 .bar-txt b{display:block;font-family:var(--display);font-weight:800;font-size:18px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bar-txt span{display:block;font:400 12.5px var(--mono);opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bar .btn{background:var(--ochre);color:var(--char);padding:14px 26px;font-size:16px;flex:none}
+#barT .bl,#barS .bl,#barS .bsh{display:inline;font:inherit;opacity:1;white-space:nowrap}
+#barS .bsh{display:none}
+@media (max-width:480px){#barS .bl,#barT .bl{display:none}#barS .bsh{display:inline}}
 @media (max-width:480px){.bar-dot{display:none}.bar .btn{padding:13px 18px}.bar-txt b{font-size:16px}}
 
 @keyframes drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
@@ -1351,8 +1354,8 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
 <div class="bar" role="region" aria-label="Quick booking">
   <div class="bar-in">
     <span class="bar-dot" aria-hidden="true"></span>
-    <div class="bar-txt"><b id="barT">First visit: 2 hours of Reflexology + Reiki · $99</b><span id="barS">50% off (usually $198) · new clients only</span></div>
-    <a class="btn" href="#book" id="barBtn" data-pick="intro">Book my first visit</a>
+    <div class="bar-txt"><b id="barT">Reiki + Reflexology<span class="bl"> (2 hours)</span></b><span id="barS"><span class="bl">New clients · 50% off, usually $198</span><span class="bsh">2 hours · new clients</span></span></div>
+    <a class="btn" href="#book" id="barBtn" data-pick="intro">First visit $99</a>
   </div>
 </div>
 
@@ -1398,7 +1401,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   var st=RETURNING?{s:'refl',len:60,date:null,t:null}:{s:'intro',len:120,date:null,t:null};
   function barRender(){
     var b=$('barBtn');
-    if(!RETURNING){$('barT').textContent='First visit: 2 hours of Reflexology + Reiki · $99';$('barS').textContent='50% off (usually $198) · new clients only';b.setAttribute('data-pick','intro');b.textContent='Book my first visit'}
+    if(!RETURNING){$('barT').innerHTML='Reiki + Reflexology<span class="bl"> (2 hours)</span>';$('barS').innerHTML='<span class="bl">New clients · 50% off, usually $198</span><span class="bsh">2 hours · new clients</span>';b.setAttribute('data-pick','intro');b.textContent='First visit $99'}
     else{$('barT').textContent='Welcome back';$('barS').textContent='Book your next session';b.removeAttribute('data-pick');b.textContent='Book a session'}
   }
   var today=new Date();today.setHours(0,0,0,0);
