@@ -1685,7 +1685,8 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     $('crFoundW').innerHTML=CREDIT[f.kind].warn;$('crFound').hidden=false;foundMode(true);$('useCred').focus();
   }
   function esc2(x){return String(x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-  function foundMode(on){$('goBtn').hidden=on;$('giftLink').hidden=on||st.s==='intro'}
+  function foundMode(on){$('goBtn').hidden=on;$('goFine').hidden=on; // the box already states the rule, so the general fine print steps aside
+   $('giftLink').hidden=on||st.s==='intro'}
   function firstName(x){x=String(x||'').trim().split(/\s+/)[0]||'';return x.charAt(0).toUpperCase()+x.slice(1).toLowerCase()}
   // prototype only: pretend these names have something on file
   var DEMO_CREDITS={'example member':{kind:'membership',ref:'Example Member',text:'a monthly membership, and this month\'s session is still available'}};
