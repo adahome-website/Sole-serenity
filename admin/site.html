@@ -708,6 +708,14 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
 /* phones: tighter gaps between sections */
 @media (max-width:640px){.sec{padding:32px 0}.pack{display:flex;flex-direction:column;padding:20px}.pack h3{margin:14px 0 4px}.pack .amt{margin:8px 0 0}.pack .save{margin:8px 0 8px}.pack ul{margin:10px 0 12px}.pack li{padding:6px 0}.pack .btn{margin-top:8px}.pack .pay-fine{margin-top:8px}.pack>p:not(.pay-fine){margin:0}.classes{align-items:stretch}.class{padding:18px;display:flex;flex-direction:column}.class .cfoot{align-self:stretch;margin-top:auto;padding-top:10px;flex-direction:column;align-items:stretch;gap:10px;text-align:left}.class .cfoot>*{align-self:stretch}.class .cfoot .btn{width:100%;justify-content:center}.class .art{margin:8px 0 8px}.class h3{margin-bottom:6px}.class p{margin-bottom:8px}.class ul{margin:2px 0 10px}.packs{gap:10px}.teaser.gift-sec{padding:20px;gap:16px}.teaser h2{margin:8px 0 8px}.gift-buy{margin-top:14px;gap:8px}.gift-list{gap:8px;grid-auto-flow:column;grid-auto-columns:78%;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;padding-bottom:6px;scrollbar-width:none}.gift-list::-webkit-scrollbar{display:none}.gift-list li{scroll-snap-align:start}.gift-list li{padding:10px 12px;gap:12px}.gift-main>p{margin-bottom:0}.offer .fv{display:none}.rs-fig{display:none!important}.reviews{display:grid;grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:82%;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;padding-bottom:8px;scrollbar-width:none}.reviews::-webkit-scrollbar{display:none}.reviews>.rev{scroll-snap-align:start}.sense-card{aspect-ratio:auto;padding:14px;border-radius:22px}.sec-head{margin-bottom:20px}.foot{margin-top:0}.g-stack>.is-off{display:none}.ground-grid{gap:18px}.cr-mh{flex-direction:column;align-items:flex-start;gap:4px}.found-btns .btn{width:100%;justify-content:center;line-height:1.25}}
 .ft-contact{line-height:1.7}.ft-contact a{color:inherit}.ft-tel{text-decoration:none}.ft-tel:hover{text-decoration:underline}
+/* visit ticket: name + price, then the timeline bar, then the big start and end times */
+.tk-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.tk-name{min-width:0}.tk-name b{display:block;font-family:var(--display);font-weight:800;font-size:18px;letter-spacing:-.01em;line-height:1.2}
+.tk-name .sum-when{margin:4px 0 0}
+.tk-price{font-family:var(--display);font-weight:800;font-size:28px;letter-spacing:-.02em;line-height:1;color:#f1d9b8;white-space:nowrap}
+.ticket .vline{height:12px;border-radius:6px;margin:14px 0 16px;gap:3px}.ticket .vline div{border-radius:6px}
+.ticket .times{border-bottom:0;border-top:2px dashed rgba(252,249,244,.22);padding:16px 0 2px;margin:0}
+.ticket::before,.ticket::after{top:var(--notch,104px)}
 </style>
 
 <svg class="mel-sprite" width="0" height="0" aria-hidden="true" focusable="false">
@@ -808,14 +816,13 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         <button type="button" class="bk-back" id="bkBack">‹ Change time</button>
         <h3 id="plTitle" tabindex="-1">Your visit</h3>
         <div class="ticket" aria-live="polite">
-          <p class="sum-when" id="sumWhen">Pick a time on the schedule.</p>
+          <div class="tk-head"><div class="tk-name"><b id="sumName">Reflexology · 60 min</b><p class="sum-when" id="sumWhen">Pick a time on the schedule.</p></div><b class="tk-price" id="sumTotal">$99</b></div>
+          <div class="vline" id="vline" aria-label="Timeline of your visit"></div>
+          <div class="vscale" hidden><span id="vs0"></span><span id="vs1"></span><span id="vs2"></span></div>
           <div class="times">
             <div><small>Start</small><b id="tArr">—</b></div>
             <div><small>End</small><b id="tLeave">—</b></div>
           </div>
-          <div class="vline" id="vline" aria-label="Timeline of your visit"></div>
-          <div class="vscale"><span id="vs0"></span><span id="vs1"></span><span id="vs2"></span></div>
-          <div class="sum"><span id="sumName">Reflexology · 60 min</span><b id="sumTotal">$99</b></div>
           <div class="sum-gst" id="sumGst" hidden></div>
           <div class="deposit" id="depRow" hidden></div>
         </div>
@@ -1605,24 +1612,25 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     $('bkCont').textContent='Continue · $'+S.price[st.len]; // the price stays in view on tablets and phones
     paintWeek();buildCal();buildTimes();
     var price=S.price[st.len],has=st.t!==null;
-    $('sumName').textContent=S.name+' · '+st.len+' min'+(st.s==='intro'?' · 50% off':'');
+    $('sumName').textContent=S.name;var durTxt=st.len+' min'+(st.s==='intro'?' · 50% off':'');
     var crb=$('segPay').querySelector('[data-v="credit"]');if(crb){crb.disabled=st.s==='intro';if(st.s==='intro'&&pay==='credit'){pay='deposit';payRender()}}
     $('giftLink').hidden=st.s==='intro'||!!FOUND;
     var gst=Math.round(price*GST_RATE*100)/100;
     $('sumTotal').textContent='$'+price;
     $('sumGst').hidden=!GST_RATE;if(GST_RATE)$('sumGst').textContent='+ $'+gst.toFixed(2)+' GST ('+(GST_RATE*100)+'%) = $'+(price+gst).toFixed(2)+' total';
     var vl=$('vline');vl.innerHTML='';
-    timeline(st.s,st.len).forEach(function(s){var el=document.createElement('div');el.style.flex=s[1];el.style.background=s[2];if(s[3])el.style.color=s[3];el.textContent=s[0];vl.appendChild(el)});
+    timeline(st.s,st.len).forEach(function(s){var el=document.createElement('div');el.style.flex=s[1];el.style.background=s[2];el.title=s[0];vl.appendChild(el)});
     if(has){
       var end=st.t+st.len;
       $('tArr').textContent=fmt(st.t);$('tLeave').textContent=fmt(end);
       $('vs0').textContent=fmt(st.t);$('vs1').textContent=fmt(st.t+st.len/2);$('vs2').textContent=fmt(end);
-      $('sumWhen').textContent=longDate(st.date);
+      $('sumWhen').textContent=durTxt+' · '+(matchMedia('(max-width:640px)').matches?st.date.toLocaleDateString('en-CA',{weekday:'short',month:'short',day:'numeric'}).replace('.',''):longDate(st.date));
     }else{
       $('tArr').textContent='—';$('tLeave').textContent='—';$('vs0').textContent=$('vs1').textContent=$('vs2').textContent='';
-      $('sumWhen').textContent='Pick a time on the schedule.';
+      $('sumWhen').textContent=durTxt+' · pick a time';
     }
     barRender();
+    var tk=document.querySelector('.ticket .times');if(tk)requestAnimationFrame(function(){tk.parentNode.style.setProperty('--notch',(tk.offsetTop-9)+'px')});
     $('goBtn').disabled=!has;$('bkCont').disabled=!has;$('bkHint').hidden=has;
     $('goNote').classList.remove('show');    // a membership, package or gift card was already shown: check it again for the new session, length or time
     if(typeof FOUND!=='undefined'&&(FOUND||!$('crFound').hidden||(looked&&!emailProblem($('ctEmail').value))))recheck();
