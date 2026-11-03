@@ -319,6 +319,8 @@ section{position:relative}
 /* gift card benefits: each one rises in, one after another, the first time the list scrolls into view */
 .gift-list.gl-anim>li{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s cubic-bezier(.2,.7,.2,1);transition-delay:calc(var(--i,0) * 140ms)}
 .gift-list.gl-anim.in>li{opacity:1;transform:none}
+/* the first section of About Melanie, Training & Workshops and FAQ starts close under the header, like Home */
+.sec#about,.sec#workshops,.sec#faq{padding-top:22px}
 .btn-terra{background:var(--terra);color:var(--cream)}
 .btn-terra:hover{background:var(--terra-d)}
 .scene-ctl{position:absolute;left:12px;right:12px;bottom:12px;z-index:3;background:var(--char);color:var(--cream);border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:10px}
