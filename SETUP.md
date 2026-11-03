@@ -38,7 +38,8 @@ It takes about 2 hours to set up once. After that there is nothing to run or upd
 4. Create **Payment Links** for things people buy ahead:
    - **3-session package**: one-time price ($279).
    - **The Deep Ten (10-session pass)**: one-time price ($890). In `PURCHASE_LINKS` give it `"total":10`.
-   - **Monthly membership**: recurring monthly price.
+   - **Monthly membership**: the only recurring one. When creating its price choose **Recurring → Monthly** ($89), so Stripe charges the member automatically every month. Every other link (packages and gift cards) uses a **One-off** price.
+   - When a member asks to cancel (one month's notice, by email or phone), open **Customers → their subscription → Cancel subscription → At the end of the current period**, a month ahead. Stripe stops charging and the booking system ends the membership by itself.
    - **Gift card $99**, **Gift card $198**, and **Gift card, custom amount** ("Customers choose what to pay").
    - On every link, turn on name collection (**Collect customers' names** / require the customer's name) and keep email on, so every purchase has a name and an email.
    - Packages and memberships are only for the person who buys them, so they get no "who is it for" field.
