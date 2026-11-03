@@ -200,7 +200,7 @@ section{position:relative}
 .tt-head h3{font-size:26px}
 .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--ink2)}
 .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:5px}
-.grid{display:grid;grid-template-columns:58px repeat(4,minmax(0,1fr));gap:4px}
+.grid{display:grid;grid-template-columns:58px repeat(5,minmax(0,1fr));gap:4px}
 .grid .dh{font-family:var(--display);font-weight:800;font-size:20px;text-align:center;padding:6px 0 8px;letter-spacing:-.01em}
 .grid .dh small{display:block;font-family:var(--mono);font-weight:400;font-size:10.5px;letter-spacing:.08em;color:var(--ink2);text-transform:uppercase}
 .grid .tl{font-family:var(--mono);font-size:11.5px;color:var(--ink2);text-align:right;padding-right:6px;line-height:26px;height:26px}
@@ -681,7 +681,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
 <dialog class="bk-dlg" id="bookDlg" aria-labelledby="bkTitle">
   <div class="bk-in">
     <div class="bk-head">
-      <div><h2 id="bkTitle">Book a session</h2><p class="bk-sub">My week, my schedule: Tuesday to Friday, 10 a.m. to 10 p.m. Tap an open start time and you'll see exactly when you arrive and when you leave.</p></div>
+      <div><h2 id="bkTitle">Book a session</h2><p class="bk-sub">My week, my schedule: Tuesday to Saturday, 10 a.m. to 10 p.m. Tap an open start time and you'll see exactly when you arrive and when you leave.</p></div>
       <button type="button" class="bk-x" id="bkClose" aria-label="Leave booking and go back">×</button>
     </div>
     <div class="bk-body">
@@ -716,7 +716,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
             <span><i style="background:var(--sess)"></i>Your visit</span>
           </div>
           <div class="grid" id="grid" role="group" aria-label="Weekly schedule, tap a start time"></div>
-          <p class="tt-note">Demo availability: example bookings and Melanie's own calendar block some times. Saturdays by request: call or text 587-216-8588.</p>
+          <p class="tt-note">Demo availability: example bookings and Melanie's own calendar block some times.</p>
         </div>
 
         <!-- mobile: month calendar + hourly slots -->
@@ -728,7 +728,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
           </div>
           <div class="cal-dow" aria-hidden="true"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
           <div class="cal-grid" id="calGrid" role="group" aria-label="Choose a date"></div>
-          <p class="cal-note">Tuesday to Friday. Saturdays by request: call or text 587-216-8588.</p>
+          <p class="cal-note">Tuesday to Saturday.</p>
           <span class="bk-fl" id="timesLbl">Times</span>
           <div class="cal-times" id="calTimes" role="group" aria-labelledby="timesLbl"></div>
           <button type="button" class="btn btn-ink bk-cont" id="bkCont" disabled>Continue</button>
@@ -1067,7 +1067,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
       <div>
         <span class="eyebrow">Ready when you are</span>
         <h2>Pick a time that suits you.</h2>
-        <p>My week runs Tuesday to Friday, 10 a.m. to 10 p.m. Choose a session, tap an open hour, and you'll see exactly when you arrive and when you leave before you pay a small deposit.</p>
+        <p>My week runs Tuesday to Saturday, 10 a.m. to 10 p.m. Choose a session, tap an open hour, and you'll see exactly when you arrive and when you leave before you pay a small deposit.</p>
       </div>
       <div class="teaser-ctl">
         <a class="btn btn-cream" href="#book">Book a session</a>
@@ -1320,8 +1320,8 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         <div class="foot-hi"><h2>Ready to lift yourself up?</h2></div>
         <a class="btn btn-cream" href="#book">Book a session</a>
       </div>
-      <div><h4>Contact</h4><p class="phone">587-216-8588</p><p>Call or text me. Gift certificates, packages and Saturday requests by phone.</p></div>
-      <div><h4>Hours</h4><p>Tuesday – Friday<br>10 a.m. – 10 p.m.</p><p>Saturdays by request</p></div>
+      <div><h4>Contact</h4><p class="phone">587-216-8588</p><p>Call or text me. Questions about gift certificates or packages are welcome.</p></div>
+      <div><h4>Hours</h4><p>Tuesday – Saturday<br>10 a.m. – 10 p.m.</p></div>
       <div><h4>Location</h4><p>Northwest Calgary, Alberta. Exact address sent after booking + deposit.</p><p>RCRT · Reflexology Association of Canada Reg. No. ST26-26049</p></div>
     </div>
     <div class="foot-base"><button class="theme-t foot-theme" id="themeT" type="button" aria-label="Switch to night mode"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9A7 7 0 0 1 12 3z" fill="currentColor"/></svg><span id="themeL">Night mode</span></button><span>© Sole Serenity Reflexology &amp; Reiki · Melanie MacDougall</span><span>Complementary care, never a replacement for medical care.</span></div>
@@ -1388,13 +1388,13 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   function same(a,b){return a&&b&&a.getTime()===b.getTime()}
   function addDays(d,n){var x=new Date(d);x.setDate(x.getDate()+n);return x}
   function longDate(d){return DAYN[d.getDay()]+', '+MON[d.getMonth()]+' '+d.getDate()}
-  function bookable(d){var w=d.getDay();return w>=2&&w<=5&&d>=today}
+  function bookable(d){var w=d.getDay();return w>=2&&w<=6&&d>=today} // Tuesday to Saturday
   function isHeld(d,t){if(BOOKING_API){var L=(BUSY&&BUSY[iso(d)])||[];for(var j=0;j<L.length;j++){if(t<L[j][1]&&t+60>L[j][0])return true}return false}var w=d.getDay();for(var i=0;i<HELD.length;i++){var h=HELD[i];if(h[0]===w&&t>=h[1]&&t<h[1]+h[2])return true}return false}
   function fits(d,t,len){if(!bookable(d)||t>LAST||t+len>CLOSE)return false;for(var x=t;x<t+len;x+=30){if(isHeld(d,Math.floor(x/60)*60))return false}return true}
 
-  // week shown on desktop: Tue..Fri of the week containing the first bookable day
+  // week shown on desktop: Tue..Sat of the week containing the first bookable day
   function weekStartFor(d){var x=new Date(d);var w=x.getDay();x.setDate(x.getDate()-((w+5)%7));return x} // Tuesday of that week
-  var firstBookable=today;while(firstBookable.getDay()<2||firstBookable.getDay()>5)firstBookable=addDays(firstBookable,1);
+  var firstBookable=today;while(firstBookable.getDay()<2)firstBookable=addDays(firstBookable,1);
   var wk=weekStartFor(firstBookable);
   var calM=new Date(today.getFullYear(),today.getMonth(),1);
 
@@ -1403,14 +1403,14 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   function buildWeek(){
     grid.innerHTML='';
     grid.appendChild(document.createElement('div'));
-    for(var i=0;i<4;i++){var d=addDays(wk,i),h=document.createElement('div');h.className='dh';h.innerHTML=DAYN[d.getDay()].slice(0,3)+'<small>'+MON[d.getMonth()].slice(0,3)+' '+d.getDate()+'</small>';grid.appendChild(h)}
+    for(var i=0;i<5;i++){var d=addDays(wk,i),h=document.createElement('div');h.className='dh';h.innerHTML=DAYN[d.getDay()].slice(0,3)+'<small>'+MON[d.getMonth()].slice(0,3)+' '+d.getDate()+'</small>';grid.appendChild(h)}
     for(var t=OPEN;t<=LAST;t+=STEP){
       var tl=document.createElement('div');tl.className='tl';tl.textContent=short(t);grid.appendChild(tl);
-      for(var k=0;k<4;k++){var b=document.createElement('button');b.type='button';b.className='slot';b.dataset.k=k;b.dataset.t=t;grid.appendChild(b)}
+      for(var k=0;k<5;k++){var b=document.createElement('button');b.type='button';b.className='slot';b.dataset.k=k;b.dataset.t=t;grid.appendChild(b)}
     }
-    var last=addDays(wk,3);
+    var last=addDays(wk,4);
     $('ttTitle').textContent=MON[wk.getMonth()].slice(0,3)+' '+wk.getDate()+' – '+MON[last.getMonth()].slice(0,3)+' '+last.getDate();
-    $('wkPrev').disabled=addDays(wk,3)<today||wk<=weekStartFor(firstBookable);
+    $('wkPrev').disabled=addDays(wk,4)<today||wk<=weekStartFor(firstBookable);
   }
   grid.addEventListener('click',function(e){
     var b=e.target.closest('.slot');if(!b||b.disabled||b.classList.contains('held'))return;
@@ -1450,7 +1450,6 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     var n=new Date(calM.getFullYear(),calM.getMonth()+1,0).getDate();
     for(var dd=1;dd<=n;dd++){
       var d=new Date(calM.getFullYear(),calM.getMonth(),dd),w=d.getDay();
-      if(w===6&&d>=today){var sp=document.createElement('span');sp.className='sat';sp.innerHTML=dd+'<br>by request';sp.title='Saturdays by request: call or text';g.appendChild(sp);continue}
       var b=document.createElement('button');b.type='button';b.textContent=dd;b.dataset.iso=iso(d);
       b.setAttribute('aria-label',longDate(d)+(bookable(d)?'':', not available'));
       b.disabled=!bookable(d);
