@@ -717,6 +717,12 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
 .ticket .times{border-bottom:0;border-top:2px dashed rgba(252,249,244,.22);padding:16px 0 2px;margin:0}
 .ticket::before,.ticket::after{top:var(--notch,104px)}
 .tk-price{text-align:right}.tk-price .tk-was{display:block;margin-top:4px;font:600 13px var(--body);letter-spacing:0;color:#d9c9b4;text-decoration:line-through}
+.ok-acts #okCal{order:0}.ok-acts #okDone{order:2}
+.cal-dd{position:relative;display:inline-flex}.cal-dd[hidden]{display:none}
+.cal-menu{position:absolute;left:0;top:calc(100% + 6px);z-index:20;min-width:250px;background:var(--cell);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.18);padding:6px;display:grid}
+.cal-menu[hidden]{display:none}
+.cal-menu a{display:block;padding:11px 12px;border-radius:9px;color:var(--ink);text-decoration:none;font-weight:600;font-size:15px}
+.cal-menu a:hover,.cal-menu a:focus-visible{background:var(--paper2)}
 </style>
 
 <svg class="mel-sprite" width="0" height="0" aria-hidden="true" focusable="false">
@@ -881,7 +887,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     <div class="ok-card" id="okCard"></div>
     <h3 class="ok-h" id="okNextH">What happens next</h3>
     <ul class="ok-next" id="okNext"></ul>
-    <div class="ok-acts"><button type="button" class="btn btn-ink" id="okPrimary" hidden></button><a class="btn btn-ink" id="okCal" target="_blank" rel="noopener">Add to Google Calendar</a><button type="button" class="btn btn-ghost" id="okDone">Back to the website</button></div>
+    <div class="ok-acts"><button type="button" class="btn btn-ink" id="okPrimary" hidden></button><div class="cal-dd" id="okCal"><button type="button" class="btn btn-ink" id="okCalBtn" aria-haspopup="true" aria-expanded="false" aria-controls="okCalMenu">Add to calendar<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="cal-menu" id="okCalMenu" hidden><a id="calG" target="_blank" rel="noopener">Google Calendar</a><a id="calA" download="sole-serenity.ics">Apple Calendar (iPhone, iPad, Mac)</a><a id="calO" target="_blank" rel="noopener">Outlook</a><a id="calI" download="sole-serenity.ics">Other (download .ics file)</a></div></div><button type="button" class="btn btn-ghost" id="okDone">Back to the website</button></div>
     <p class="ok-fine">Questions or need to change something? Text me at 587-216-8588.</p>
   </div>
   </div>
@@ -1869,20 +1875,32 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
       '<b>Scent-free?</b> Just ask. Essential oils are only used with your consent.'];
     $('okNext').innerHTML=next.map(function(x){return '<li>'+x+'</li>'}).join('');
     var g=function(d){return d.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'')};
-    $('okCal').href='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent('Sole Serenity · '+c.service)+'&dates='+g(c.start)+'/'+g(c.end)+'&details='+encodeURIComponent('With Melanie MacDougall. The address is in your confirmation email. 587-216-8588')+'&location='+encodeURIComponent('Northwest Calgary');
+    // Add to calendar: Google, Apple (an .ics file opens straight in Calendar on iPhone, iPad and Mac), Outlook, or any other app via .ics
+    var calTitle='Sole Serenity · '+c.service,calInfo='With Melanie MacDougall. The address is in your confirmation email. 587-216-8588',calWhere='Northwest Calgary';
+    $('calG').href='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(calTitle)+'&dates='+g(c.start)+'/'+g(c.end)+'&details='+encodeURIComponent(calInfo)+'&location='+encodeURIComponent(calWhere);
+    $('calO').href='https://outlook.live.com/calendar/0/deeplink/compose?path=/calendar/action/compose&rru=addevent&subject='+encodeURIComponent(calTitle)+'&startdt='+encodeURIComponent(c.start.toISOString())+'&enddt='+encodeURIComponent(c.end.toISOString())+'&body='+encodeURIComponent(calInfo)+'&location='+encodeURIComponent(calWhere);
+    var ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Sole Serenity//Booking//EN','BEGIN:VEVENT','UID:'+g(c.start)+'-'+Math.random().toString(36).slice(2)+'@soleserenity','DTSTAMP:'+g(new Date()),'DTSTART:'+g(c.start),'DTEND:'+g(c.end),'SUMMARY:'+calTitle,'DESCRIPTION:'+calInfo,'LOCATION:'+calWhere,'BEGIN:VALARM','TRIGGER:-PT2H','ACTION:DISPLAY','DESCRIPTION:'+calTitle,'END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
+    $('calA').href=$('calI').href='data:text/calendar;charset=utf-8,'+encodeURIComponent(ics);
+    calMenu(false);
     $('okCal').hidden=check;
-    $('okCal').hidden=check;okShow(false,null);
+    $('okCal').hidden=check;okShow(false,{label:'Book another session',book:true,fn:function(){location.hash='home';setTimeout(function(){openBook(null,null)},50)}});
   }
   var okReady=false,okAct=null;
   // shows the confirmation page (or the "there was a problem" page) as its own page, not a pop-up
   function okShow(issue,primary){
     $('booked').classList.toggle('issue',!!issue);
     var pb=$('okPrimary');okAct=primary&&primary.fn;pb.hidden=!primary;if(primary)pb.textContent=primary.label;
+    pb.className='btn '+(primary&&primary.book?'btn-terra':'btn-ink');pb.style.order=primary&&primary.book?'1':'';$('okDone').hidden=!!(primary&&primary.book); // after a booking: Add to calendar first, then Book another session
     okReady=true;if(dlg.open)dlg.close();
     if(location.hash!=='#booked')history.pushState(null,'','#booked');
     showView('booked');window.scrollTo(0,0);$('okTitle').focus();
   }
   $('okPrimary').addEventListener('click',function(){if(okAct)okAct()});
+  function calMenu(on){$('okCalMenu').hidden=!on;$('okCalBtn').setAttribute('aria-expanded',String(on))}
+  $('okCalBtn').addEventListener('click',function(e){e.stopPropagation();calMenu($('okCalMenu').hidden)});
+  $('okCalMenu').addEventListener('click',function(){setTimeout(function(){calMenu(false)},100)});
+  document.addEventListener('click',function(e){if(!e.target.closest('#okCal'))calMenu(false)});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('okCalMenu').hidden){calMenu(false);$('okCalBtn').focus()}});
   function okFill(o){
     $('okTitle').textContent=o.title;$('okSub').textContent=o.sub||'';
     $('okCard').innerHTML=o.card||'';$('okNextH').hidden=!(o.next&&o.next.length);
