@@ -15,6 +15,7 @@ var r=t.closest('a[href^="#receipt-"]');if(r){e.preventDefault();e.stopImmediate
 </head>
 <body>
 
+<script>document.documentElement.setAttribute("data-theme","light")</script>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -132,6 +133,7 @@ section{position:relative}
   .hero-main{border-bottom-left-radius:0;border-bottom-right-radius:0}
   .hero-art{margin-top:-14px;border-top-left-radius:0;border-top-right-radius:0;min-height:0;aspect-ratio:600/400}
 }
+@media (max-width:600px){.hero-hours{display:none}}
 
 /* practices / class cards */
 .rule{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;background:var(--char);color:var(--cream);border-radius:22px;padding:18px 24px;margin-bottom:18px}
@@ -168,8 +170,12 @@ section{position:relative}
 .class .cfoot{flex-direction:column;align-items:stretch;gap:14px}
 .class .cfoot .btn{width:100%}
 @media (max-width:440px){.top .wrap{gap:10px}.brand{gap:8px}.brand b{font-size:16px}.top .btn{padding:9px 12px;font-size:13px}.theme-t{width:36px;height:36px}.bar .btn{padding:12px 14px;font-size:14px}}
-@media (max-width:1080px){.classes{grid-template-columns:repeat(2,1fr)}}
-@media (max-width:600px){.classes{grid-template-columns:1fr}}
+/* tablet: the four session cards scroll sideways two at a time; phone: one at a time */
+@media (max-width:1080px){
+  .classes{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:calc((100% - 14px)/2);overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;padding-bottom:12px;scrollbar-width:thin}
+  .class{scroll-snap-align:start}
+}
+@media (max-width:600px){.classes{grid-auto-columns:calc(100% - 34px)}}
 
 /* first visit offer */
 .offer{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center;background:var(--ochre);color:var(--char);border-radius:26px;padding:clamp(22px,3vw,34px);margin-top:14px;position:relative;overflow:hidden}
@@ -306,7 +312,7 @@ section{position:relative}
 .scene-ctl .btn{padding:12px 18px;font-size:14px}
 .cairn-five{margin:20px 0 0;font-size:14px;opacity:.85;border-top:1px solid rgba(252,249,244,.25);padding-top:14px;max-width:48ch}
 @media (prefers-reduced-motion:reduce){.cairn-stage.cairn-breathing .cairn-ring{opacity:.6}}
-@media (max-width:860px){.ground-grid{grid-template-columns:1fr}}
+@media (max-width:860px){.ground-grid{grid-template-columns:1fr;gap:6px}.ground-grid>.g-scenes{margin:0;justify-items:start;justify-self:start}}
 
 /* reiki flow */
 .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-radius:26px;overflow:hidden;min-width:0}
@@ -370,7 +376,12 @@ section{position:relative}
 .pack .pay-fine{font-size:12.5px;opacity:.75;margin:10px 0 0}
 .gift-buy{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:18px}
 .gift-buy .btn{padding:12px 16px;font-size:14px}
-@media (max-width:960px){.packs{grid-template-columns:1fr}}
+/* packages, membership, gift card: same sideways scroll on tablet (two) and phone (one) */
+@media (max-width:1080px){
+  .packs{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:calc((100% - 14px)/2);overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;padding-bottom:12px;scrollbar-width:thin}
+  .pack{scroll-snap-align:start}
+}
+@media (max-width:600px){.packs{grid-auto-columns:calc(100% - 34px)}}
 
 /* about */
 .about-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:14px}
@@ -471,6 +482,7 @@ section{position:relative}
 .foot h4{font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.7;margin-bottom:12px}
 .foot p{font-size:15px}
 .foot .phone{font-family:var(--display);font-weight:800;font-size:26px;letter-spacing:-.01em}
+.foot-theme{width:auto;height:auto;border-radius:999px;padding:8px 14px;gap:8px;display:inline-flex;align-items:center;color:var(--cream);border-color:rgba(252,249,244,.35);font:600 13px var(--body)}
 .foot-base{margin-top:28px;padding-top:20px;border-top:1px solid rgba(252,249,244,.2);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:13px;opacity:.8}
 .foot-logo{width:64px;height:64px;border-radius:50%;margin-bottom:12px;box-shadow:0 0 0 3px var(--ochre)}
 @media (max-width:960px){.foot-grid{grid-template-columns:1fr 1fr}}
@@ -659,9 +671,6 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     <button class="menu-t" id="menuT" type="button" aria-label="Menu" aria-expanded="false" aria-controls="mainNav">
       <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/></svg>
     </button>
-    <button class="theme-t" id="themeT" type="button" aria-label="Toggle light or dark theme">
-      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9A7 7 0 0 1 12 3z" fill="currentColor"/></svg>
-    </button>
   </div>
 </header>
 
@@ -768,7 +777,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         <div class="found" id="crFound" hidden>
           <p id="crFoundT"></p>
           <p class="cr-warn" id="crFoundW"></p>
-          <div class="found-btns"><button class="btn btn-cream" type="button" id="useCred">Use it for this visit</button><button class="btn btn-ghost" type="button" id="payDepInstead" hidden>Pay the $40 deposit</button></div>
+          <div class="found-btns"><button class="btn btn-cream" type="button" id="useCred">Use it for this visit</button><button class="btn btn-cream" type="button" id="switch60" hidden>Switch to 60 minutes</button><button class="btn btn-ghost" type="button" id="payDepInstead" hidden>Pay the $40 deposit</button></div>
         </div>
         <ul class="bk-pol">
           <li id="polDep" hidden><b>Deposit:</b> holds your time and comes off your total. To cancel, text or email me at least 48 hours before and I'll refund it in full; within 48 hours it isn't refunded.</li>
@@ -881,20 +890,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
       </article>
       <article class="class r">
         <p class="num">02 · Energy</p>
-        <svg class="art" viewBox="-2 0 240 150" role="img" aria-label="Illustration: Melanie with her hands hovering beside a line of seven Reiki hand positions, crown to feet">
-          <g transform="translate(-62 0)">
-          <path d="M64 46C62 26 74 18 82 19C94 18 102 28 100 46C102 60 104 72 98 82C94 76 92 68 92 60L70 60C70 68 68 76 62 82C58 72 64 60 64 46Z" fill="#2b1d14"/>
-          <path d="M62 132C62 88 66 66 82 64C98 66 102 88 102 132Z" fill="#3a332d"/>
-          <rect x="78" y="52" width="8" height="12" rx="3" fill="#e2b994"/>
-          <ellipse cx="82" cy="42" rx="11" ry="13" fill="#e2b994"/>
-          <path d="M70 40C71 29 79 26 85 27C92 28 95 34 94 41C88 35 80 34 70 40Z" fill="#2b1d14"/>
-          <path d="M76 65Q82 73 88 65" stroke="#d6b48c" stroke-width="1.6" fill="none"/><circle cx="82" cy="71" r="1.9" fill="#d6b48c"/>
-          <path d="M96 74Q118 76 138 70M98 90Q120 94 138 88" stroke="#3a332d" stroke-width="9" fill="none" stroke-linecap="round"/>
-          <g fill="#e2b994"><ellipse cx="143" cy="70" rx="6" ry="4"/><ellipse cx="143" cy="88" rx="6" ry="4"/></g>
-          <path d="M160 18V120" stroke="#fcf9f4" stroke-width="3" stroke-linecap="round" opacity=".7"/>
-          <g fill="#d6b48c" stroke="#fcf9f4" stroke-width="2"><circle cx="160" cy="18" r="6"/><circle cx="160" cy="35" r="6"/><circle cx="160" cy="52" r="6"/><circle cx="160" cy="69" r="6"/><circle cx="160" cy="86" r="6"/><circle cx="160" cy="103" r="6"/><circle cx="160" cy="120" r="6"/></g>
-          </g>
-        </svg>
+        <svg class="art" viewBox="0 0 240 150" role="img" aria-label="Illustration: an open Reiki hand, warm and still, beside a line of seven hand positions, crown to feet"><g transform="translate(-14 4) scale(4.1)"><g fill="#fcf9f4"><rect x="9" y="14" width="13" height="13" rx="5"/><rect x="9" y="6" width="3" height="11" rx="1.5"/><rect x="12.7" y="4" width="3" height="12" rx="1.5"/><rect x="16.4" y="5" width="3" height="11" rx="1.5"/><rect x="19.6" y="8" width="2.8" height="9" rx="1.4"/><rect x="5.5" y="14" width="3" height="9" rx="1.5" transform="rotate(-35 7 18.5)"/></g><g fill="#d6b48c"><circle cx="26" cy="7" r="1.6"/><circle cx="27.5" cy="13" r="1.1"/><circle cx="5" cy="8" r="1.2"/></g></g><path d="M112 46q8 10 0 20M120 40q12 16 0 32" stroke="#d6b48c" stroke-width="3" fill="none" stroke-linecap="round" opacity=".85"/><path d="M150 18V132" stroke="#fcf9f4" stroke-width="3" stroke-linecap="round" opacity=".7"/><g fill="#d6b48c" stroke="#fcf9f4" stroke-width="2"><circle cx="150" cy="18" r="6"/><circle cx="150" cy="37" r="6"/><circle cx="150" cy="56" r="6"/><circle cx="150" cy="75" r="6"/><circle cx="150" cy="94" r="6"/><circle cx="150" cy="113" r="6"/><circle cx="150" cy="132" r="6"/></g></svg>
         <h3>Reiki</h3>
         <p>Usui / Holy Fire III. Light, still hands, resting on or just above the body, head to feet. You stay fully clothed. A deep, quiet reset for your energy.</p>
         <ul><li>60 min <b>$99</b></li><li>90 min <b>$149</b></li><li>120 min <b>$198</b></li></ul>
@@ -954,7 +950,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         <h3>3-session reset</h3>
         <div class="amt">$279<small> / 3 hours</small></div>
         <p>Three 60-minute sessions of reflexology or Reiki, used whenever suits you. A gentle reset for a stressful season.</p>
-        <ul><li>Mix reflexology and Reiki hours</li><li>Book each visit on my schedule</li><li>RCRT receipts for each reflexology visit</li></ul>
+        <ul><li>For 60-minute Reflexology or Reiki sessions</li><li>Mix reflexology and Reiki hours</li><li>Book each visit on my schedule</li><li>RCRT receipts for each reflexology visit</li></ul>
         <a class="btn btn-ink" href="#contact" data-stripe="reset3">Buy the series</a>
         <p class="pay-fine">Just for you: use your own name at checkout and when you book, so your sessions match. Secure card checkout with Stripe.</p>
       </article>
@@ -963,7 +959,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         <h3>Monthly ritual</h3>
         <div class="amt">$89<small> / month</small></div>
         <p>One 60-minute session of reflexology or Reiki every month, booked whenever suits you. For people who want grounding built into the calendar.</p>
-        <ul><li>One session each month</li><li>Book it like any visit, with no deposit</li><li>Cancel your membership anytime</li></ul>
+        <ul><li>One 60-minute Reflexology or Reiki session each month</li><li>Book it like any visit, with no deposit</li><li>Cancel your membership anytime</li></ul>
         <a class="btn btn-cream" href="#contact" data-stripe="monthly">Start membership</a>
         <p class="pay-fine">Just for you: use your own name at checkout and when you book. Billed monthly through Stripe · cancel anytime.</p>
       </article>
@@ -1327,7 +1323,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
       <div><h4>Hours</h4><p>Tuesday – Friday<br>10 a.m. – 10 p.m.</p><p>Saturdays by request</p></div>
       <div><h4>Location</h4><p>Northwest Calgary, Alberta. Exact address sent after booking + deposit.</p><p>RCRT · Reflexology Association of Canada Reg. No. ST26-26049</p></div>
     </div>
-    <div class="foot-base"><span>© Sole Serenity Reflexology &amp; Reiki · Melanie MacDougall</span><span>Complementary care, never a replacement for medical care.</span></div>
+    <div class="foot-base"><button class="theme-t foot-theme" id="themeT" type="button" aria-label="Switch to night mode"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9A7 7 0 0 1 12 3z" fill="currentColor"/></svg><span id="themeL">Night mode</span></button><span>© Sole Serenity Reflexology &amp; Reiki · Melanie MacDougall</span><span>Complementary care, never a replacement for medical care.</span></div>
   </div>
 </footer>
 
@@ -1579,6 +1575,12 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   function m2(x){return '$'+(Math.round(x*100)%100?x.toFixed(2):String(Math.round(x)))}
   function showFound(f,nm){
     FOUND=f;var hi=nm?'Welcome back, '+firstName(nm)+'. ':'';
+    $('switch60').hidden=true;
+    if(f.blocked&&f.reason==='length'){ // packages and memberships: 60-minute Reiki or Reflexology only
+      $('crFoundT').textContent=hi+'You have '+f.text+'. Your '+(f.kind==='membership'?'membership':'package')+' covers a 60-minute Reiki or Reflexology session only, so '+SESS[st.s].name+' for '+st.len+' minutes is a regular booking with the $40 deposit.';
+      $('crFoundW').innerHTML='';$('crFoundW').hidden=true;$('useCred').hidden=true;$('payDepInstead').hidden=false;$('payDepInstead').textContent='Book it with the $40 deposit';
+      $('switch60').hidden=false;$('switch60').textContent='Use my '+(f.kind==='membership'?'membership':'package')+' for '+((st.s==='refl'||st.s==='reiki')?SESS[st.s].name:'Reflexology')+' 60 min';
+      $('crFound').hidden=false;foundMode(true);$('switch60').focus();return}
     if(f.blocked){$('crFoundT').textContent=hi+'You have '+f.text+'. '+(f.kind==='membership'?'To book an extra session, pay the $40 deposit as usual.':'There are no sessions left on it, so this is a regular booking with the $40 deposit.');$('crFoundW').innerHTML='';$('crFoundW').hidden=true;$('useCred').hidden=true;$('payDepInstead').hidden=false;$('payDepInstead').textContent='Pay the $40 deposit';$('crFound').hidden=false;foundMode(true);$('payDepInstead').focus();return}
     if(f.kind==='gift'){var g=giftMath(f);
       $('crFoundT').innerHTML=esc2(hi)+'Your gift card has <b>'+m2(g.bal)+'</b> on it. This session is '+m2(g.price)+'.'+(g.due>0
@@ -1596,7 +1598,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   var DEMO_CREDITS={'example member':{kind:'membership',ref:'Example Member',text:'a monthly membership, and this month\'s session is still available'}};
   function lookup(nm,em,code){
     if(!BOOKING_API)return new Promise(function(r){setTimeout(function(){r(code?(code.trim().toUpperCase()==='SS-DEMO-GIFT'?{kind:'gift',ref:'SS-DEMO-GIFT',balance_cents:5000,text:'a gift card with $50.00 left'}:null):DEMO_CREDITS[nm.toLowerCase()]||null)},400)});
-    return fetch(BOOKING_API+'/api/lookup',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:nm,email:em,code:code||'',date:st.date?st.date.getFullYear()+'-'+String(st.date.getMonth()+1).padStart(2,'0')+'-'+String(st.date.getDate()).padStart(2,'0'):''})}).then(function(r){return r.json()}).then(function(d){return d.found||null}).catch(function(){return null});
+    return fetch(BOOKING_API+'/api/lookup',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:nm,email:em,code:code||'',service:st.s,minutes:st.len,date:st.date?st.date.getFullYear()+'-'+String(st.date.getMonth()+1).padStart(2,'0')+'-'+String(st.date.getDate()).padStart(2,'0'):''})}).then(function(r){return r.json()}).then(function(d){return d.found||null}).catch(function(){return null});
   }
   $('crRef').addEventListener('input',function(){if(giftMode&&FOUND){FOUND=null;$('crFound').hidden=true;foundMode(false)}});
   ['ctName','ctEmail'].forEach(function(id){$(id).addEventListener('input',function(){looked=false;FOUND=null;$('crFound').hidden=true;foundMode(false);if(!giftMode&&pay==='credit'){pay='deposit';payRender()}})});
@@ -1624,6 +1626,12 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   });
   $('useCred').addEventListener('click',function(){if(!FOUND)return;pay='credit';$('crType').value=FOUND.kind;payRender();$('crRef').value=FOUND.ref;$('creditBox').hidden=true;$('crFound').hidden=true;$('goNote').classList.remove('show');
     doBook()});
+  // switch to a session the package or membership covers, then check again
+  $('switch60').addEventListener('click',function(){
+    if(st.s!=='refl'&&st.s!=='reiki')st.s='refl';st.len=60;$('crFound').hidden=true;FOUND=null;foundMode(false);render();
+    if(st.t===null){var n=$('goNote');n.textContent='Switched to '+SESS[st.s].name+' · 60 min. That time no longer fits, so please pick a time again.';n.classList.add('show');dlg.classList.remove('step2');window.scrollTo(0,0);return}
+    $('goBtn').click();
+  });
   $('payDepInstead').addEventListener('click',function(){$('crFound').hidden=true;pay='deposit';payRender();doBook()});
   $('giftLink').addEventListener('click',function(){
     if(giftMode){giftMode=false;pay='deposit';payRender();this.textContent='Have a gift card code?';return}
@@ -1970,8 +1978,10 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   $('themeT').addEventListener('click',function(){
     var r=document.documentElement,cur=r.getAttribute('data-theme');
     var dark=cur?cur==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
-    r.setAttribute('data-theme',dark?'light':'dark');
+    r.setAttribute('data-theme',dark?'light':'dark');themeLabel();
   });
+  function themeLabel(){var d=document.documentElement.getAttribute('data-theme')==='dark';$('themeL').textContent=d?'Day mode':'Night mode';$('themeT').setAttribute('aria-label',d?'Switch to day mode':'Switch to night mode')}
+  themeLabel();
 
   buildWeek();render();route();
 })();

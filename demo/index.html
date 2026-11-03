@@ -213,7 +213,9 @@ main{flex:1;min-height:0;position:relative}
     var c = DB.credits.filter(function (x) { return x.kind === 'gift' && x.status === 'active' && norm(x.code) === norm(code) })[0], left = c ? creditLeft(c) : 0;
     return c && left > 0 ? { kind: 'gift', ref: c.code, balance_cents: left, text: 'a gift card with ' + money(left) + ' left' } : null;
   }
-  function lookup(name, email, date) {
+  function lookup(name, email, date, service, minutes) {
+    var ok = !service || passOk(service, minutes), lim = ok ? {} : { blocked: true, reason: 'length' };
+    function L(o) { for (var k in lim) o[k] = lim[k]; return o }
     name = norm(name); email = (email || '').trim().toLowerCase();
     var today = ymdOf(new Date()), ym = (/^\d{4}-\d{2}-\d{2}$/.test(date || '') ? date : today).slice(0, 7), usedMember = null, usedPackage = null;
     for (var i = 0; i < DB.credits.length; i++) {
@@ -223,16 +225,19 @@ main{flex:1;min-height:0;position:relative}
       if (!mine) continue;
       var u = usesOf(c);
       if (c.kind === 'package' && u.length >= c.total) { usedPackage = usedPackage || c; continue }
-      if (c.kind === 'package' && u.length < c.total) { var l = c.total - u.length; return { kind: 'package', ref: c.recipient || c.buyer, text: 'a ' + c.total + '-session package with ' + l + ' session' + (l > 1 ? 's' : '') + ' left' } }
+      if (c.kind === 'package' && u.length < c.total) { var l = c.total - u.length; return L({ kind: 'package', ref: c.recipient || c.buyer, text: 'a ' + c.total + '-session package with ' + l + ' session' + (l > 1 ? 's' : '') + ' left' }) }
       if (c.kind === 'membership' && !creditLeft(c, ym)) { usedMember = c; continue }
-      if (c.kind === 'membership') return { kind: 'membership', ref: c.buyer, text: 'a monthly membership, and this month’s session is still available' };
+      if (c.kind === 'membership') return L({ kind: 'membership', ref: c.buyer, text: 'a monthly membership, and this month’s session is still available' });
       if (c.kind === 'gift') { var left = creditLeft(c); if (left > 0) return { kind: 'gift', ref: c.code, balance_cents: left, text: 'a gift card with ' + money(left) + ' left' } }
     }
     if (usedMember) return { kind: 'membership', blocked: true, ref: usedMember.buyer, text: 'a monthly membership, but this month’s session is already booked' };
     if (usedPackage) return { kind: 'package', blocked: true, ref: usedPackage.buyer, text: usedPackage.total > 1 ? 'a ' + usedPackage.total + '-session package, but all ' + usedPackage.total + ' sessions have been used' : 'a 1-session package, but its session has been used' };
     return null;
   }
-  function findCredit(type, ref, email, name, ymd, cents) {
+  // Packages and memberships cover a 60-minute Reiki or Reflexology session only
+  function passOk(service, minutes) { return (service === 'refl' || service === 'reiki') && +minutes === 60 }
+  function findCredit(type, ref, email, name, ymd, cents, service, minutes) {
+    if ((type === 'package' || type === 'membership') && !passOk(service, minutes)) return null;
     var r = norm(ref); name = norm(name);
     var m = DB.credits.filter(function (c) {
       if (c.kind !== type || c.status !== 'active') return false;
@@ -260,7 +265,7 @@ main{flex:1;min-height:0;position:relative}
   function api(path, body, method) {
     var u = new URL('https://x' + path), p = u.pathname;
     if (p === '/api/availability') return { tz: TZ, busy: busy() };
-    if (p === '/api/lookup') return { found: body.code ? lookupCode(body.code) : lookup(body.name, body.email, body.date) };
+    if (p === '/api/lookup') return { found: body.code ? lookupCode(body.code) : lookup(body.name, body.email, body.date, body.service, body.minutes) };
     if (p === '/api/book') return book(body);
     if (p === '/api/booking') { var x = getB(u.searchParams.get('id')); if (!x) throw err('Not found', 404); var v = view(x); return { service_name: v.service_name, minutes: x.minutes, start_utc: x.start_utc, end_utc: x.end_utc, pay: x.pay, deposit_cents: x.deposit_cents, total_cents: v.total_cents, status: x.status, credit_type: x.credit_type, email: x.email, first_name: x.name.split(' ')[0], gift_cents: x.gift_cents, gift_left_cents: x.credit_type === 'gift' && x.credit_id ? creditLeft(DB.credits.filter(function (c) { return c.id === x.credit_id })[0]) : null } }
     if (p.indexOf('/admin/api') === 0) return admin(p.slice(10), body, u);
@@ -275,7 +280,7 @@ main{flex:1;min-height:0;position:relative}
     var pay = b.service === 'intro' ? 'deposit' : (b.pay === 'credit' ? 'credit' : 'deposit');
     // checked again on every booking: nothing left on the package / membership / gift card = regular booking with the $40 deposit
     var type = ['package', 'membership', 'gift'].indexOf(b.credit_type) >= 0 ? b.credit_type : 'package';
-    var c = pay === 'credit' ? findCredit(type, (b.credit_ref || '').trim(), email, name, L.ymd, S.prices[minutes]) : null;
+    var c = pay === 'credit' ? findCredit(type, (b.credit_ref || '').trim(), email, name, L.ymd, S.prices[minutes], b.service, minutes) : null;
     if (pay === 'credit' && !c) pay = 'deposit';
     if (b.service === 'intro' && DB.bookings.some(function (x) { return x.email.toLowerCase() === email && ['confirmed', 'needs_check', 'completed', 'noshow'].indexOf(x.status) >= 0 }))
       throw err('The first-visit offer is for new clients. Please choose Reflexology + Reiki (2 hours) instead.', 409);
