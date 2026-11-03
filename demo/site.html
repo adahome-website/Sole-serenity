@@ -568,6 +568,12 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
 :root[data-theme="dark"] .cal-grid button[aria-pressed="true"],:root[data-theme="dark"] .bk-seg button[aria-pressed="true"]{background:var(--cream);color:var(--char);border-color:var(--cream)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cal-grid button[aria-pressed="true"],:root:not([data-theme="light"]) .bk-seg button[aria-pressed="true"]{background:var(--cream);color:var(--char);border-color:var(--cream)}}
 .bk-seg button:disabled{opacity:.35;cursor:not-allowed}
+/* length: its own segmented control in the studio's terracotta, so it reads as a second choice */
+#segLen{background:color-mix(in srgb,var(--terra) 12%,var(--cell));border:1.5px solid color-mix(in srgb,var(--terra) 35%,transparent);border-radius:999px;padding:4px;gap:2px;display:inline-flex;align-items:center}
+#segLen::before{content:"";width:16px;height:16px;margin:0 4px 0 8px;flex:none;background:var(--terra);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E") center/contain no-repeat}
+#segLen button{border-color:transparent;background:transparent;color:var(--terra);padding:8px 13px}
+#segLen button[aria-pressed="true"]{background:var(--terra);border-color:var(--terra);color:#fff}
+#segLen button:disabled{opacity:.3}
 .bk-week .tt-head{justify-content:space-between;flex-wrap:nowrap}
 .bk-week .tt-head h3{font-size:20px;text-align:center;flex:1;min-width:0}
 .bk-week .legend{margin-bottom:10px}
