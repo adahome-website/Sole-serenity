@@ -813,8 +813,6 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         </div>
         <ul class="bk-pol">
           <li id="polDep" hidden><b>Deposit:</b> holds your time and comes off your total. To cancel, text or email me at least 48 hours before and I'll refund it in full; within 48 hours it isn't refunded.</li>
-          <li><b>Late arrival:</b> your session still finishes at the booked time, so the next client's time is protected too.</li>
-          <li><b>Scent-free:</b> just ask. Essential oils are only used with your consent.</li>
         </ul>
         <button class="btn go" type="button" id="goBtn" disabled>Continue</button>
         <button type="button" class="linkish" id="giftLink">Have a gift card code?</button>
@@ -1741,7 +1739,9 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     var next=[check?'I\'ll email you once I\'ve matched your '+(c.credit||'purchase')+'. Nothing to pay today.':'Your confirmation email has the details and the studio address in Northwest Calgary.',
       'I\'ll send you a reminder about 3 days before.',
       giftPaid?'Your session is paid in full, so there’s nothing to pay when you come in.':c.pay==='deposit'?'After your session, the rest ($'+(c.total-c.deposit)+') goes on the card you just used, and you get one receipt for the full amount.':'Your session comes off your '+(c.credit||'credit')+' when you come in.',
-      giftPaid?'Need to cancel or move? Text or email me at least 48 hours before and it all goes back'+(c.card?' (the card payment is refunded)':' on your gift card')+'.':c.pay==='deposit'?'Need to cancel or move? Text or email me at least 48 hours before for a full refund of your deposit.':'Need to cancel or move? Text or email me at least 48 hours before. A no-show or a late cancellation uses that session.'];
+      giftPaid?'Need to cancel or move? Text or email me at least 48 hours before and it all goes back'+(c.card?' (the card payment is refunded)':' on your gift card')+'.':c.pay==='deposit'?'Need to cancel or move? Text or email me at least 48 hours before for a full refund of your deposit.':'Need to cancel or move? Text or email me at least 48 hours before. A no-show or a late cancellation uses that session.',
+      '<b>Running late?</b> Your session still finishes at the booked time, so the next client\'s time is protected too.',
+      '<b>Scent-free?</b> Just ask. Essential oils are only used with your consent.'];
     $('okNext').innerHTML=next.map(function(x){return '<li>'+x+'</li>'}).join('');
     var g=function(d){return d.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'')};
     $('okCal').href='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent('Sole Serenity · '+c.service)+'&dates='+g(c.start)+'/'+g(c.end)+'&details='+encodeURIComponent('With Melanie MacDougall. The address is in your confirmation email. 587-216-8588')+'&location='+encodeURIComponent('Northwest Calgary');
