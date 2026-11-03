@@ -76,7 +76,8 @@ section{position:relative}
 /* header */
 .top{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .top .wrap{display:flex;align-items:center;gap:20px;height:72px}
-.brand{display:flex;align-items:center;gap:12px;text-decoration:none;min-width:0}
+.brand{display:flex;align-items:center;gap:9px;text-decoration:none;min-width:0}
+.brand>span{display:flex;flex-direction:column;justify-content:center;gap:5px}.brand small{line-height:1}
 .brand img{width:50px;height:50px;border-radius:50%;box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--ochre)}
 .brand b{font-family:var(--display);font-weight:800;font-size:20px;letter-spacing:-.02em;line-height:1;display:block}
 .brand small{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2)}
@@ -170,7 +171,7 @@ section{position:relative}
 .class .btn{padding:12px 16px;font-size:14px;white-space:nowrap;justify-content:center}
 .class .cfoot{flex-direction:column;align-items:stretch;gap:14px}
 .class .cfoot .btn{width:100%}
-@media (max-width:440px){.top .wrap{gap:10px}.brand{gap:8px}.brand b{font-size:16px}.top .btn{padding:9px 12px;font-size:13px}.theme-t{width:36px;height:36px}.bar .btn{padding:12px 14px;font-size:14px}}
+@media (max-width:440px){.top .wrap{gap:10px}.brand{gap:7px}.brand b{font-size:16px}.top .btn{padding:9px 12px;font-size:13px}.theme-t{width:36px;height:36px}.bar .btn{padding:12px 14px;font-size:14px}}
 /* tablet: the four session cards scroll sideways two at a time; phone: one at a time */
 @media (max-width:1080px){
   .classes{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:calc((100% - 14px)/2);overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;padding-bottom:12px;scrollbar-width:thin}
