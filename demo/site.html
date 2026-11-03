@@ -1970,8 +1970,11 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     if(opener&&document.contains(opener)&&opener.offsetParent!==null)opener.focus();
   });
   $('bkClose').addEventListener('click',closeBook);
-  $('bkCont').addEventListener('click',function(){if(st.t===null)return;dlg.classList.add('step2');window.scrollTo(0,0);$('plTitle').focus()});
-  $('bkBack').addEventListener('click',function(){dlg.classList.remove('step2');window.scrollTo(0,0);var b=$('calTimes').querySelector('[aria-pressed="true"]')||$('calGrid').querySelector('button:not(:disabled)');if(b)b.focus()});
+  // phones and tablets: the details screen gets its own history step, so the back arrow returns to the calendar, not the page before booking
+  function toStep2(){dlg.classList.add('step2');window.scrollTo(0,0);$('plTitle').focus()}
+  function toStep1(){dlg.classList.remove('step2');window.scrollTo(0,0);var b=$('calTimes').querySelector('[aria-pressed="true"]')||$('calGrid').querySelector('button:not(:disabled)');if(b)b.focus()}
+  $('bkCont').addEventListener('click',function(){if(st.t===null)return;if(!(history.state&&history.state.bk===2)){try{history.pushState({bk:2},'','#book')}catch(e){}}toStep2()});
+  $('bkBack').addEventListener('click',function(){if(history.state&&history.state.bk===2)history.back();else toStep1()});
 
   /* ---------- views (hash routing) ---------- */
   var VIEWS=['home','melanie','training','questions'],curView=null;
@@ -1998,7 +2001,8 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     showView('home');
   }
   window.addEventListener('hashchange',route);
-  window.addEventListener('popstate',function(){if(location.hash!=='#book'&&dlg.open)dlg.close()});
+  window.addEventListener('popstate',function(e){if(location.hash!=='#book'){if(dlg.open)dlg.close();return}
+    var two=!!(e.state&&e.state.bk===2);if(two&&!dlg.classList.contains('step2')&&st.t!==null)toStep2();else if(!two&&dlg.classList.contains('step2'))toStep1()});
   document.addEventListener('click',function(e){
     var a=e.target.closest('a[href="#book"]');if(!a)return;
     e.preventDefault();openBook(a.dataset.pick,a);
