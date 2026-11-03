@@ -1590,7 +1590,8 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     }
     barRender();
     $('goBtn').disabled=!has;$('bkCont').disabled=!has;$('bkHint').hidden=has;
-    $('goNote').classList.remove('show');
+    $('goNote').classList.remove('show');    // a membership, package or gift card was already shown: check it again for the new session, length or time
+    if(typeof FOUND!=='undefined'&&(FOUND||!$('crFound').hidden))recheck();
   }
   $('segSess').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;st.s=b.dataset.v;st.len=SESS[st.s].lens.indexOf(st.len)<0?SESS[st.s].lens[0]:st.len;render()});
   $('segLen').addEventListener('click',function(e){var b=e.target.closest('button');if(!b||b.disabled)return;st.len=+b.dataset.v;render()});
@@ -1660,6 +1661,15 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   function lookup(nm,em,code){
     if(!BOOKING_API)return new Promise(function(r){setTimeout(function(){r(code?(code.trim().toUpperCase()==='SS-DEMO-GIFT'?{kind:'gift',ref:'SS-DEMO-GIFT',balance_cents:5000,text:'a gift card with $50.00 left'}:null):DEMO_CREDITS[nm.toLowerCase()]||null)},400)});
     return fetch(BOOKING_API+'/api/lookup',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:nm,email:em,code:code||'',service:st.s,minutes:st.len,date:st.date?st.date.getFullYear()+'-'+String(st.date.getMonth()+1).padStart(2,'0')+'-'+String(st.date.getDate()).padStart(2,'0'):''})}).then(function(r){return r.json()}).then(function(d){return d.found||null}).catch(function(){return null});
+  }
+  var reSeq=0;
+  function recheck(){
+    var seq=++reSeq,nm=$('ctName').value.trim(),em=$('ctEmail').value.trim(),code=giftMode?$('crRef').value.trim():'';
+    FOUND=null;$('crFound').hidden=true;foundMode(false);
+    if(!giftMode&&pay==='credit'){pay='deposit';payRender()}
+    if(st.t===null||!nm||emailProblem(em)||(giftMode&&!code))return;
+    var b=$('goBtn');b.disabled=true;b.textContent='Checking…';
+    lookup(nm,em,code).then(function(f){if(seq!==reSeq)return;b.disabled=st.t===null;b.textContent='Continue';if(f)showFound(f,giftMode?'':nm)});
   }
   $('crRef').addEventListener('input',function(){if(giftMode&&FOUND){FOUND=null;$('crFound').hidden=true;foundMode(false)}});
   /* ---------- email check: real format, plus a nudge for common typos (gmial.com, hotmal.com, .con) ---------- */
