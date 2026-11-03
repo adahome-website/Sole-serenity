@@ -2044,6 +2044,15 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     var a=e.target.closest('a[href="#book"]');if(!a)return;
     e.preventDefault();openBook(a.dataset.pick,a);
   });
+  // Home and the logo: back to the top of the page with a fresh reload, from anywhere (even the Memberships & Packages section)
+  document.addEventListener('click',function(e){
+    var a=e.target.closest('a[href="#home"]');if(!a||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+    e.preventDefault();
+    try{history.scrollRestoration='manual'}catch(x){}
+    window.scrollTo(0,0);
+    try{history.replaceState(null,'',location.pathname+location.search+'#home')}catch(x){}
+    location.reload();
+  });
   // in-page links to the current view's sections still scroll even if hash is unchanged
   document.addEventListener('click',function(e){
     var a=e.target.closest('a[href^="#"]');if(!a||a.getAttribute('href')==='#book')return;
