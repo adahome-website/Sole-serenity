@@ -1010,7 +1010,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
       </article>
       <article class="pack">
         <div class="k"><span>Series</span></div>
-        <h3>3-session reset</h3>
+        <h3>3-session package</h3>
         <div class="amt">$279<small> / 3 hours</small></div>
         <p>Three 60-minute sessions of reflexology or Reiki. A gentle reset for a stressful season.</p>
         <ul><li>For 60-minute Reflexology or Reiki sessions</li><li>Mix reflexology and Reiki hours</li><li>Book each visit on my schedule</li><li>RCRT receipts for each reflexology visit</li></ul>
@@ -1796,7 +1796,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     }
     var pkg=r.kind==='package';
     okFill({title:pkg?'Your package is ready':'Welcome, you’re a member',sub:'Thank you'+(first?', '+first:'')+'. A confirmation is on its way to '+(r.email?escH(r.email):'your email')+'.',
-      card:row(pkg?(r.total>=10?'The Deep Ten':r.total+'-session reset'):'Monthly ritual',pkg?(r.total+' sessions'):'1 session a month')+row(pkg?'Paid':'Billed monthly','$'+(r.price_cents/100)),
+      card:row(pkg?(r.total>=10?'The Deep Ten':r.total+'-session package'):'Monthly ritual',pkg?(r.total+' sessions'):'1 session a month')+row(pkg?'Paid':'Billed monthly','$'+(r.price_cents/100)),
       next:[pkg?'Book whenever suits you. Book with this same email and I’ll recognise your package. Nothing to pay at booking.':'Book your session for this month whenever suits you. Book with this same email and I’ll recognise your membership. Nothing to pay at booking.',
         pkg?'Your package doesn’t expire.':'You can cancel your membership anytime.',
         'Cancel or move a session at least 48 hours before; a no-show or a late cancellation uses that session.']});
@@ -2063,7 +2063,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
    Empty links fall back to the contact section until they're added. */
 (function(){
   var STRIPE_LINKS={
-    reset3:'',     // 3-session reset, $279 one-time
+    reset3:'',     // 3-session package, $279 one-time
     reset10:'',    // The Deep Ten (10-session pass), $890 one-time
     monthly:'',    // Monthly ritual, $89 recurring monthly
     gift99:'',     // Gift certificate $99
@@ -2075,7 +2075,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     if(u){a.href=u;a.target='_blank';a.rel='noopener';}
   });
   // Preview only (no Stripe links yet): a pretend checkout so the buy buttons can be tried end to end
-  var P={reset3:{kind:'package',total:3,price:279,label:'3-session reset'},reset10:{kind:'package',total:10,price:890,label:'The Deep Ten'},monthly:{kind:'membership',total:1,price:89,label:'Monthly ritual membership'},
+  var P={reset3:{kind:'package',total:3,price:279,label:'3-session package'},reset10:{kind:'package',total:10,price:890,label:'The Deep Ten'},monthly:{kind:'membership',total:1,price:89,label:'Monthly ritual membership'},
     gift99:{kind:'gift',price:99,label:'Gift card $99'},gift198:{kind:'gift',price:198,label:'Gift card $198'},giftCustom:{kind:'gift',custom:true,label:'Gift card, custom amount'}};
   var dlgP=document.createElement('dialog');dlgP.className='proto-co';dlgP.setAttribute('aria-label','Checkout');document.body.appendChild(dlgP);
   var css=document.createElement('style');css.textContent='.proto-co{border:0;border-radius:18px;padding:0;width:min(420px,calc(100vw - 32px));box-shadow:0 30px 80px rgba(0,0,0,.35);font:15px/1.45 var(--body,system-ui)}.proto-co::backdrop{background:rgba(20,16,12,.55)}.proto-co .h{background:#f6f1ea;padding:18px 22px;border-bottom:1px solid #e6ddd0}.proto-co .h small{display:block;color:#6b5a48;font-size:12.5px}.proto-co .h b{display:block;font-size:28px;margin-top:2px;color:#2b231a}.proto-co .b{padding:16px 22px 20px;display:grid;gap:11px;color:#2b231a}.proto-co label{display:grid;gap:4px;font-size:13px;font-weight:600}.proto-co input{font:15px var(--body,system-ui);padding:10px 12px;border:1px solid #d6ccbf;border-radius:10px;color:#2b231a;background:#fff}.proto-co .pay{background:#2b231a;color:#fcf9f4;border:0;border-radius:999px;padding:13px;font:700 15px var(--body,system-ui);cursor:pointer}.proto-co .cx{background:none;border:0;color:#6b5a48;cursor:pointer;font-size:14px}.proto-co .err{color:#a35f3c;font-size:13.5px;margin:0;min-height:0}.proto-co .fine{font-size:12px;color:#6b5a48;margin:0}';document.head.appendChild(css);
