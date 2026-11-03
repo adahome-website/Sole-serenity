@@ -559,7 +559,7 @@ window.SS_PERSIST = true;
       co.innerHTML='<div class="co-h"><small>Sole Serenity</small><b>'+(P.custom?'Gift card':DEMO.money(P.price))+'</b><span>'+esc(P.label)+(P.kind==='membership'?' · billed monthly':'')+'</span><br><span class="co-tag">Pretend Stripe checkout · no real payment</span></div>'+
         '<div class="co-b">'+(P.custom?'<label>Amount ($)<input id="bAmt" type="number" min="20" value="150"></label>':'')+
         '<label>'+(gift?'Your name (required)':'Your name, the person using it (required)')+'<input id="bName" placeholder="First and last name"></label><label>Your email (required)<input id="bEmail" type="email" placeholder="you@email.com"></label>'+
-        (gift?'<label>Who is the gift for? (required)<input id="bRec" placeholder="Their name"></label><label>Their email (optional, we\'ll send them the code)<input id="bRecE" type="email"></label>':'')+
+        (gift?'<label>Who is the gift for? (required)<input id="bRec" placeholder="Their name"></label><label>Their email, so we can send them the code<input id="bRecE" type="email"></label>':'')+
         '<label>Card number<input value="4242 4242 4242 4242"></label><p class="err" id="bErr"></p><button class="pay" type="button" id="bPay">Pay</button><button class="cx" type="button" id="bCx">‹ Back to Sole Serenity</button></div>';
       ov.hidden=false;$('bName').focus();
       $('bCx').onclick=function(){close(false)};
