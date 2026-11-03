@@ -1608,7 +1608,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
       pol:'<b>Package:</b> no deposit needed. To cancel or move, text or email me at least 48 hours before and your session stays on your package.'},
     membership:{label:'Name on your membership',ph:'Your full name',ac:'name',
       dep:'<span><b>$0 today</b> · this month\'s membership session</span>',
-      warn:'<b>Please note:</b> a no-show or a cancellation within 48 hours of your appointment means you lose this month\'s session.',
+      warn:'<b>Please note:</b> a no-show or a cancellation within 48 hours of your appointment still counts as one of this month\'s sessions.',
       pol:'<b>Membership:</b> no deposit needed. To cancel or move, text or email me at least 48 hours before and you keep this month\'s session.'},
     gift:{label:'Gift card code',ph:'e.g. SS-GIFT-1234',ac:'off',
       dep:'<span><b>Paid from your gift card</b> · any balance is paid by card on the next page</span>',
@@ -1657,7 +1657,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         $('payDepInstead').hidden=false;$('payDepInstead').textContent='Continue this booking instead';
         $('crFound').hidden=false;foundMode(true);return}
       if(f.blocked){
-        $('crFoundT').textContent=mem?'This month’s session is already booked. You can still book this one with the $40 deposit.':'All sessions on your package have been used, so this is a regular booking with the $40 deposit.';
+        $('crFoundT').textContent=mem?(tot>1?'All of this month’s sessions are booked.':'This month’s session is already booked.')+' You can still book this one with the $40 deposit.':'All sessions on your package have been used, so this is a regular booking with the $40 deposit.';
         $('useCred').hidden=true;$('payDepInstead').hidden=false;$('payDepInstead').textContent='Continue this booking';
         $('crFound').hidden=false;foundMode(true);return}
       $('crFoundT').textContent='Use it for this visit? Nothing to pay today.';

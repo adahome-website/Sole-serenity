@@ -206,7 +206,7 @@ main{flex:1;min-height:0;position:relative}
   function creditLeft(c, ym) {
     var u = usesOf(c);
     if (c.kind === 'package') return u.length < c.total;
-    if (c.kind === 'membership') return !u.some(function (x) { return x.date_local.slice(0, 7) === ym });
+    if (c.kind === 'membership') return Math.max(0, Math.max(1, +c.total || 1) - u.filter(function (x) { return x.date_local.slice(0, 7) === ym }).length); // sessions left this month
     return c.total - u.reduce(function (a, x) { return a + (x.amount_cents || 0) }, 0);
   }
   function norm(x) { return String(x || '').trim().replace(/\s+/g, ' ').toLowerCase() }
@@ -229,10 +229,10 @@ main{flex:1;min-height:0;position:relative}
       if (c.kind === 'package' && u.length >= c.total) { usedPackage = usedPackage || c; continue }
       if (c.kind === 'package' && u.length < c.total) { var l = c.total - u.length; return L({ kind: 'package', total: c.total, left: l, ref: c.recipient || c.buyer, text: 'a ' + c.total + '-session package with ' + l + ' session' + (l > 1 ? 's' : '') + ' left' }) }
       if (c.kind === 'membership' && !creditLeft(c, ym)) { usedMember = c; continue }
-      if (c.kind === 'membership') return L({ kind: 'membership', total: 1, left: 1, ref: c.buyer, text: 'a monthly membership, and this month’s session is still available' });
+      if (c.kind === 'membership') { var pm = Math.max(1, +c.total || 1), lm = creditLeft(c, ym); return L({ kind: 'membership', total: pm, left: lm, ref: c.buyer, text: pm > 1 ? 'a monthly membership with ' + lm + ' of ' + pm + ' sessions left this month' : 'a monthly membership, and this month’s session is still available' }) }
       if (c.kind === 'gift') { var left = creditLeft(c); if (left > 0) return { kind: 'gift', ref: c.code, balance_cents: left, text: 'a gift card with ' + money(left) + ' left' } }
     }
-    if (usedMember) return { kind: 'membership', blocked: true, total: 1, left: 0, ref: usedMember.buyer, text: 'a monthly membership, but this month’s session is already booked' };
+    if (usedMember) { var pmu = Math.max(1, +usedMember.total || 1); return { kind: 'membership', blocked: true, total: pmu, left: 0, ref: usedMember.buyer, text: pmu > 1 ? 'a monthly membership, but all of this month’s sessions are booked' : 'a monthly membership, but this month’s session is already booked' } }
     if (usedPackage) return { kind: 'package', blocked: true, total: usedPackage.total, left: 0, ref: usedPackage.buyer, text: usedPackage.total > 1 ? 'a ' + usedPackage.total + '-session package, but all ' + usedPackage.total + ' sessions have been used' : 'a 1-session package, but its session has been used' };
     return null;
   }
@@ -250,7 +250,7 @@ main{flex:1;min-height:0;position:relative}
       var c = m[i]; if (c.expires && c.expires < ymd) continue;
       var u = usesOf(c);
       if (type === 'package' && u.length < c.total) return c;
-      if (type === 'membership' && !u.some(function (x) { return x.date_local.slice(0, 7) === ymd.slice(0, 7) })) return c;
+      if (type === 'membership' && creditLeft(c, ymd.slice(0, 7)) > 0) return c;
       if (type === 'gift' && creditLeft(c) > 0) return c;
     }
     return null;

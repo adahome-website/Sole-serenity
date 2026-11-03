@@ -213,8 +213,8 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
     var u=c.uses||[];
     if(c.kind==='package'){var used=u.length,left=Math.max(0,c.total-used),ex=c.expires?fdate(c.expires).replace(/^\w+, /,''):'';if(c.expires&&c.expires<today()&&left>0)return{txt:'Expired',sub:'on '+ex,done:true};return{txt:left+' of '+c.total,sub:'sessions left'+(ex&&left?' · until '+ex.replace(/, \d{4}$/,''):''),done:left===0}}
     if(c.kind==='gift'){var spent=u.reduce(function(a,x){return a+(+x.amount_cents||0)},0),left=Math.max(0,c.total-spent);return{txt:money(left),sub:'left of '+money(c.total),done:left<=0}}
-    var m=today().slice(0,7),usedNow=u.some(function(x){return x.date_local.slice(0,7)===m});
-    return{txt:usedNow?'Used':'1 left',sub:'this month',done:c.status==='ended'}
+    var m=today().slice(0,7),pm=Math.max(1,+c.total||1),usedNow=u.filter(function(x){return x.date_local.slice(0,7)===m}).length,lm=Math.max(0,pm-usedNow);
+    return{txt:pm>1?lm+' of '+pm:(lm?'1 left':'Used'),sub:pm>1?'left this month':'this month',done:c.status==='ended'}
   }
 
   /* ---------- render ---------- */
@@ -261,7 +261,7 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
   }
   function credit(c){
     var b=bal(c),u=c.uses||[],who=c.recipient||c.buyer,isOpen=!!open[c.id];
-    var h='<article class="rec '+c.kind+'"><button type="button" data-open="'+esc(c.id)+'" aria-expanded="'+isOpen+'"><div class="who"><b>'+esc(who)+'</b><small>'+(c.recipient?'Gift from '+esc(c.buyer)+' · ':'')+'Bought '+esc(fdate(c.bought))+(c.code?' · '+esc(c.code):'')+'</small></div><div class="bal"><b>'+esc(c.kind==='membership'&&c.status==='ended'?'Inactive':b.txt)+'</b><small>'+esc(c.kind==='membership'?(c.status==='ended'?'not paying':'active · this month'):b.sub)+'</small></div></button>';
+    var h='<article class="rec '+c.kind+'"><button type="button" data-open="'+esc(c.id)+'" aria-expanded="'+isOpen+'"><div class="who"><b>'+esc(who)+'</b><small>'+(c.recipient?'Gift from '+esc(c.buyer)+' · ':'')+'Bought '+esc(fdate(c.bought))+(c.code?' · '+esc(c.code):'')+'</small></div><div class="bal"><b>'+esc(c.kind==='membership'&&c.status==='ended'?'Inactive':b.txt)+'</b><small>'+esc(c.kind==='membership'?(c.status==='ended'?'not paying':'active · '+b.sub):b.sub)+'</small></div></button>';
     if(isOpen){
       h+='<div class="body"><div class="facts">'+(c.kind!=='gift'?'<div><small>'+(c.kind==='membership'?'Member':'Client')+'</small><span>'+esc(c.buyer)+'</span></div><div><small>'+(c.kind==='membership'?'Member since':'Bought')+'</small><span>'+esc(fdate(c.bought))+'</span></div>'+(c.expires?'<div><small>Expires</small><span>'+esc(fdate(c.expires))+'</span></div>':''):'<div><small>Bought by</small><span>'+esc(c.buyer)+'</span></div><div><small>For</small><span>'+esc(c.recipient||c.buyer)+'</span></div>')+'<div><small>Phone</small><span>'+esc(c.phone||'—')+'</span></div><div><small>Email</small><span>'+esc(c.email||'—')+'</span></div></div>';
       h+=u.length?'<div class="tbl"><table><thead><tr><th>Date</th><th>Time</th><th>Service</th><th>Status</th>'+(c.kind==='gift'?'<th class="num">Taken</th>':'')+'<th></th></tr></thead><tbody>'+u.map(function(x){
