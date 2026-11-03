@@ -366,7 +366,8 @@ section{position:relative}
 
 
 /* packages */
-.packs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.packs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+@media (max-width:1280px) and (min-width:1081px){.packs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .pack{border-radius:26px;padding:26px;min-width:0;display:flex;flex-direction:column;border:2px solid var(--ink)}
 .pack.feat{background:var(--teal);color:var(--cream);border-color:var(--teal)}
 .pack.gift{background:var(--ochre);color:var(--char);border-color:var(--ochre)}
@@ -962,6 +963,15 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         <p>Three 60-minute sessions of reflexology or Reiki, used whenever suits you. A gentle reset for a stressful season.</p>
         <ul><li>For 60-minute Reflexology or Reiki sessions</li><li>Mix reflexology and Reiki hours</li><li>Book each visit on my schedule</li><li>RCRT receipts for each reflexology visit</li></ul>
         <a class="btn btn-ink" href="#contact" data-stripe="reset3">Buy the series</a>
+        <p class="pay-fine">Just for you: use your own name at checkout and when you book, so your sessions match. Secure card checkout with Stripe.</p>
+      </article>
+      <article class="pack">
+        <div class="k"><span>Series</span><span>Best value</span></div>
+        <h3>The Deep Ten</h3>
+        <div class="amt">$890<small> / 10 hours</small></div>
+        <p>Ten 60-minute sessions of reflexology or Reiki, used whenever suits you. For making calm a real habit: $89 a session, $100 less than booking one at a time.</p>
+        <ul><li>For 60-minute Reflexology or Reiki sessions</li><li>Mix reflexology and Reiki hours</li><li>Book each visit on my schedule</li><li>RCRT receipts for each reflexology visit</li></ul>
+        <a class="btn btn-ink" href="#contact" data-stripe="reset10">Buy the Deep Ten</a>
         <p class="pay-fine">Just for you: use your own name at checkout and when you book, so your sessions match. Secure card checkout with Stripe.</p>
       </article>
       <article class="pack feat">
@@ -1744,7 +1754,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     }
     var pkg=r.kind==='package';
     okFill({title:pkg?'Your package is ready':'Welcome, you’re a member',sub:'Thank you'+(first?', '+first:'')+'. A confirmation is on its way to '+(r.email?escH(r.email):'your email')+'.',
-      card:row(pkg?'3-session reset':'Monthly ritual',pkg?(r.total+' sessions'):'1 session a month')+row(pkg?'Paid':'Billed monthly','$'+(r.price_cents/100)),
+      card:row(pkg?(r.total>=10?'The Deep Ten':r.total+'-session reset'):'Monthly ritual',pkg?(r.total+' sessions'):'1 session a month')+row(pkg?'Paid':'Billed monthly','$'+(r.price_cents/100)),
       next:[pkg?'Book whenever suits you. Use the same name and email and I’ll recognise your package. Nothing to pay at booking.':'Book your session for this month whenever suits you. Use the same name and email and I’ll recognise your membership. Nothing to pay at booking.',
         pkg?'Your package doesn’t expire.':'You can cancel your membership anytime.',
         'Cancel or move a session at least 48 hours before; a no-show or a late cancellation uses that session.']});
@@ -2012,6 +2022,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
 (function(){
   var STRIPE_LINKS={
     reset3:'',     // 3-session reset, $279 one-time
+    reset10:'',    // The Deep Ten (10-session pass), $890 one-time
     monthly:'',    // Monthly ritual, $89 recurring monthly
     gift99:'',     // Gift certificate $99
     gift198:'',    // Gift certificate $198

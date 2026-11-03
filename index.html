@@ -372,7 +372,7 @@ window.SS_PERSIST = true;
     confirmEmail(bk); newBookingAlert(bk); notify();
   }
   function checkoutCancelled(id) { var bk = getB(id); if (bk && bk.status === 'held') { bk.status = 'cancelled'; bk.notes = bk.topup_cents ? 'Gift card top-up not paid' : 'Deposit checkout not finished'; if (bk.topup_cents) DB.uses = DB.uses.filter(function (u) { return u.booking_id !== id }); notify() } }
-  var PRODUCTS = { reset3: { kind: 'package', total: 3, price: 27900, label: '3-session reset' }, monthly: { kind: 'membership', total: 1, price: 8900, label: 'Monthly ritual membership' }, gift99: { kind: 'gift', total: 9900, price: 9900, label: 'Gift card $99' }, gift198: { kind: 'gift', total: 19800, price: 19800, label: 'Gift card $198' }, giftCustom: { kind: 'gift', custom: true, label: 'Gift card, custom amount' } };
+  var PRODUCTS = { reset3: { kind: 'package', total: 3, price: 27900, label: '3-session reset' }, reset10: { kind: 'package', total: 10, price: 89000, label: 'The Deep Ten (10 sessions)' }, monthly: { kind: 'membership', total: 1, price: 8900, label: 'Monthly ritual membership' }, gift99: { kind: 'gift', total: 9900, price: 9900, label: 'Gift card $99' }, gift198: { kind: 'gift', total: 19800, price: 19800, label: 'Gift card $198' }, giftCustom: { kind: 'gift', custom: true, label: 'Gift card, custom amount' } };
   function purchase(key, f) {
     var P = PRODUCTS[key], amt = P.custom ? Math.round(+f.amount * 100) : P.price;
     var row = { id: rid('cr'), created: new Date().toISOString(), kind: P.kind, code: P.kind === 'gift' ? giftCode() : null, buyer: f.name, recipient: P.kind === 'gift' ? (f.recipient || null) : null,
