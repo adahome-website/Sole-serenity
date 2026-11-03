@@ -672,6 +672,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     </a>
     <nav class="nav" id="mainNav" aria-label="Main">
       <a href="#home" data-nav="home">Home</a>
+      <a href="#packages" data-nav="packages">Passes &amp; Memberships</a>
       <a href="#melanie" data-nav="melanie">About Melanie</a>
       <a href="#training" data-nav="training">Training &amp; Workshops</a>
       <a href="#questions" data-nav="questions">FAQ</a>
@@ -1812,7 +1813,8 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     var changed=v!==curView;curView=v;
     var bar=document.querySelector('.bar');if(bar)bar.hidden=(v==='book'||v==='booked');
     [].forEach.call(document.querySelectorAll('[data-view]'),function(s){s.hidden=s.dataset.view!==v});
-    [].forEach.call(document.querySelectorAll('[data-nav]'),function(a){if(a.dataset.nav===v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+    var cur=anchor&&document.querySelector('[data-nav="'+anchor+'"]')?anchor:v; // "Passes & Memberships" lights up when you jump to that section
+    [].forEach.call(document.querySelectorAll('[data-nav]'),function(a){if(a.dataset.nav===cur)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
     if(changed){stopB();cairnPause()}
     var el=anchor&&document.getElementById(anchor);
     if(el)el.scrollIntoView({block:'start'});else if(changed)window.scrollTo(0,0);
