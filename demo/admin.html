@@ -251,7 +251,7 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
       if(a.pay==='credit'&&a.status==='confirmed')acts+='<button class="btn" data-complete="'+esc(a.id)+'">Mark done</button>';
       if(a.status==='needs_check')acts+='<button class="btn" data-link="'+esc(a.id)+'">Find their '+esc((KIND[a.credit_type]||'credit').toLowerCase())+'</button>';
       if(a.status==='confirmed'||a.status==='needs_check')acts+='<button class="btn ghost" data-noshow="'+esc(a.id)+'">No-show</button><button class="btn danger" data-cancel="'+esc(a.id)+'">Cancel</button>';
-      var over=new Date(a.start_utc)<new Date(),ended=new Date(a.end_utc||a.start_utc)<new Date(),due=ended&&a.pay==='deposit'&&a.charged_cents==null&&(a.status==='confirmed'||a.status==='completed');
+      var ended=new Date(a.end_utc||a.start_utc)<new Date(),over=ended,due=ended&&a.pay==='deposit'&&a.charged_cents==null&&(a.status==='confirmed'||a.status==='completed');
       h+='<div class="appt-row '+esc(a.service)+(over?' past':'')+(due?' due':'')+'"><div class="tm"><b>'+esc(time)+'</b><small>'+esc(a.minutes)+' min</small></div>'+
         '<div class="who"><b>'+esc(a.name)+'</b> · '+esc(a.service_name)+'<small>'+esc(a.phone||'')+(a.phone?' · ':'')+esc(a.email)+'</small>'+(due?'<span class="st duenote">Session over · ready to charge the balance</span>':'')+status(a)+'</div>'+
         '<div class="acts">'+acts+'</div></div>';
