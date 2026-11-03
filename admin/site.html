@@ -377,6 +377,8 @@ section{position:relative}
 .pack h3{font-size:clamp(32px,3.2vw,44px);margin:26px 0 10px}
 .pack .amt{font-family:var(--display);font-weight:800;font-size:58px;letter-spacing:-.04em;line-height:.9;margin:14px 0 4px}
 .pack .amt small{font-size:16px;font-family:var(--body);font-weight:600;letter-spacing:0}
+/* savings vs. booking 60-minute sessions one at a time ($99 each) */
+.pack .save{display:flex;align-items:center;gap:6px;margin:12px 0 12px;font:700 15px/1.2 var(--body);letter-spacing:0;color:var(--terra)}.pack .save svg{flex:none}.pack.feat .save{color:var(--ochre)}
 .pack ul{padding:0;list-style:none;margin:16px 0 22px;font-size:15px}
 .pack li{padding:8px 0;border-top:1px solid color-mix(in srgb,currentColor 22%,transparent)}
 .pack .btn{margin-top:auto;align-self:flex-start}
@@ -1015,7 +1017,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
       <article class="pack feat">
         <div class="k"><span>Membership</span></div>
         <h3>Monthly ritual</h3>
-        <div class="amt">$89<small> / month</small></div>
+        <div class="amt">$89<small> / month</small><span class="save"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>Save $10 every month</span></div>
         <p>One 60-minute reflexology or Reiki session a month, built right into your calendar.</p>
         <ul><li>One 60-minute Reflexology or Reiki session each month</li><li>Book it like any visit, with no deposit</li><li>Cancel your membership anytime</li></ul>
         <a class="btn btn-cream" href="#contact" data-stripe="monthly">Start membership</a>
@@ -1024,7 +1026,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
       <article class="pack">
         <div class="k"><span>Series</span></div>
         <h3>3-session package</h3>
-        <div class="amt">$279<small> / 3 hours</small></div>
+        <div class="amt">$279<small> / 3 hours</small><span class="save"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>Save $18</span></div>
         <p>Three 60-minute sessions of reflexology or Reiki. A gentle reset for a stressful season.</p>
         <ul><li>For 60-minute Reflexology or Reiki sessions</li><li>Mix reflexology and Reiki hours</li><li>Book each visit on my schedule</li><li>RCRT receipts for each reflexology visit</li></ul>
         <a class="btn btn-ink" href="#contact" data-stripe="reset3">Buy package</a>
@@ -1033,7 +1035,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
       <article class="pack">
         <div class="k"><span>Series</span><span>Best value</span></div>
         <h3>The Deep Ten</h3>
-        <div class="amt">$890<small> / 10 hours</small></div>
+        <div class="amt">$890<small> / 10 hours</small><span class="save"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>Save $100</span></div>
         <p>Ten 60-minute sessions at $89 each, $100 less than one at a time. Calm, made a habit.</p>
         <ul><li>For 60-minute Reflexology or Reiki sessions</li><li>Mix reflexology and Reiki hours</li><li>Book each visit on my schedule</li><li>RCRT receipts for each reflexology visit</li></ul>
         <a class="btn btn-ink" href="#contact" data-stripe="reset10">Buy package</a>
