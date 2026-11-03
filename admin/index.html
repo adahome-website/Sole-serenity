@@ -106,6 +106,7 @@ body.live-admin #t-site{display:none}
   <ol>
     <li><b>Website:</b> book a Reflexology session as a new client. Pay the $40 deposit in the pretend Stripe checkout, then open <b>Emails</b> to see the confirmation.</li>
     <li><b>Website:</b> book again as <b>Pat Example</b> (package) or <b>Jordan Example</b> (member). It's recognised and there's nothing to pay.</li>
+    <li><b>Website:</b> book as <b>Sam Example</b>: his package is used up, so he's told and books with the $40 deposit like anyone else.</li>
     <li><b>Website:</b> book as <b>Lee Example</b>: a $50 gift card, so the rest ($49 for a $99 session) is paid in the checkout. <b>Riley Example</b> (or code SS-K7QM-4XPA) has $198, enough for the whole session.</li>
     <li><b>Website:</b> buy a gift card for a friend, with their email, and see both code emails.</li>
     <li><b>Admin:</b> your bookings appear here. On a deposit booking, press <b>Charge balance</b> ($99 − $40 = $59), then see the receipt email.</li>
@@ -221,19 +222,21 @@ window.SS_PERSIST = true;
   }
   function lookup(name, email, date) {
     name = norm(name); email = (email || '').trim().toLowerCase();
-    var today = ymdOf(new Date()), ym = (/^\d{4}-\d{2}-\d{2}$/.test(date || '') ? date : today).slice(0, 7), usedMember = null;
+    var today = ymdOf(new Date()), ym = (/^\d{4}-\d{2}-\d{2}$/.test(date || '') ? date : today).slice(0, 7), usedMember = null, usedPackage = null;
     for (var i = 0; i < DB.credits.length; i++) {
       var c = DB.credits[i]; if (c.status !== 'active' || (c.expires && c.expires < today)) continue;
       var names = (c.kind === 'gift' && c.recipient ? [c.recipient] : [c.recipient, c.buyer]).filter(Boolean).map(norm);
       var mine = (name && names.indexOf(name) >= 0) || (email && ((c.email === email && !(c.kind === 'gift' && c.recipient)) || c.recipient_email === email));
       if (!mine) continue;
       var u = usesOf(c);
+      if (c.kind === 'package' && u.length >= c.total) { usedPackage = usedPackage || c; continue }
       if (c.kind === 'package' && u.length < c.total) { var l = c.total - u.length; return { kind: 'package', ref: c.recipient || c.buyer, text: 'a ' + c.total + '-session package with ' + l + ' session' + (l > 1 ? 's' : '') + ' left' } }
       if (c.kind === 'membership' && !creditLeft(c, ym)) { usedMember = c; continue }
       if (c.kind === 'membership') return { kind: 'membership', ref: c.buyer, text: 'a monthly membership, and this month’s session is still available' };
       if (c.kind === 'gift') { var left = creditLeft(c); if (left > 0) return { kind: 'gift', ref: c.code, balance_cents: left, text: 'a gift card with ' + money(left) + ' left' } }
     }
     if (usedMember) return { kind: 'membership', blocked: true, ref: usedMember.buyer, text: 'a monthly membership, but this month’s session is already booked' };
+    if (usedPackage) return { kind: 'package', blocked: true, ref: usedPackage.buyer, text: usedPackage.total > 1 ? 'a ' + usedPackage.total + '-session package, but all ' + usedPackage.total + ' sessions have been used' : 'a 1-session package, but its session has been used' };
     return null;
   }
   function findCredit(type, ref, email, name, ymd, cents) {
@@ -277,13 +280,15 @@ window.SS_PERSIST = true;
     var start = localToUtc(b.date, b.time), end = new Date(start.getTime() + minutes * 6e4), L = localOf(start), Le = localOf(end);
     if (overlaps(start, end)) throw err('Sorry, that time was just taken. Please pick another.', 409);
     var pay = b.service === 'intro' ? 'deposit' : (b.pay === 'credit' ? 'credit' : 'deposit');
+    // checked again on every booking: nothing left on the package / membership / gift card = regular booking with the $40 deposit
+    var type = ['package', 'membership', 'gift'].indexOf(b.credit_type) >= 0 ? b.credit_type : 'package';
+    var c = pay === 'credit' ? findCredit(type, (b.credit_ref || '').trim(), email, name, L.ymd, S.prices[minutes]) : null;
+    if (pay === 'credit' && !c) pay = 'deposit';
     if (b.service === 'intro' && DB.bookings.some(function (x) { return x.email.toLowerCase() === email && ['confirmed', 'needs_check', 'completed', 'noshow'].indexOf(x.status) >= 0 }))
       throw err('The first-visit offer is for new clients. Please choose Reflexology + Reiki (2 hours) instead.', 409);
     var row = { id: rid('bk'), created: new Date().toISOString(), status: 'held', service: b.service, minutes: minutes, start_utc: start.toISOString(), end_utc: end.toISOString(), name: name, email: email, phone: b.phone || '', pay: pay, credit_type: null, credit_ref: null, credit_id: null, hold_until: new Date(Date.now() + 31 * 6e4).toISOString(), deposit_cents: 0, charged_cents: null };
     if (pay === 'deposit') { DB.bookings.push(row); notify(); return { ok: true, checkout_url: 'demo-checkout:' + row.id } }
-    var type = ['package', 'membership', 'gift'].indexOf(b.credit_type) >= 0 ? b.credit_type : 'package';
     row.credit_type = type; row.credit_ref = (b.credit_ref || '').trim();
-    var c = findCredit(type, row.credit_ref, email, name, L.ymd, S.prices[minutes]);
     if (c && type === 'gift') {
       // Gift cards always pay for the full session: the card covers what it can, the rest is paid by card now
       var due = S.prices[minutes] - Math.min(S.prices[minutes], creditLeft(c));
@@ -412,6 +417,8 @@ window.SS_PERSIST = true;
     }
     var bought2 = addDaysYmd(ymdOf(new Date()), -16);
     DB.credits.push({ id: 'cr_pat', kind: 'package', buyer: 'Pat Example', email: 'pat@example.com', phone: '587-555-0141', bought: bought2, price_cents: 27900, total: 3, status: 'active' });
+    DB.credits.push({ id: 'cr_sam', kind: 'package', buyer: 'Sam Example', email: 'sam@example.com', phone: '587-555-0163', bought: addDaysYmd(ymdOf(new Date()), -90), price_cents: 27900, total: 3, status: 'active' });
+    ['-60', '-40', '-20'].forEach(function (d, i) { DB.uses.push({ id: 'us' + i, credit_id: 'cr_sam', booking_id: null, date_local: addDaysYmd(ymdOf(new Date()), +d), start_local: '10:00', end_local: '11:00', service: 'Reflexology', status: 'used', amount_cents: 0 }) });
     DB.credits.push({ id: 'cr_jordan', kind: 'membership', buyer: 'Jordan Example', email: 'jordan@example.com', phone: '587-555-0152', bought: addDaysYmd(ymdOf(new Date()), -70), price_cents: 8900, total: 1, status: 'active' });
     DB.credits.push({ id: 'cr_lee', kind: 'gift', code: 'SS-3HNW-7RTB', buyer: 'Robin Example', recipient: 'Lee Example', recipient_email: 'lee@example.com', email: 'robin@example.com', bought: addDaysYmd(ymdOf(new Date()), -20), price_cents: 5000, total: 5000, status: 'active' });
     DB.credits.push({ id: 'cr_riley', kind: 'gift', code: 'SS-K7QM-4XPA', buyer: 'Morgan Example', recipient: 'Riley Example', recipient_email: 'riley@example.com', email: 'morgan@example.com', bought: addDaysYmd(ymdOf(new Date()), -9), price_cents: 19800, total: 19800, status: 'active' });

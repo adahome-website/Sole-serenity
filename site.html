@@ -79,6 +79,8 @@ section{position:relative}
 .brand img{width:50px;height:50px;border-radius:50%;box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--ochre)}
 .brand b{font-family:var(--display);font-weight:800;font-size:20px;letter-spacing:-.02em;line-height:1;display:block}
 .brand small{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2)}
+.brand b,.brand small{white-space:nowrap}.brand span{min-width:0}
+@media (max-width:1100px){.brand small{display:none}}
 .nav{display:flex;gap:4px;margin-left:auto}
 .nav a{text-decoration:none;font-weight:600;font-size:14.5px;padding:8px 12px;border-radius:999px;white-space:nowrap}
 .nav a{border-radius:0;padding:8px 2px;margin:0 10px;box-shadow:inset 0 -3px 0 transparent;transition:box-shadow .15s}
@@ -1527,8 +1529,8 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     if(c){
       $('crRefL').textContent=C.label;$('crRef').placeholder=C.ph;$('crRef').setAttribute('autocomplete',C.ac);
       $('depRow').innerHTML=C.dep;$('depRow').hidden=false;$('polDep').innerHTML=C.pol;$('polDep').hidden=false;$('crWarn').innerHTML=C.warn;
-      $('goBtn').textContent='Request this time · $0 today';
-      $('goFine').textContent='No payment is taken. I\'ll check your '+(k==='gift'?'gift card':k)+' and confirm by message.';
+      $('goBtn').textContent='Continue';
+      $('goFine').textContent='Press Continue to see what’s on your '+(k==='gift'?'gift card':k)+' before you book.';
     }else{
       $('depRow').innerHTML=DEP_ROW;$('depRow').hidden=true;$('polDep').innerHTML=DEP_POL;$('polDep').hidden=true;
       $('goBtn').textContent='Continue';$('goFine').textContent=DEP_FINE;
@@ -1545,7 +1547,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   function m2(x){return '$'+(Math.round(x*100)%100?x.toFixed(2):String(Math.round(x)))}
   function showFound(f,nm){
     FOUND=f;var hi=nm?'Welcome back, '+firstName(nm)+'. ':'';
-    if(f.blocked){$('crFoundT').textContent=hi+'You have '+f.text+'. To book an extra session, pay the $40 deposit as usual.';$('crFoundW').innerHTML='';$('crFoundW').hidden=true;$('useCred').hidden=true;$('payDepInstead').hidden=false;$('payDepInstead').textContent='Pay the $40 deposit';$('crFound').hidden=false;foundMode(true);$('payDepInstead').focus();return}
+    if(f.blocked){$('crFoundT').textContent=hi+'You have '+f.text+'. '+(f.kind==='membership'?'To book an extra session, pay the $40 deposit as usual.':'There are no sessions left on it, so this is a regular booking with the $40 deposit.');$('crFoundW').innerHTML='';$('crFoundW').hidden=true;$('useCred').hidden=true;$('payDepInstead').hidden=false;$('payDepInstead').textContent='Pay the $40 deposit';$('crFound').hidden=false;foundMode(true);$('payDepInstead').focus();return}
     if(f.kind==='gift'){var g=giftMath(f);
       $('crFoundT').innerHTML=esc2(hi)+'Your gift card has <b>'+m2(g.bal)+'</b> on it. This session is '+m2(g.price)+'.'+(g.due>0
         ?' The card covers '+m2(g.cover)+', and the remaining <b>'+m2(g.due)+'</b> is paid by card now, so your session is paid in full.'
@@ -1580,7 +1582,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         n.classList.remove('show');showFound(f,'')});
       return;
     }
-    if(pay==='credit'||st.s==='intro'||looked)return doBook();
+    if(pay==='credit'||st.s==='intro')return doBook(); // every Continue checks for a package, membership or gift card again
     b.disabled=true;b.textContent='Checking…';
     lookup(nm,em).then(function(f){
       looked=true;b.disabled=false;b.textContent='Continue';
@@ -1627,7 +1629,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   var TZf=function(o){return new Intl.DateTimeFormat('en-US',Object.assign({timeZone:'America/Edmonton'},o))};
   function showConfirmation(c){
     // c: {service, minutes, start, end (Date), pay, deposit, total (dollars), status, email, name, credit}
-    looked=false;FOUND=null;$('crFound').hidden=true;foundMode(false);if(giftMode){giftMode=false;$('giftLink').textContent='Have a gift card code?'}
+    resetPay();
     var check=c.status==='needs_check',day=TZf({weekday:'long',month:'long',day:'numeric'}).format(c.start),t=function(d){return TZf({hour:'numeric',minute:'2-digit'}).format(d).toLowerCase()};
     $('okNextH').hidden=false;
     $('okTitle').textContent=check?'Request received':'You\'re booked';
@@ -1718,7 +1720,13 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
 
   /* ---------- booking dialog ---------- */
   var dlg=$('bookDlg'),opener=null,mobile=matchMedia('(max-width:899px)'),prevView='home';
+  // Every visit to booking starts fresh: no gift card, package or membership is remembered from last time
+  function resetPay(){
+    giftMode=false;$('giftLink').textContent='Have a gift card code?';looked=false;FOUND=null;
+    $('crFound').hidden=true;$('crRef').value='';$('crType').value='package';pay='deposit';payRender();foundMode(false);$('goNote').classList.remove('show');
+  }
   function openBook(pick,from){
+    if(curView!=='book')resetPay();
     if(pick&&SESS[pick]){st.s=pick;st.len=(pick==='combo'||pick==='intro')?120:pick==='bath'?90:60}
     opener=from||document.activeElement;
     dlg.classList.remove('step2');render();
