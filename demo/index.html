@@ -276,6 +276,7 @@ main{flex:1;min-height:0;position:relative}
     if (!S || !S.prices[minutes]) throw err('Please choose a session and length.');
     var name = (b.name || '').trim(), email = (b.email || '').trim().toLowerCase();
     var start = localToUtc(b.date, b.time), end = new Date(start.getTime() + minutes * 6e4), L = localOf(start), Le = localOf(end);
+    if (!name || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw err('Please add your name and a valid email.', 400);
     if (overlaps(start, end)) throw err('Sorry, that time was just taken. Please pick another.', 409);
     var pay = b.service === 'intro' ? 'deposit' : (b.pay === 'credit' ? 'credit' : 'deposit');
     // checked again on every booking: nothing left on the package / membership / gift card = regular booking with the $40 deposit
