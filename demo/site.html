@@ -180,19 +180,6 @@ section{position:relative}
   .class{scroll-snap-align:start}
 }
 @media (max-width:600px){.classes{grid-auto-columns:calc(100% - 34px)}}
-/* laptop and desktop: wide session cards in a sideways row (the next card peeks in); arrows (or trackpad) move the row */
-.cl-nav{display:none}
-@media (min-width:861px){
-  .classes{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:calc((100% - 2 * 14px) / 2.5);overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scroll-behavior:smooth;padding:10px 0 18px;margin-top:-10px;scrollbar-width:thin;scrollbar-color:var(--ochre) transparent}
-  .class{scroll-snap-align:start}
-  .class .art{height:170px;width:auto;max-width:100%}
-  .cl-nav{display:flex;justify-content:flex-end;gap:8px;margin:-6px 0 12px}
-  .cl-arrow{appearance:none;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);background:var(--cell);color:var(--ink);display:grid;place-items:center;cursor:pointer;transition:background .2s,color .2s,border-color .2s,opacity .2s}
-  .cl-arrow:hover:not(:disabled){background:var(--char);color:var(--cream);border-color:var(--char)}
-  .cl-arrow:disabled{opacity:.35;cursor:default}
-}
-@media (min-width:861px) and (max-width:1180px){.classes{grid-auto-columns:calc((100% - 14px) / 2.15)}}
-@media (prefers-reduced-motion:reduce){.classes{scroll-behavior:auto}}
 
 /* first visit offer */
 .offer{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center;background:var(--ochre);color:var(--char);border-radius:26px;padding:clamp(22px,3vw,34px);margin-top:14px;position:relative;overflow:hidden}
@@ -1036,7 +1023,6 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
       <p>Reflexology works through your feet to release tension and bring your whole body back to rest. Reiki works with your energy: light, still hands for a quiet, clear mind. Together, they care for body and energy in one unhurried visit.<br><br>Choose the one your body, mind and energy are asking for today.</p>
     </div>
 
-    <div class="cl-nav" aria-label="Scroll the sessions"><button type="button" class="cl-arrow" data-dir="-1" aria-label="Previous sessions"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><button type="button" class="cl-arrow" data-dir="1" aria-label="More sessions"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button></div>
     <div class="classes">
       <article class="class t">
         <p class="num">01 · Body</p>
@@ -2104,12 +2090,6 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   (function(){var ul=document.querySelector('.gift-list');if(!ul||!('IntersectionObserver' in window)||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
     [].forEach.call(ul.children,function(li,i){li.style.setProperty('--i',i)});ul.classList.add('gl-anim');
     var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){ul.classList.add('in');io.disconnect()}})},{threshold:.25});io.observe(ul)})();
-  // session cards on desktop: arrows scroll the row one card at a time, and grey out at either end
-  (function(){var row=document.querySelector('.classes'),btns=document.querySelectorAll('.cl-arrow');if(!row||!btns.length)return;
-    function step(){var c=row.querySelector('.class');return c?c.getBoundingClientRect().width+14:300}
-    function upd(){var max=row.scrollWidth-row.clientWidth-2;btns[0].disabled=row.scrollLeft<=2;btns[1].disabled=row.scrollLeft>=max}
-    [].forEach.call(btns,function(b){b.addEventListener('click',function(){row.scrollBy({left:+b.dataset.dir*step(),behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})})});
-    row.addEventListener('scroll',function(){clearTimeout(upd.t);upd.t=setTimeout(upd,60)},{passive:true});window.addEventListener('resize',upd);upd()})();
   /* ---------- views (hash routing) ---------- */
   var VIEWS=['home','melanie','training','questions'],curView=null;
   var SECTION_VIEW={practices:'home',packages:'home',gifts:'home',ground:'home','book-teaser':'home',about:'melanie',reiki:'melanie',workshops:'training',faq:'questions',visit:'questions',policies:'questions',research:'questions'};
