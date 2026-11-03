@@ -1640,7 +1640,12 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   function giftMath(f){var price=SESS[st.s].price[st.len]*(1+GST_RATE),bal=(f.balance_cents||0)/100,cover=Math.min(bal,price);return {price:price,bal:bal,cover:cover,due:Math.round((price-cover)*100)/100,left:Math.round((bal-cover)*100)/100}}
   function m2(x){return '$'+(Math.round(x*100)%100?x.toFixed(2):String(Math.round(x)))}
   // first-visit offer: new clients only. Anyone already on file (a past booking, membership, package or gift card) is told right away.
-  function showNotNew(nm){
+  function showNotNew(nm,f){
+    var notE='You’re not eligible for the $99 first visit. It’s for new clients only.';
+    if(f&&f.kind!=='gift'){ // they have a package or membership: show it too, with what it can be used for
+      showFound(f.blocked?f:Object.assign({},f,{blocked:true,reason:'length'}),nm);
+      $('crFoundT').className='';$('crFoundT').innerHTML='<b>'+notE+'</b> '+esc2($('crFoundT').textContent);
+      $('payDepInstead').hidden=true;$('toCombo').hidden=false;FOUND={kind:'notnew'};return}
     FOUND={kind:'notnew'};$('crMeter').hidden=true;$('switch60').hidden=true;$('switch60b').hidden=true;$('useCred').hidden=true;$('payDepInstead').hidden=true;
     $('crFoundT').className='';$('crFoundT').innerHTML='<b>'+(nm?'Welcome back, '+esc2(firstName(nm))+'. ':'Welcome back. ')+'You’re not eligible for the $99 first visit.</b> It’s for new clients only, and you’ve booked with me before.';
     $('crFoundW').innerHTML='The same 2 hours of Reflexology and Reiki is the Combination Treatment, at the regular price.';$('crFoundW').hidden=false;
@@ -1697,7 +1702,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     KNOWN=false;PERSON=null;lookup(nm,em,code).then(function(f){if(seq!==reSeq||!$('crFound').hidden)return;
       // anyone on file: fill in the name and phone we have for them
       if(PERSON&&!giftMode){if(PERSON.name&&!$('ctName').value.trim())$('ctName').value=PERSON.name;if(PERSON.phone&&!$('ctPhone').value.trim())$('ctPhone').value=PERSON.phone}
-      if(st.s==='intro'&&!giftMode){if(KNOWN){if(f&&f.name&&!$('ctName').value.trim())$('ctName').value=f.name;if(f&&f.phone&&!$('ctPhone').value.trim())$('ctPhone').value=f.phone;showNotNew($('ctName').value.trim())}return}
+      if(st.s==='intro'&&!giftMode){if(KNOWN){if(f&&f.name&&!$('ctName').value.trim())$('ctName').value=f.name;if(f&&f.phone&&!$('ctPhone').value.trim())$('ctPhone').value=f.phone;showNotNew($('ctName').value.trim(),f)}return}
       if(!f)return;
       // the system is the source of truth: fill in the name and phone on their membership or package
       if(f.kind!=='gift'){if(f.name&&!$('ctName').value.trim())$('ctName').value=f.name;if(f.phone&&!$('ctPhone').value.trim())$('ctPhone').value=f.phone;nm=$('ctName').value.trim()}
@@ -1741,7 +1746,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         n.classList.remove('show');showFound(f,'')});
       return;
     }
-    if(st.s==='intro'){b.disabled=true;b.textContent='Checking…';KNOWN=false;lookup(nm,em).then(function(){b.disabled=false;b.textContent='Continue';if(KNOWN)return showNotNew(nm);doBook()});return}
+    if(st.s==='intro'){b.disabled=true;b.textContent='Checking…';KNOWN=false;lookup(nm,em).then(function(f){b.disabled=false;b.textContent='Continue';if(KNOWN)return showNotNew(nm,f);doBook()});return}
     if(pay==='credit')return doBook(); // every Continue checks for a package, membership or gift card again
     b.disabled=true;b.textContent='Checking…';
     lookup(nm,em).then(function(f){
