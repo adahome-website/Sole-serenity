@@ -390,6 +390,15 @@ section{position:relative}
 .pack .btn{margin-top:auto;align-self:flex-start}
 /* every card shares the same rows, so titles, prices, lists and buttons line up across cards */
 .pack{display:grid;grid-row:span 7;grid-template-rows:subgrid;row-gap:0;align-content:start}
+
+/* web hover: service and package cards lift a little, with a soft shadow, and their button darkens slightly */
+.class,.pack{transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+@media (hover:hover) and (pointer:fine){
+  .class:hover,.class:focus-within,.pack:hover,.pack:focus-within{transform:translateY(-6px);box-shadow:0 18px 36px -14px rgba(43,35,26,.38)}
+  .pack:not(.feat):not(.gift):not(.bv):hover{border-color:var(--terra)}
+  .class:hover .btn,.pack:hover .btn{filter:brightness(.94)}
+}
+@media (prefers-reduced-motion:reduce){.class,.pack{transition:box-shadow .2s ease}.class:hover,.class:focus-within,.pack:hover,.pack:focus-within{transform:none}}
 .pack>ul{align-self:start}
 .pack>.btn{align-self:start;justify-self:start}
 
