@@ -1953,7 +1953,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     $('calA').href=$('calI').href='data:text/calendar;charset=utf-8,'+encodeURIComponent(ics);
     calMenu(false);
     $('okCal').hidden=check;
-    $('okCal').hidden=check;okShow(false,{label:'Book another session',book:true,fn:function(){location.hash='home';setTimeout(function(){openBook(null,null)},50)}});
+    $('okCal').hidden=check;okShow(false,{label:'Book another session',book:true,fn:function(){window.scrollTo(0,0);location.hash='book'}});
   }
   var okReady=false,okAct=null;
   // shows the confirmation page (or the "there was a problem" page) as its own page, not a pop-up
@@ -1982,7 +1982,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   // something went wrong: booking not made / payment not completed
   function showIssue(o){
     okFill({title:o.title||'Not booked yet',sub:o.sub,next:o.next||[]}); // no "What happens next" on these pages
-    okShow(true,o.retry===false?null:{label:o.retryLabel||'Try again',fn:function(){location.hash='home';setTimeout(function(){openBook(null,null)},50)}});
+    okShow(true,o.retry===false?null:{label:o.retryLabel||'Try again',fn:function(){window.scrollTo(0,0);location.hash='book'}});
   }
   // after buying a package, membership or gift card
   function showPurchase(r){
@@ -2000,7 +2000,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
       next:[pkg?'Book whenever suits you. Book with this same email and I’ll recognise your package. Nothing to pay at booking.':'Book your session for this month whenever suits you. Book with this same email and I’ll recognise your membership. Nothing to pay at booking.',
         pkg?'Your package doesn’t expire. Packages are non-refundable.':'You can cancel your membership anytime with 30 days’ notice. Just email me at <a href="mailto:hello@soleserenity.ca">hello@soleserenity.ca</a>, or call or text <a href="tel:+15872168588">587-216-8588</a>.',
         'Cancel or move a session at least 48 hours before; a no-show or a late cancellation uses that session.']});
-    okShow(false,{label:'Book my first session',fn:function(){location.hash='home';setTimeout(function(){openBook(null,null)},50)}});
+    okShow(false,{label:'Book my first session',fn:function(){window.scrollTo(0,0);location.hash='book'}});
   }
   window.SS_showPurchase=showPurchase;window.SS_showIssue=showIssue;
   // Stripe checkout cancelled (Cancel, or the back arrow): no error page. Go straight back to booking with everything as they left it.
