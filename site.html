@@ -579,6 +579,9 @@ section{position:relative}
 .mel-move{transform:translate(412px,334px);animation:melMove 36s linear infinite}
 .mel-walk{opacity:0;animation:melWalk 36s linear infinite}
 .mel-sit{animation:melSit 36s linear infinite}
+.mel-icons{animation:melIcons 36s linear infinite;opacity:0}
+.mel-ico{transform-box:fill-box}
+@keyframes melIcons{0%,19%{opacity:0;transform:translateY(10px)}23%,52%{opacity:1;transform:none}56%,100%{opacity:0;transform:translateY(-6px)}}
 .mel-bob{animation:melBob .55s ease-in-out infinite}
 .night{opacity:0;animation:nightFall 36s ease-in-out infinite;pointer-events:none}
 .stars{opacity:0;animation:starsOut 36s ease-in-out infinite}
@@ -665,6 +668,14 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
 .ok-card .ok-times b{font-family:var(--display);font-weight:800;font-size:clamp(26px,4vw,32px);letter-spacing:-.03em;line-height:1}
 .ok-row{display:flex;justify-content:space-between;gap:12px;font-size:15px}
 .ok-row span:last-child{text-align:right;font-weight:600}
+.ok-meta{font-size:15px;color:var(--ink2)}
+.ok-sum{display:grid;gap:8px;border-top:2px dashed var(--line);padding-top:12px}
+.ok-sum .ok-row{font-size:15px;color:var(--ink2)}.ok-sum .ok-row span:last-child{font-weight:500;color:var(--ink)}
+.ok-sum .ok-row s{color:var(--ink2);font-weight:500;margin-left:4px}
+.ok-row.ok-paid span:first-child{display:inline-flex;align-items:center;gap:6px}.ok-row.ok-paid svg{color:var(--ok,#3f6b4f)}
+.ok-due{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:4px;background:var(--cell);border-radius:14px;padding:14px 16px}
+.ok-due>span{font-weight:700;font-size:16px}.ok-due small{display:block;margin-top:3px;font:500 12.5px var(--body);letter-spacing:0;text-transform:none;color:var(--ink2)}
+.ok-due b{font-family:var(--display);font-weight:800;font-size:clamp(28px,4vw,34px);letter-spacing:-.03em;line-height:1;color:var(--terra-d)}
 .ok-h{font-size:20px;margin:22px 0 10px}
 .ok-next{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15px}
 .ok-acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
@@ -739,7 +750,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
 .ticket .vline{height:12px;border-radius:6px;margin:14px 0 16px;gap:3px}.ticket .vline div{border-radius:6px}
 .ticket .times{border-bottom:0;border-top:2px dashed rgba(252,249,244,.22);padding:16px 0 2px;margin:0}
 .ticket::before,.ticket::after{top:var(--notch,104px)}
-.tk-price{text-align:right}.tk-price .tk-was{display:block;margin-top:4px;font:600 13px var(--body);letter-spacing:0;color:#d9c9b4;text-decoration:line-through}
+.tk-price{text-align:right;position:relative}.tk-price .tk-was{position:absolute;right:0;top:100%;display:block;margin-top:4px;font:600 13px var(--body);letter-spacing:0;color:#d9c9b4;text-decoration:line-through}
 .ok-acts #okCal{order:0}.ok-acts #okDone{order:2}
 .cal-dd{position:relative;display:inline-flex}.cal-dd[hidden]{display:none}
 .cal-menu{position:absolute;left:0;top:calc(100% + 6px);z-index:20;min-width:250px;background:var(--cell);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.18);padding:6px;display:grid}
@@ -954,20 +965,29 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
           <g class="mel-move" aria-hidden="true">
             <g class="mel-walk"><g class="mel-bob"><g transform="scale(2)">
               <rect x="-4.5" y="-16" width="3.2" height="16" rx="1.4" fill="#2b231a"/><rect x="1.3" y="-16" width="3.2" height="16" rx="1.4" fill="#2b231a"/>
-              <ellipse cx="0" cy="-37" rx="6.6" ry="8.4" fill="#2b1d14"/>
-              <path d="M-7.5 -14 L-5 -32 Q0 -35.5 5 -32 L7.5 -14 Z" fill="#2f4441"/>
+              <path d="M-6.4 -40 Q-7.6 -31 -6.4 -25 L6.4 -25 Q7.6 -31 6.4 -40 Q0 -47 -6.4 -40Z" fill="#2b1d14"/>
+              <path d="M-7.5 -14 L-5 -32 Q0 -35.5 5 -32 L7.5 -14 Z" fill="#3a332d"/>
               <circle cx="0.6" cy="-39.5" r="4.8" fill="#e2b994"/>
               <path d="M-4.6 -41 Q0 -47 5.4 -41 Q2 -43 -4.6 -41Z" fill="#2b1d14"/>
             </g></g></g>
-            <g class="mel-sit"><g transform="scale(2)">
-              <ellipse cx="0" cy="-3.6" rx="12" ry="4" fill="#2b231a"/>
-              <ellipse cx="0" cy="-27" rx="6.6" ry="8.4" fill="#2b1d14"/>
-              <path d="M-7 -5 L-5 -22 Q0 -25.5 5 -22 L7 -5 Z" fill="#2f4441"/>
-              <path d="M-4.5 -20 L-9.5 -6.5M4.5 -20 L9.5 -6.5" stroke="#2f4441" stroke-width="2.6" stroke-linecap="round"/>
-              <circle cx="-9.8" cy="-6" r="1.8" fill="#e2b994"/><circle cx="9.8" cy="-6" r="1.8" fill="#e2b994"/>
-              <circle cx="0" cy="-29.5" r="4.8" fill="#e2b994"/>
-              <path d="M-5 -31 Q0 -37 5 -31 Q1 -33 -5 -31Z" fill="#2b1d14"/>
-            </g></g>
+            <g class="mel-sit"><g transform="translate(-84 -111.7) scale(.42)">
+            <ellipse cx="200" cy="266" rx="78" ry="7" fill="rgba(0,0,0,.25)"/>
+            <rect x="122" y="250" width="156" height="15" rx="7.5" fill="#d6b48c"/>
+            <path d="M134 254Q144 226 200 230Q256 226 266 254Q232 263 200 258Q168 263 134 254Z" fill="#2f2924"/>
+            <g fill="#e2b994"><ellipse cx="146" cy="252" rx="9" ry="5"/><ellipse cx="254" cy="252" rx="9" ry="5"/></g>
+            <path d="M200 102C184 102 180 116 182 130C183 142 182 152 178 160L222 160C218 152 217 142 218 130C220 116 216 102 200 102Z" fill="#2b1d14"/>
+            <path d="M178 152Q200 142 222 152L234 238Q200 247 166 238Z" fill="#3a332d"/>
+            <rect x="195" y="134" width="10" height="14" rx="4" fill="#e2b994"/>
+            <ellipse cx="200" cy="124" rx="12" ry="14" fill="#e2b994"/>
+            <path d="M188 120C189 109 197 106 203 107C210 108 213 114 212 121C206 115 198 114 188 120Z" fill="#2b1d14"/>
+            <path d="M193 151Q200 159 207 151" stroke="#d6b48c" stroke-width="1.6" fill="none"/>
+            <path d="M183 160Q166 196 156 230M217 160Q234 196 244 230" stroke="#3a332d" stroke-width="11" fill="none" stroke-linecap="round"/>
+            <g fill="#e2b994"><ellipse cx="155" cy="234" rx="7" ry="5.5"/><ellipse cx="245" cy="234" rx="7" ry="5.5"/></g>
+            <g fill="#fcf9f4" opacity=".55"><circle cx="142" cy="222" r="3"/><circle cx="134" cy="210" r="2"/><circle cx="258" cy="222" r="3"/><circle cx="266" cy="210" r="2"/></g>
+            </g>
+            <!-- while she meditates: her services float up around her (reflexology, Reiki, foot bath), and fade before she stands -->
+            <g class="mel-icons"><g class="mel-ico i1" transform="translate(-46 -86)"><circle r="17" fill="#2b231a"/><g transform="translate(-16 -16)"><use href="#sole" x="9" y="2" width="14" height="28"/></g></g><g class="mel-ico i2" transform="translate(0 -104)"><circle r="17" fill="#2b231a"/><g transform="translate(-16 -16)"><g fill="#fcf9f4"><rect x="9" y="14" width="13" height="13" rx="5"/><rect x="9" y="6" width="3" height="11" rx="1.5"/><rect x="12.7" y="4" width="3" height="12" rx="1.5"/><rect x="16.4" y="5" width="3" height="11" rx="1.5"/><rect x="19.6" y="8" width="2.8" height="9" rx="1.4"/><rect x="5.5" y="14" width="3" height="9" rx="1.5" transform="rotate(-35 7 18.5)"/></g></g></g><g class="mel-ico i3" transform="translate(46 -86)"><circle r="17" fill="#2b231a"/><g transform="translate(-16 -16)"><path d="M11 13q2-2.5 0-5t0-5M17 13q2-2.5 0-5t0-5M23 13q2-2.5 0-5t0-5" stroke="#fcf9f4" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M3 17h26l-3.2 9.2a2 2 0 0 1-1.9 1.3H8.1a2 2 0 0 1-1.9-1.3z" fill="#fcf9f4"/></g></g></g>
+            </g>
           </g>
           <rect class="night" width="600" height="420" fill="#0f1a26"/>
           <g class="stars" fill="#fcf9f4">
@@ -1446,15 +1466,15 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
 <section class="sec" id="research" style="padding-top:0" data-view="questions">
   <div class="wrap">
     <div class="sec-head">
-      <div><span class="eyebrow">What the research says</span><h2 style="margin-top:14px">Gentle, and studied.</h2></div>
-      <p>Recent meta-analyses have looked at Reiki alongside medical care. Reiki complements, never replaces, medical care.</p>
+      <div><span class="eyebrow">What the research says</span><h2 style="margin-top:14px">Quiet work, real studies.</h2></div>
+      <p>Researchers have pooled dozens of trials on reflexology and Reiki. The evidence is still growing, and both practices complement, never replace, medical care.</p>
     </div>
     <div class="research">
-      <div class="stat"><b>Less pain</b><p>after surgery, in a 2026 meta-analysis of Reiki studies.</p></div>
-      <div class="stat"><b>Less worry</b><p>lower anxiety before surgery, in the same 2026 review.</p></div>
-      <div class="stat"><b>824 adults</b><p>a large drop in anxiety across pooled trials, in a 2024 meta-analysis.</p></div>
+      <div class="stat"><b>Better sleep</b><p>along with less anxiety and low mood, in a 2020 meta-analysis of 26 reflexology trials with 2,366 adults.</p></div>
+      <div class="stat"><b>Less pain</b><p>and less anxiety for women in labour, in a 2024 meta-analysis of 13 foot reflexology trials.</p></div>
+      <div class="stat"><b>Quality of life</b><p>improved with Reiki, in a 2025 meta-analysis of 11 randomized trials with 661 people.</p></div>
     </div>
-    <p class="src">Sources: Taylan &amp; Özkan 2026, <a href="https://doi.org/10.1016/j.pcorm.2026.100644" target="_blank" rel="noopener">doi.org/10.1016/j.pcorm.2026.100644</a> · Guo et al. 2024, <a href="https://doi.org/10.1186/s12904-024-01439-x" target="_blank" rel="noopener">doi.org/10.1186/s12904-024-01439-x</a></p>
+    <p class="src">Sources: <i>Evidence-Based Complementary and Alternative Medicine</i> 2020, <a href="https://doi.org/10.1155/2020/2654353" target="_blank" rel="noopener">doi.org/10.1155/2020/2654353</a> · Yang et al., <i>Scientific Reports</i> 2024, <a href="https://doi.org/10.1038/s41598-023-51107-y" target="_blank" rel="noopener">doi.org/10.1038/s41598-023-51107-y</a> · Liu et al., <i>Systematic Reviews</i> 2025, <a href="https://doi.org/10.1186/s13643-025-02811-5" target="_blank" rel="noopener">doi.org/10.1186/s13643-025-02811-5</a></p>
   </div>
 </section>
 </main>
@@ -1578,7 +1598,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         if(t===st.t){c.classList.add('first','picked');c.dataset.label=fmt(st.t)+' – '+fmt(st.t+st.len);c.setAttribute('aria-current','true')}
         if(t+STEP>=st.t+st.len)c.classList.add('last');
         if(t+STEP>st.t+st.len)c.classList.add('partial'); // half-hour overhang (90 min)
-        if(st.s==='combo')c.style.background=t<st.t+60?'#4c6b66':'#a35f3c';
+        if(st.s==='combo'||st.s==='intro')c.style.background=t<st.t+60?'#4c6b66':'#a35f3c'; // first visit: same reflexology hour + Reiki hour colours as the Combination
         c.setAttribute('aria-label',lab+', in your selected visit');return
       }
       if(!fits(d,t,st.len)){c.disabled=true;c.setAttribute('aria-label',lab+', too late to fit '+st.len+' minutes');return}
@@ -1907,15 +1927,22 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     $('okTitle').textContent='You\'re booked';
     $('okSub').textContent=check?'Thank you'+(c.name?', '+c.name.split(' ')[0]:'')+'. I\'ll check your '+(c.credit||'membership, package or gift card')+' and confirm by email shortly.':'Thank you'+(c.name?', '+c.name.split(' ')[0]:'')+'. Your time is held just for you. A confirmation is on its way to '+(c.email||'your email')+'.';
     var giftPaid=c.gift!=null;
-    var paid=giftPaid?'<div class="ok-row"><span>From your gift card</span><span>'+m2(c.gift)+'</span></div>'+(c.card?'<div class="ok-row"><span>Paid by card today</span><span>'+m2(c.card)+'</span></div>':'')+'<div class="ok-row"><span>Paid in full</span><span>Nothing more to pay</span></div>'+(c.giftLeft!=null?'<div class="ok-row"><span>Left on your gift card</span><span>'+m2(c.giftLeft)+'</span></div>':''):c.pkgSessions?'<div class="ok-row"><span>From your package</span><span>'+c.pkgSessions+' session'+(c.pkgSessions>1?'s':'')+'</span></div>'+(c.pkgCard?'<div class="ok-row"><span>Paid by card today</span><span>'+m2(c.pkgCard)+'</span></div><div class="ok-row"><span>Paid in full</span><span>Nothing more to pay</span></div>':''):c.pay==='deposit'?'<div class="ok-row"><span>Deposit paid today</span><span>$'+c.deposit+'</span></div><div class="ok-row"><span>Due after your session</span><span>$'+(c.total-c.deposit)+'</span></div>':'<div class="ok-row"><span>Paid with</span><span>Your '+(c.credit||'credit')+' · $0 today</span></div>';
+    // price breakdown: the total, what's been paid, then what's left (the one number that matters most, shown largest)
+    var row=function(k,v,cls){return '<div class="ok-row'+(cls?' '+cls:'')+'"><span>'+k+'</span><span>'+v+'</span></div>'};
+    var tick='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+    var due=function(k,v,note){return '<div class="ok-due"><span>'+k+(note?'<small>'+note+'</small>':'')+'</span><b>'+v+'</b></div>'};
+    var totalTxt='$'+c.total+(c.service&&/First visit/.test(c.service)?' <s>$198</s>':'');
+    var sum=giftPaid?row('Session total',totalTxt)+row(tick+'From your gift card','−'+m2(c.gift),'ok-paid')+(c.card?row(tick+'Paid by card today','−'+m2(c.card),'ok-paid'):'')+due('Left to pay','$0','Paid in full'+(c.giftLeft!=null?' · '+m2(c.giftLeft)+' left on your gift card':''))
+      :c.pkgSessions?row('Session total',totalTxt)+row(tick+'From your package',c.pkgSessions+' session'+(c.pkgSessions>1?'s':''),'ok-paid')+(c.pkgCard?row(tick+'Paid by card today','−'+m2(c.pkgCard),'ok-paid'):'')+due('Left to pay','$0','Paid in full')
+      :c.pay==='deposit'?row('Session total',totalTxt)+row(tick+'Deposit paid today','−$'+c.deposit,'ok-paid')+due('Due after your session','$'+(c.total-c.deposit),'Charged to the same card, with one receipt')
+      :row('Session total',totalTxt)+row(tick+'Your '+(c.credit||'credit'),'Covers this visit','ok-paid')+due('To pay today','$0');
     $('okCard').innerHTML='<div class="ok-times"><div><small>Start</small><b>'+t(c.start)+'</b></div><div><small>End</small><b>'+t(c.end)+'</b></div></div>'+
-      '<div class="ok-row"><span>'+day+'</span><span>'+c.minutes+' min</span></div><div class="ok-row"><span>'+c.service+'</span><span>$'+c.total+'</span></div>'+paid;
-    var next=[check?'I\'ll email you once I\'ve matched your '+(c.credit||'purchase')+'. Nothing to pay today.':'Your confirmation email has the details and the studio address in Northwest Calgary.',
-      'I\'ll send you a reminder about 3 days before.',
+      '<div class="ok-meta">'+esc2(c.service)+' · '+c.minutes+' min · '+day+'</div><div class="ok-sum">'+sum+'</div>';
+    var next=[].concat(check?['I\'ll email you once I\'ve matched your '+(c.credit||'purchase')+'. Nothing to pay today.']:[],
+      ['I\'ll send you a reminder about 3 days before.',
       giftPaid?'Your session is paid in full, so there’s nothing to pay when you come in.':c.pay==='deposit'?'After your session, the rest ($'+(c.total-c.deposit)+') goes on the card you just used, and you get one receipt for the full amount.':'Your session comes off your '+(c.credit||'credit')+' when you come in.',
-      giftPaid?'Need to cancel or move? Text or email me at least 48 hours before and it all goes back'+(c.card?' (the card payment is refunded)':' on your gift card')+'.':c.pay==='deposit'?'Need to cancel or move? Text or email me at least 48 hours before for a full refund of your deposit.':'Need to cancel or move? Text or email me at least 48 hours before. A no-show or a late cancellation uses that session.',
-      '<b>Running late?</b> Your session still finishes at the booked time, so the next client\'s time is protected too.',
-      '<b>Scent-free?</b> Just ask. Essential oils are only used with your consent.'];
+      giftPaid?'<b>Need to cancel or move?</b> Text or email me at least 48 hours before and it all goes back'+(c.card?' (the card payment is refunded)':' on your gift card')+'.':c.pay==='deposit'?'<b>Need to cancel or move?</b> Text or email me at least 48 hours before for a full refund of your deposit.':'<b>Need to cancel or move?</b> Text or email me at least 48 hours before. A no-show or a late cancellation uses that session.',
+      '<b>Running late?</b> Your session still finishes at the booked time, so the next client\'s time is protected too.']);
     $('okNext').innerHTML=next.map(function(x){return '<li>'+x+'</li>'}).join('');
     var g=function(d){return d.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'')};
     // Add to calendar: Google, Apple (an .ics file opens straight in Calendar on iPhone, iPad and Mac), Outlook, or any other app via .ics

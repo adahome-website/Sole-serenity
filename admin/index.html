@@ -547,7 +547,9 @@ window.SS_PERSIST = true;
 <main>
   <section class="pane" id="p-site" role="tabpanel" aria-labelledby="t-site">
     <p class="strip"><b>What a client sees.</b> Book a session, buy a gift card, or try booking with <b>pat@example.com</b> (has a package), <b>jordan@example.com</b> (member) or <b>lee@example.com</b> (small gift card). Payments open a pretend Stripe checkout.</p>
-    <iframe id="f-site" src="site.html?v=1793722857" title="Client website"></iframe>
+    <iframe id="f-site" src="site.html?v=1793723357" title="Client website"></iframe>
+    <script>(function(){ // a refresh stays on the same page: the website's page (#melanie, #training…) is kept in this address
+      var f=document.getElementById('f-site'),h=location.hash;if(h&&h.length>1)f.setAttribute('src',f.getAttribute('src')+h)})()</script>
   </section>
   <section class="pane" id="p-admin" role="tabpanel" aria-labelledby="t-admin" hidden>
     <p class="strip"><b>What Melanie sees</b> after signing in. Appointments fill up as you book on the website. Then try <b>Charge balance</b>, <b>Change length</b>, <b>Cancel</b> or <b>No-show</b>, and see who owes money under <b>Owing</b>.</p>
@@ -579,7 +581,7 @@ window.SS_PERSIST = true;
   function show(k){
     cur=k;tabs.forEach(function(t){$('t-'+t).setAttribute('aria-selected',String(t===k));$('p-'+t).hidden=t!==k});
     if(k==='admin'){var f=$('f-admin');f.setAttribute('src','admin.html?'+Date.now());dirty.admin=false}
-    if(k==='site'&&dirty.site){$('f-site').setAttribute('src','site.html?'+Date.now());dirty.site=false}
+    if(k==='site'&&dirty.site){$('f-site').setAttribute('src','site.html?'+Date.now()+location.hash);dirty.site=false}
     if(k==='mail'){renderMail()}
   }
   tabs.forEach(function(t){$('t-'+t).addEventListener('click',function(){show(t)})});
@@ -688,6 +690,13 @@ window.SS_PERSIST = true;
   }
   [].forEach.call(document.querySelectorAll('iframe'),function(fr){fr.addEventListener('load',function(){hook(fr)});hook(fr)});
 })();
+</script>
+<script>
+  // keep the website's current page in the top address, so refreshing (or pull-to-refresh) comes back to it
+  (function(){var fr=document.getElementById('f-site');if(!fr)return;
+    function sync(){try{var h=fr.contentWindow.location.hash;if(h===location.hash)return;if(h==='#book'||h==='#booked')h='';history.replaceState(history.state,'',location.pathname+location.search+(h||''))}catch(e){}}
+    function wire(){try{fr.contentWindow.addEventListener('hashchange',sync);fr.contentWindow.addEventListener('popstate',sync)}catch(e){}sync()}
+    fr.addEventListener('load',wire);wire();setInterval(sync,700)})();
 </script>
 <script>document.getElementById("t-admin").click()</script>
 </body>
