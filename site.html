@@ -860,7 +860,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         <ul class="bk-pol">
           <li id="polDep" hidden><b>Deposit:</b> holds your time and comes off your total. To cancel, text or email me at least 48 hours before and I'll refund it in full; within 48 hours it isn't refunded.</li>
         </ul>
-        <button class="btn go" type="button" id="goBtn" disabled>Continue with $40 deposit</button>
+        <button class="btn go" type="button" id="goBtn" disabled>Book with $40 deposit</button>
         <button type="button" class="linkish" id="giftLink">Have a gift card code?</button>
         <p class="fine" id="goFine">If you don't have an active membership, package or gift card, you'll be asked for a $40 deposit to hold your time. It comes off your session total. Cancel at least 48 hours before your appointment and I'll refund it in full; cancellations within 48 hours and no-shows aren't refunded. Membership and package holders don't pay a deposit, but a no-show or a cancellation within 48 hours uses up that session and isn't refunded.</p>
       </div>
@@ -1672,7 +1672,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   $('crType').addEventListener('change',payRender);
 
   // the main button says what happens next: a gift card is checked first, everything else holds the time with the $40 deposit
-  function goLabel(){return giftMode?'Check my gift card':'Continue with $40 deposit'}
+  function goLabel(){return giftMode?'Check my gift card':'Book with $40 deposit'}
   var looked=false,FOUND=null,giftMode=false,KNOWN=false,PERSON=null;
   // Once a membership/package/gift card is recognised, the only choice is the one in the "found" box
   // gift cards always pay for the full session: the card covers what it can, the rest is paid by card at booking
@@ -1822,7 +1822,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         time:String(Math.floor(st.t/60)).padStart(2,'0')+':00',name:nm,email:em,phone:ph,pay:pay,credit_type:$('crType').value,credit_ref:$('crRef').value.trim()};
       fetch(BOOKING_API+'/api/book',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json().then(function(d){if(!r.ok)throw d;return d})})
         .then(function(d){
-          if(d.checkout_url){window.SSDEMO.checkout(d.checkout_url.split(':')[1],function(ok){var bid=d.checkout_url.split(':')[1];if(ok){b.textContent=prev;showBooked(bid)}else{b.disabled=false;b.textContent=prev;loadBusy();var n=$('goNote');n.textContent='Payment not completed, so nothing was charged. Your time isn\u2019t held yet: press Continue to pay the deposit, or pick another time.';n.classList.add('show');setTimeout(function(){n.classList.add('show');n.scrollIntoView({block:'center'})},500)}if(ok)loadBusy()});return}
+          if(d.checkout_url){window.SSDEMO.checkout(d.checkout_url.split(':')[1],function(ok){var bid=d.checkout_url.split(':')[1];if(ok){b.textContent=prev;showBooked(bid)}else{b.disabled=false;b.textContent=prev;loadBusy();var n=$('goNote');n.textContent='Payment not completed, so nothing was charged. Your time isn\u2019t held yet: press Book with $40 deposit, or pick another time.';n.classList.add('show');setTimeout(function(){n.classList.add('show');n.scrollIntoView({block:'center'})},500)}if(ok)loadBusy()});return}
           if(true){var gx={status:d.status,pay:'credit'};if(FOUND&&FOUND.kind==='gift'&&pay==='credit'){var g=giftMath(FOUND);gx.gift=g.cover;gx.giftLeft=g.left;gx.card=0}showConfirmation(confFromState(gx));b.textContent=prev;loadBusy();return}
           n.textContent=d.status==='needs_check'?'Thank you. I\'ve got your request for '+S.name+' on '+longDate(st.date)+' at '+fmt(st.t)+'. I\'ll check your membership, package or gift card and confirm by email.':'You\'re booked: '+S.name+' on '+longDate(st.date)+', '+fmt(st.t)+' to '+fmt(st.t+st.len)+'. A confirmation is on its way to your email.';
           n.classList.add('show');b.textContent=prev;loadBusy();
@@ -1915,7 +1915,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     openBook(null,null);
     if(p){$('ctEmail').value=p.em||'';$('ctName').value=p.nm||'';$('ctPhone').value=p.ph||'';try{buildWeek()}catch(e){}render();if(st.t!==null)dlg.classList.add('step2')}
     if(typeof loadBusy==='function')loadBusy();
-    var n=$('goNote');n.textContent='Payment not completed, so nothing was charged. Your time isn’t held yet: press Continue to pay the deposit, or pick another time.';n.classList.add('show');setTimeout(function(){n.classList.add('show')},600);
+    var n=$('goNote');n.textContent='Payment not completed, so nothing was charged. Your time isn’t held yet: press Book with $40 deposit, or pick another time.';n.classList.add('show');setTimeout(function(){n.classList.add('show')},600);
   }
   window.SS_backToBooking=backToBooking;
   $('okDone').addEventListener('click',function(){location.hash='home'});
