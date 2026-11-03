@@ -2072,11 +2072,11 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     var a=ev.target.closest&&ev.target.closest('[data-stripe]');if(!a||!window.SS_PROTOTYPE)return;
     var key=a.getAttribute('data-stripe'),it=P[key];if(!it||STRIPE_LINKS[key])return;
     ev.preventDefault();var gift=it.kind==='gift';
-    dlgP.innerHTML='<div class="h"><small>Sole Serenity · secure checkout (preview, nothing is charged)</small><b>'+(it.custom?'Gift card':'$'+it.price)+'</b>'+e(it.label)+(it.kind==='membership'?' · billed monthly':'')+'</div><div class="b">'+
+    dlgP.innerHTML='<div class="h"><small>Sole Serenity · your details (preview, nothing is charged)</small><b>'+(it.custom?'Gift card':'$'+it.price)+'</b>'+e(it.label)+(it.kind==='membership'?' · billed monthly':'')+'</div><div class="b">'+
       (it.custom?'<label>Amount ($)<input id="pcAmt" type="number" min="20" value="150"></label>':'')+
       '<label>'+(gift?'Your name*':'Your name, the person using it*')+'<input id="pcName" autocomplete="name"></label><label>Your email*<input id="pcEmail" type="email" autocomplete="email"></label>'+
       (gift?'<label>Who is the gift for?*<input id="pcRec"></label><label>Their email, so we can send them the code<input id="pcRecE" type="email"></label>':'')+
-      '<label>Card number<input value="4242 4242 4242 4242" inputmode="numeric"></label><p class="err" id="pcErr"></p><button class="pay" type="button" id="pcPay">Pay</button><p class="fine">On the live site this opens Stripe\u2019s secure checkout.</p><button class="cx" type="button" id="pcCx">\u2039 Back to Sole Serenity</button></div>';
+      '<p class="err" id="pcErr"></p><button class="pay" type="button" id="pcPay">Continue to secure payment</button><p class="fine">Card details are entered on Stripe\u2019s secure checkout, never on this site. (Preview: this skips straight to the thank-you page.)</p><button class="cx" type="button" id="pcCx">\u2039 Back to Sole Serenity</button></div>';
     dlgP.showModal();document.getElementById('pcName').focus();
     document.getElementById('pcCx').onclick=function(){dlgP.close()};
     document.getElementById('pcPay').onclick=function(){
