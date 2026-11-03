@@ -378,6 +378,10 @@ section{position:relative}
 .pack ul{padding:0;list-style:none;margin:16px 0 22px;font-size:15px}
 .pack li{padding:8px 0;border-top:1px solid color-mix(in srgb,currentColor 22%,transparent)}
 .pack .btn{margin-top:auto;align-self:flex-start}
+/* every card shares the same rows, so titles, prices, lists and buttons line up across cards */
+.pack{display:grid;grid-row:span 7;grid-template-rows:subgrid;row-gap:0;align-content:start}
+.pack>ul{align-self:start}
+.pack>.btn{align-self:start;justify-self:start}
 
 
 .gift-amts{font-size:15px;margin:6px 0 0}.gift-amts b{font-family:var(--display);font-weight:800;font-size:28px;letter-spacing:-.02em}
