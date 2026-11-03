@@ -477,7 +477,7 @@ section{position:relative}
 .mel-sprite{position:absolute;width:0;height:0;overflow:hidden}
 .bar{position:fixed;left:0;right:0;bottom:0;z-index:50;padding:10px max(12px,env(safe-area-inset-left,0px)) calc(10px + env(safe-area-inset-bottom,0px));pointer-events:none}
 .bar-in{pointer-events:auto;max-width:1240px;margin:0 auto;background:var(--char);color:var(--cream);border-radius:22px;display:flex;align-items:center;gap:14px;padding:10px 10px 10px 14px;box-shadow:0 14px 40px rgba(20,14,8,.35)}
-.bar-dot{width:42px;height:42px;border-radius:12px;flex:none;background:var(--sess);display:grid;place-items:center}
+.bar-dot{width:42px;height:42px;border-radius:12px;flex:none;background:#a35f3c;display:grid;place-items:center}
 .bar-dot svg{display:block}
 .bar-txt{min-width:0;flex:1}
 .bar-txt b{display:block;font-family:var(--display);font-weight:800;font-size:18px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1506,7 +1506,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     if(S.lens.indexOf(st.len)<0)st.len=S.lens[0];
     if(st.t!==null&&!fits(st.date,st.t,st.len))st.t=null;
     document.documentElement.style.setProperty('--sess',S.col);
-    var bd=document.querySelector('.bar-dot');if(bd)bd.innerHTML=barIcon(st.s);
+    var bd=document.querySelector('.bar-dot');if(bd&&!bd.firstChild)bd.innerHTML=barIcon('reiki'); // the bottom bar always shows the hand
     setPressed('segSess',st.s);setPressed('segLen',st.len);
     [].forEach.call($('segLen').querySelectorAll('button'),function(b){b.disabled=S.lens.indexOf(+b.dataset.v)<0});
     paintWeek();buildCal();buildTimes();
