@@ -1591,7 +1591,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     barRender();
     $('goBtn').disabled=!has;$('bkCont').disabled=!has;$('bkHint').hidden=has;
     $('goNote').classList.remove('show');    // a membership, package or gift card was already shown: check it again for the new session, length or time
-    if(typeof FOUND!=='undefined'&&(FOUND||!$('crFound').hidden))recheck();
+    if(typeof FOUND!=='undefined'&&(FOUND||!$('crFound').hidden||(looked&&!emailProblem($('ctEmail').value))))recheck();
   }
   $('segSess').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;st.s=b.dataset.v;st.len=SESS[st.s].lens.indexOf(st.len)<0?SESS[st.s].lens[0]:st.len;render()});
   $('segLen').addEventListener('click',function(e){var b=e.target.closest('button');if(!b||b.disabled)return;st.len=+b.dataset.v;render()});
@@ -1667,9 +1667,8 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     var seq=++reSeq,nm=$('ctName').value.trim(),em=$('ctEmail').value.trim(),code=giftMode?$('crRef').value.trim():'';
     FOUND=null;$('crFound').hidden=true;foundMode(false);
     if(!giftMode&&pay==='credit'){pay='deposit';payRender()}
-    if(st.t===null||!nm||emailProblem(em)||(giftMode&&!code))return;
-    var b=$('goBtn');b.disabled=true;b.textContent='Checking…';
-    lookup(nm,em,code).then(function(f){if(seq!==reSeq)return;b.disabled=st.t===null;b.textContent='Continue';if(f)showFound(f,giftMode?'':nm)});
+    if(st.t===null||emailProblem(em)||(giftMode&&!code))return;looked=true;
+    lookup(nm,em,code).then(function(f){if(seq!==reSeq||!$('crFound').hidden)return;if(f)showFound(f,giftMode?'':nm)});
   }
   $('crRef').addEventListener('input',function(){if(giftMode&&FOUND){FOUND=null;$('crFound').hidden=true;foundMode(false)}});
   /* ---------- email check: real format, plus a nudge for common typos (gmial.com, hotmal.com, .con) ---------- */
@@ -1683,9 +1682,14 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     return '';
   }
   $('ctEmail').addEventListener('blur',function(){var v=this.value.trim(),n=$('goNote');if(!v)return;var ep=emailProblem(v);if(ep){n.textContent=ep;n.classList.add('show')}else if(/email/i.test(n.textContent))n.classList.remove('show')});
-  ['ctName','ctEmail'].forEach(function(id){$(id).addEventListener('input',function(){looked=false;FOUND=null;$('crFound').hidden=true;foundMode(false);if(!giftMode&&pay==='credit'){pay='deposit';payRender()}})});
+  // as soon as a valid email is typed, look up their membership, package or gift card (matched by email)
+  var emT=null;
+  $('ctEmail').addEventListener('input',function(){looked=false;FOUND=null;$('crFound').hidden=true;foundMode(false);if(!giftMode&&pay==='credit'){pay='deposit';payRender()}
+    clearTimeout(emT);emT=setTimeout(function(){if(!emailProblem($('ctEmail').value))recheck()},600)});
+  $('ctEmail').addEventListener('change',function(){clearTimeout(emT);if(!emailProblem(this.value))recheck()});
+  $('ctName').addEventListener('input',function(){if(FOUND&&!giftMode){clearTimeout(emT);emT=setTimeout(recheck,600)}});
   $('goBtn').addEventListener('click',function(){
-    if(st.t===null)return;var n=$('goNote');
+    if(st.t===null)return;var n=$('goNote');reSeq++;clearTimeout(emT);
     var nm=$('ctName').value.trim(),em=$('ctEmail').value.trim();
     var ep=emailProblem(em);if(!nm||ep){n.textContent=!nm?'Please add your name.':ep;n.classList.add('show');(nm?$('ctEmail'):$('ctName')).focus();return}
     var b=$('goBtn');
