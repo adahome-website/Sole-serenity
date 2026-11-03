@@ -340,7 +340,8 @@ section{position:relative}
 .flow.rx>div:nth-child(4){background:#1f302d}
 .flow>div.on{box-shadow:inset 0 -6px 0 var(--ochre)}
 .rs-tabs{display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:var(--paper2);border:1px solid var(--line);margin-bottom:12px;max-width:100%;flex-wrap:wrap}
-@media (max-width:520px){.rs-tabs{display:grid;grid-template-columns:1fr 1fr;border-radius:18px;width:100%}.rs-tabs [role=tab]{padding:10px 8px;font-size:13.5px;border-radius:14px}.rs-fig{min-height:0}}
+@media (max-width:520px){.rs-tabs{display:grid;grid-template-columns:1fr 1fr;border-radius:18px;width:100%}.rs-tabs [role=tab]{padding:10px 8px;font-size:13.5px;border-radius:14px}.rs-fig{min-height:0}
+.rs-next{grid-column:1/-1;display:flex;justify-content:flex-start}.rs-next .btn{display:inline-flex;align-items:center;gap:8px}}
 .rs-tabs [role=tab]{appearance:none;border:0;background:transparent;color:var(--ink);font:600 14.5px var(--body);padding:10px 16px;border-radius:999px;cursor:pointer}
 .rs-tabs [role=tab][aria-selected="true"]{background:var(--char);color:var(--cream)}
 .rs-stack{display:grid}
@@ -1218,6 +1219,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         </svg>
         <figcaption><span>Seven positions: crown, throat, heart, solar plexus, lower abdomen, knees, feet.</span></figcaption>
       </figure>
+      <div class="rs-next"><button type="button" class="btn btn-ink" data-rs="1">See what a reflexology session is like <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
     </div>
     <div class="rs-panel is-off" id="rsPanelRx" role="tabpanel" aria-labelledby="rsTabRx" tabindex="0" inert>
       <div class="flow rx" data-fig="rxFig">
@@ -1241,6 +1243,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
           <ul class="rs-key"><li><i style="background:#d6b48c"></i>Toes · head and mind</li><li><i style="background:#4c6b66"></i>Ball · chest and breath</li><li><i style="background:#8f8f62"></i>Arch · digestion</li><li><i style="background:#a35f3c"></i>Heel · lower back and hips</li><li><i style="background:#5a4430"></i>Inner edge · the spine</li></ul>
         </figcaption>
       </figure>
+      <div class="rs-next"><button type="button" class="btn btn-ink" data-rs="0">See what a Reiki session is like <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
     </div>
     </div>
     <div class="rule" role="note" style="margin:14px 0 0">
@@ -2080,6 +2083,8 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     rsTabs.forEach(function(t,j){var on=i===j;t.setAttribute('aria-selected',String(on));t.tabIndex=on?0:-1;var pn=$(t.getAttribute('aria-controls'));pn.classList.toggle('is-off',!on);if(on)pn.removeAttribute('inert');else pn.setAttribute('inert','')});
     if(focus)rsTabs[i].focus();
   }
+  // "See what a … session is like": switch tabs, then go back up to the start of the section
+  document.querySelectorAll('[data-rs]').forEach(function(b){b.addEventListener('click',function(){rsSelect(+b.dataset.rs);var sec=$('reiki');if(sec)sec.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'})})});
   rsTabs.forEach(function(t,i){
     t.addEventListener('click',function(){rsSelect(i)});
     t.addEventListener('keydown',function(e){
