@@ -180,27 +180,18 @@ section{position:relative}
   .class{scroll-snap-align:start}
 }
 @media (max-width:600px){.classes{grid-auto-columns:calc(100% - 34px)}}
-/* laptop and desktop: wide session cards in a sideways row (the next card peeks in), each laid out with the drawing on the left
-   and the details on the right, so a whole card fits on screen without scrolling down; arrows (or trackpad) move the row */
+/* laptop and desktop: wide session cards in a sideways row (the next card peeks in); arrows (or trackpad) move the row */
 .cl-nav{display:none}
 @media (min-width:861px){
-  .classes{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:calc((100% - 2 * 14px) / 2.3);overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scroll-behavior:smooth;padding:10px 0 18px;margin-top:-10px;scrollbar-width:thin;scrollbar-color:var(--ochre) transparent}
+  .classes{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:calc((100% - 2 * 14px) / 2.5);overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scroll-behavior:smooth;padding:10px 0 18px;margin-top:-10px;scrollbar-width:thin;scrollbar-color:var(--ochre) transparent}
   .class{scroll-snap-align:start}
-  .class{grid-row:auto;grid-template-rows:auto auto auto auto 1fr;grid-template-columns:minmax(0,.78fr) minmax(0,1.22fr);column-gap:24px;padding:24px 26px}
-  .class>*{grid-column:2}
-  .class .art{grid-column:1;grid-row:1/-1;align-self:center;margin:0}
-  .class h3{margin:6px 0 8px;font-size:clamp(26px,2.2vw,32px)}
-  .class p{margin-bottom:10px;font-size:15px}
-  .class ul{margin:2px 0 14px;padding:8px 16px}.class li{padding:5px 0}
-  .class .cfoot{align-self:end;flex-direction:row;align-items:end;justify-content:space-between}
-  .class .cfoot .btn{width:auto}
-  .class .price{font-size:38px}
+  .class .art{height:170px;width:auto;max-width:100%}
   .cl-nav{display:flex;justify-content:flex-end;gap:8px;margin:-6px 0 12px}
   .cl-arrow{appearance:none;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);background:var(--cell);color:var(--ink);display:grid;place-items:center;cursor:pointer;transition:background .2s,color .2s,border-color .2s,opacity .2s}
   .cl-arrow:hover:not(:disabled){background:var(--char);color:var(--cream);border-color:var(--char)}
   .cl-arrow:disabled{opacity:.35;cursor:default}
 }
-@media (min-width:861px) and (max-width:1180px){.classes{grid-auto-columns:calc((100% - 14px) / 1.35)}}
+@media (min-width:861px) and (max-width:1180px){.classes{grid-auto-columns:calc((100% - 14px) / 2.15)}}
 @media (prefers-reduced-motion:reduce){.classes{scroll-behavior:auto}}
 
 /* first visit offer */
@@ -1058,7 +1049,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
             <circle cx="96" cy="105" r="3.5" fill="#d68a62"/><text x="104" y="108">HEEL · BACK</text>
           </g>
         </svg>
-        <h3>Reflexology Treatment</h3>
+        <h3>Reflexology<br>Treatment</h3>
         <p>Gentle, focused pressure on points of the feet that correspond to the rest of the body. Shoes and socks off, everything else stays on.</p>
         <ul><li>60 min <b>$99</b></li><li>90 min <b>$149</b></li><li>120 min <b>$198</b></li></ul>
         <div class="cfoot"><div class="price">$99<small>starting from</small></div><a class="btn btn-cream" href="#book" data-pick="refl">Book a session</a></div>
@@ -1077,7 +1068,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
           <use href="#sole" x="12" y="6" width="58" height="116"/>
           <g transform="translate(70 4) scale(.95)"><circle cx="54" cy="78" r="46" fill="#d6b48c" opacity=".28"/><circle cx="54" cy="78" r="32" fill="#f1d9b8" opacity=".22"/><g stroke="#f1d9b8" stroke-width="2" stroke-linecap="round" opacity=".75"><path d="M33 16v-7M46 8V1M59 12V5M74 24l4-5M20 30l-5-4"/></g><path d="M33 106 L16 78" stroke="#fcf9f4" stroke-width="11.5" stroke-linecap="round"/><g fill="#fcf9f4"> <rect x="27" y="28" width="11" height="52" rx="5.5"/> <rect x="40" y="18" width="11.5" height="60" rx="5.75"/> <rect x="53.5" y="23" width="11" height="56" rx="5.5"/> <rect x="66.5" y="36" width="9.5" height="44" rx="4.75"/> <path d="M27 64 C27 60 30 58 34 58 L72 58 C75 58 76 61 76 64 L76 96 C76 116 66 128 51 128 C36 128 27 118 27 100 Z"/> </g><g stroke="#a35f3c" stroke-width="1.6" stroke-linecap="round" fill="none" opacity=".45"> <path d="M42 76 Q37 94 47 114"/><path d="M50 72 Q60 70 70 74"/> </g></g>
         </svg>
-        <h3>Combination Treatment</h3>
+        <h3>Combination<br>Treatment</h3>
         <p>One full hour of reflexology, then one full hour of Reiki, back to back in the same visit.</p>
         <ul><li>Reflexology <b>60 min</b></li><li>Reiki <b>60 min</b></li><li>Total <b>120 min</b></li></ul>
         <div class="cfoot"><div class="price">$198<small>2-hour session</small></div><a class="btn btn-cream" href="#book" data-pick="combo">Book a session</a></div>
@@ -1094,7 +1085,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
           <path d="M16 98H204" stroke="#2f4441" stroke-width="5" stroke-linecap="round"/>
           <path d="M50 120h22M110 128h30" stroke="#fcf9f4" stroke-width="3" stroke-linecap="round" opacity=".5"/>
         </svg>
-        <h3>Aromatherapy Foot Bath</h3>
+        <h3>Aromatherapy<br>Foot Bath</h3>
         <p>A restorative foot bath with essential oils. Scent-free on request; oils are used only with your consent.</p>
         <ul><li>90 min <b>$140</b></li></ul>
         <div class="cfoot"><div class="price">$140<small>90 minutes</small></div><a class="btn btn-cream" href="#book" data-pick="bath">Book a session</a></div>
