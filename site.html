@@ -252,7 +252,7 @@ section{position:relative}
 .sum-gst{font-size:12.5px;color:#5a4430;text-align:right;margin:-2px 0 4px}
 .deposit{background:#f3e3cf;border-radius:12px;padding:10px 12px;margin-top:8px;font-size:13.5px;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
 .planner .go{width:100%;justify-content:center;margin-top:16px;background:var(--ochre);color:var(--char);font-size:15.5px}
-.note{display:none;margin-top:12px;background:rgba(252,249,244,.1);border-left:3px solid var(--ochre);padding:12px 14px;border-radius:8px;font-size:14px}
+.note{display:none;margin:10px 0 4px;background:#a35f3c;color:#fff;padding:11px 14px;border-radius:10px;font-size:14px;line-height:1.4} /* notices sit right under the fields, in the brand terracotta */
 .note.show{display:block}
 .planner .fine{font-size:12.5px;opacity:.7;margin:12px 0 0}
 
@@ -761,10 +761,11 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         </div>
         <div class="credit contact" id="contactBox">
           <span class="pay-l" style="margin:6px 0 0">Your details</span>
-          <label for="ctName">Name <span class="req">required</span><input id="ctName" type="text" autocomplete="name" placeholder="First and last name" required aria-required="true"></label>
-          <div class="ct-row"><label for="ctEmail">Email <span class="req">required</span><input id="ctEmail" type="email" autocomplete="email" placeholder="you@email.com" required aria-required="true"></label>
-          <label for="ctPhone">Phone <span class="req">optional</span><input id="ctPhone" type="tel" autocomplete="tel" placeholder="587-000-0000"></label></div>
+          <label for="ctName"><span>Name <span class="req">required</span></span><input id="ctName" type="text" autocomplete="name" placeholder="First and last name" required aria-required="true"></label>
+          <div class="ct-row"><label for="ctEmail"><span>Email <span class="req">required</span></span><input id="ctEmail" type="email" autocomplete="email" placeholder="you@email.com" required aria-required="true"></label>
+          <label for="ctPhone"><span>Phone <span class="req">optional</span></span><input id="ctPhone" type="tel" autocomplete="tel" placeholder="587-000-0000"></label></div>
         </div>
+        <div class="note" id="goNote" role="alert"></div>
         <span class="pay-l" id="lPay" hidden>How are you booking?</span>
         <div class="seg" id="segPay" hidden role="group" aria-labelledby="lPay">
           <button type="button" data-v="deposit" aria-pressed="true">Pay a $40 deposit</button>
@@ -795,7 +796,6 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         </ul>
         <button class="btn go" type="button" id="goBtn" disabled>Continue</button>
         <button type="button" class="linkish" id="giftLink">Have a gift card code?</button>
-        <div class="note" id="goNote" role="status"></div>
         <p class="fine" id="goFine">If you don't have an active membership, package or gift card, you'll be asked for a $40 deposit to hold your time. It comes off your session total. Cancel at least 48 hours before your appointment and I'll refund it in full; cancellations within 48 hours and no-shows aren't refunded. Membership and package holders don't pay a deposit, but a no-show or a cancellation within 48 hours uses up that session and isn't refunded.</p>
       </div>
     </div>
