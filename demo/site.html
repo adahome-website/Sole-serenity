@@ -648,6 +648,9 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   .bk-opts>.bk-fl{display:none}
   .bk-week{grid-area:week;display:flex;flex-direction:column}
   .bk-week .tt-note{margin-top:auto;padding-top:14px}
+  /* the schedule stretches to the height of the visit panel beside it */
+  .bk-week .grid{flex:1;grid-template-rows:auto;grid-auto-rows:minmax(30px,1fr)}
+  .bk-week .grid .slot{height:auto;min-height:30px}
   .bk-right{grid-area:right}
 }
 @media (max-width:899px){
