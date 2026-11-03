@@ -176,7 +176,7 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
 
 <dialog id="dlgUse"><form class="f" id="fUse">
   <h2>Log a session</h2>
-  <div class="row"><label>Date<i class="req" aria-hidden="true">*</i><input name="date" type="date" required></label><label>Service<select name="service"><option>Reflexology</option><option>Reiki</option><option>Reflexology + Reiki</option><option>Foot bath</option></select></label></div>
+  <div class="row"><label>Date<i class="req" aria-hidden="true">*</i><input name="date" type="date" required></label><label>Service<select name="service"><option>Reflexology</option><option>Reiki</option><option>Combination</option><option>Foot bath</option></select></label></div>
   <div class="row"><label>Arrive<i class="req" aria-hidden="true">*</i><input name="start" type="time" required></label><label>Leave<i class="req" aria-hidden="true">*</i><input name="end" type="time" required></label></div>
   <div class="row"><label>What happened<select name="status"><option value="used">Came</option><option value="noshow">No-show (lost)</option><option value="late">Cancelled within 48h (lost)</option></select></label><label id="amtL">Taken from card ($)<input name="amount" type="number" min="0" step="0.01"></label></div>
   <p class="err" id="useErr" role="alert"></p>
@@ -345,7 +345,7 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
   }
   function demoData(){
     function day(n){var d=new Date();d.setDate(d.getDate()+n);while([2,3,4,5].indexOf(d.getDay())<0)d.setDate(d.getDate()+(n<0?-1:1));return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
-    var P={refl:['Reflexology',{60:9900,90:14900}],reiki:['Reiki',{60:9900}],combo:['Reflexology + Reiki',{120:19800}],intro:['First visit: Reflexology + Reiki',{120:9900}],bath:['Aromatherapy & Restorative Foot Bath',{90:14000}]};
+    var P={refl:['Reflexology',{60:9900,90:14900}],reiki:['Reiki',{60:9900}],combo:['Combination',{120:19800}],intro:['First visit: Reflexology + Reiki',{120:9900}],bath:['Aromatherapy & Restorative Foot Bath',{90:14000}]};
     function ap(id,ymd,h,s,min,name,pay,extra){var pr=P[s][1][min],g=0,st=('0'+h).slice(-2)+':00',en=('0'+(h+min/60|0)).slice(-2)+':'+(min%60?'30':'00');
       return Object.assign({id:id,ymd:ymd,start_utc:ymd+'T'+st,service:s,service_name:P[s][0],minutes:min,name:name,email:name.split(' ')[0].toLowerCase()+'@example.com',phone:'587-000-00'+(10+id.length),pay:pay,status:'confirmed',deposit_cents:pay==='deposit'?DEP:0,price_cents:pr,gst_cents:g,total_cents:pr+g,balance_cents:pay==='deposit'?pr+g-DEP:0,charged_cents:null,
         when:fdate(ymd)+', '+ftime(st)+'–'+ftime(en)},extra||{})}

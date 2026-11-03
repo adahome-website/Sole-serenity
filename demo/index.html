@@ -119,7 +119,7 @@ main{flex:1;min-height:0;position:relative}
     refl: { name: 'Reflexology', prices: { 60: 9900, 90: 14900, 120: 19800 } },
     reiki: { name: 'Reiki', prices: { 60: 9900, 90: 14900, 120: 19800 } },
     intro: { name: 'First visit: Reflexology + Reiki', prices: { 120: 9900 } },
-    combo: { name: 'Reflexology + Reiki', prices: { 120: 19800 } },
+    combo: { name: 'Combination', prices: { 120: 19800 } },
     bath: { name: 'Aromatherapy & Restorative Foot Bath', prices: { 90: 14000 } }
   };
   var KIND = { package: 'package', membership: 'membership', gift: 'gift card' };
@@ -284,7 +284,7 @@ main{flex:1;min-height:0;position:relative}
     var c = pay === 'credit' ? findCredit(type, (b.credit_ref || '').trim(), email, name, L.ymd, S.prices[minutes], b.service, minutes) : null;
     if (pay === 'credit' && !c) pay = 'deposit';
     if (b.service === 'intro' && DB.bookings.some(function (x) { return x.email.toLowerCase() === email && ['confirmed', 'needs_check', 'completed', 'noshow'].indexOf(x.status) >= 0 }))
-      throw err('The first-visit offer is for new clients. Please choose Reflexology + Reiki (2 hours) instead.', 409);
+      throw err('The first-visit offer is for new clients. Please choose the Combination (2 hours) instead.', 409);
     var row = { id: rid('bk'), created: new Date().toISOString(), status: 'held', service: b.service, minutes: minutes, start_utc: start.toISOString(), end_utc: end.toISOString(), name: name, email: email, phone: b.phone || '', pay: pay, credit_type: null, credit_ref: null, credit_id: null, hold_until: new Date(Date.now() + 31 * 6e4).toISOString(), deposit_cents: 0, charged_cents: null };
     if (pay === 'deposit') { DB.bookings.push(row); notify(); return { ok: true, checkout_url: 'demo-checkout:' + row.id } }
     row.credit_type = type; row.credit_ref = (b.credit_ref || '').trim();
