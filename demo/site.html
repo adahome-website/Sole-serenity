@@ -1558,7 +1558,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     document.documentElement.style.setProperty('--sess',S.col);
     var bd=document.querySelector('.bar-dot');if(bd&&!bd.firstChild)bd.innerHTML=barIcon('reiki'); // the bottom bar always shows the hand
     setPressed('segSess',st.s);setPressed('segLen',st.len);
-    [].forEach.call($('segLen').querySelectorAll('button'),function(b){var L=+b.dataset.v,ok=S.lens.indexOf(L)>=0;b.disabled=!ok;b.innerHTML=L+' min'+(ok?' <span class="lp">· $'+S.price[L]+'</span>':'')});
+    [].forEach.call($('segLen').querySelectorAll('button'),function(b){var L=+b.dataset.v,ok=S.lens.indexOf(L)>=0;b.disabled=!ok;b.textContent=L+' min'});
     $('bkCont').textContent='Continue · $'+S.price[st.len]; // the price stays in view on tablets and phones
     paintWeek();buildCal();buildTimes();
     var price=S.price[st.len],has=st.t!==null;
