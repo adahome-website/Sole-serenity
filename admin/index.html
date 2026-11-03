@@ -388,7 +388,7 @@ window.SS_PERSIST = true;
     confirmEmail(bk); newBookingAlert(bk); notify();
   }
   function checkoutCancelled(id) { var bk = getB(id); if (bk && bk.status === 'held') { bk.status = 'cancelled'; bk.notes = bk.topup_cents ? 'Gift card top-up not paid' : 'Deposit checkout not finished'; if (bk.topup_cents) DB.uses = DB.uses.filter(function (u) { return u.booking_id !== id }); notify() } }
-  var PRODUCTS = { reset3: { kind: 'package', total: 3, price: 27900, label: '3-session package' }, reset10: { kind: 'package', total: 10, price: 89000, label: 'The Deep Ten (10 sessions)' }, monthly: { kind: 'membership', total: 1, price: 8900, label: 'Monthly ritual membership' }, gift99: { kind: 'gift', total: 9900, price: 9900, label: 'Gift card $99' }, gift198: { kind: 'gift', total: 19800, price: 19800, label: 'Gift card $198' }, giftCustom: { kind: 'gift', custom: true, label: 'Gift card, custom amount' } };
+  var PRODUCTS = { reset3: { kind: 'package', total: 3, price: 27500, label: '3-session package' }, reset10: { kind: 'package', total: 10, price: 89000, label: 'The Deep Ten (10 sessions)' }, monthly: { kind: 'membership', total: 1, price: 8900, label: 'Monthly ritual membership' }, gift99: { kind: 'gift', total: 9900, price: 9900, label: 'Gift card $99' }, gift198: { kind: 'gift', total: 19800, price: 19800, label: 'Gift card $198' }, giftCustom: { kind: 'gift', custom: true, label: 'Gift card, custom amount' } };
   function purchase(key, f) {
     var P = PRODUCTS[key], amt = P.custom ? Math.round(+f.amount * 100) : P.price;
     var row = { id: rid('cr'), created: new Date().toISOString(), kind: P.kind, code: P.kind === 'gift' ? giftCode() : null, buyer: f.name, recipient: P.kind === 'gift' ? (f.recipient || null) : null,
@@ -438,8 +438,8 @@ window.SS_PERSIST = true;
       DB.bookings.push(b); if (['confirmed', 'completed', 'needs_check'].indexOf(b.status) >= 0) DB.calendar.push({ start: b.start_utc, end: b.end_utc, booking: id }); return b;
     }
     var bought2 = addDaysYmd(ymdOf(new Date()), -16);
-    DB.credits.push({ id: 'cr_pat', kind: 'package', buyer: 'Pat Example', email: 'pat@example.com', phone: '587-555-0141', bought: bought2, price_cents: 27900, total: 3, status: 'active' });
-    DB.credits.push({ id: 'cr_sam', kind: 'package', buyer: 'Sam Example', email: 'sam@example.com', phone: '587-555-0163', bought: addDaysYmd(ymdOf(new Date()), -90), price_cents: 27900, total: 3, status: 'active' });
+    DB.credits.push({ id: 'cr_pat', kind: 'package', buyer: 'Pat Example', email: 'pat@example.com', phone: '587-555-0141', bought: bought2, price_cents: 27500, total: 3, status: 'active' });
+    DB.credits.push({ id: 'cr_sam', kind: 'package', buyer: 'Sam Example', email: 'sam@example.com', phone: '587-555-0163', bought: addDaysYmd(ymdOf(new Date()), -90), price_cents: 27500, total: 3, status: 'active' });
     ['-60', '-40', '-20'].forEach(function (d, i) { DB.uses.push({ id: 'us' + i, credit_id: 'cr_sam', booking_id: null, date_local: addDaysYmd(ymdOf(new Date()), +d), start_local: '10:00', end_local: '11:00', service: 'Reflexology', status: 'used', amount_cents: 0 }) });
     DB.credits.push({ id: 'cr_jordan', kind: 'membership', buyer: 'Jordan Example', email: 'jordan@example.com', phone: '587-555-0152', bought: addDaysYmd(ymdOf(new Date()), -70), price_cents: 8900, total: 1, status: 'active' });
     DB.credits.push({ id: 'cr_lee', kind: 'gift', code: 'SS-3HNW-7RTB', buyer: 'Robin Example', recipient: 'Lee Example', recipient_email: 'lee@example.com', email: 'robin@example.com', bought: addDaysYmd(ymdOf(new Date()), -20), price_cents: 5000, total: 5000, status: 'active' });
