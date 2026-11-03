@@ -414,7 +414,7 @@ section{position:relative}
 .creds{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:22px}
 .creds div{background:var(--paper);border-radius:14px;padding:12px 14px;font-size:14px;min-width:0}
 .creds b{display:block;font-family:var(--display);font-size:17px;letter-spacing:-.01em}
-@media (max-width:860px){.about-grid{grid-template-columns:1fr}.portrait{min-height:360px}.creds{grid-template-columns:1fr}}
+@media (max-width:860px){.about-grid{grid-template-columns:1fr}.about-grid>.portrait{order:2}.portrait{min-height:360px}.creds{grid-template-columns:1fr}}
 
 /* first visit + policies */
 .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
