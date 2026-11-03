@@ -367,8 +367,7 @@ section{position:relative}
 
 
 /* packages */
-.packs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
-@media (max-width:1280px) and (min-width:1081px){.packs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.packs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
 .pack{border-radius:26px;padding:26px;min-width:0;display:flex;flex-direction:column;border:2px solid var(--ink)}
 .pack.feat{background:var(--teal);color:var(--cream);border-color:var(--teal)}
 .pack.gift{background:var(--ochre);color:var(--char);border-color:var(--ochre)}
@@ -481,6 +480,11 @@ section{position:relative}
 .teaser h2{font-size:clamp(36px,5vw,64px);margin:14px 0 14px}
 .teaser p{max-width:52ch;opacity:.92;margin:0}
 .teaser-ctl{display:flex;gap:10px;flex-wrap:wrap}
+.gift-list{list-style:none;padding:0;margin:18px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:8px 22px;max-width:640px;font-size:15px}
+.gift-list li{padding-left:18px;position:relative}.gift-list li::before{content:"";position:absolute;left:0;top:.55em;width:7px;height:7px;border-radius:50%;background:var(--ochre)}
+.gift-buy{flex-direction:column;align-items:stretch;min-width:220px}.gift-buy .btn{justify-content:center}
+.gift-sec .pay-fine{color:var(--cream);opacity:.8;margin:2px 0 0;font-size:12.5px;text-align:center}
+@media (max-width:760px){.gift-list{grid-template-columns:1fr}.gift-buy{min-width:0}}
 @media (max-width:760px){.teaser{grid-template-columns:1fr}}
 /* footer */
 .foot{background:var(--teal-d);color:var(--cream);padding:44px 0 28px;margin-top:40px}
@@ -1014,18 +1018,6 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         <a class="btn btn-cream" href="#contact" data-stripe="monthly">Start membership</a>
         <p class="pay-fine">Just for you: use your own name at checkout and when you book. Billed monthly through Stripe · cancel anytime.</p>
       </article>
-      <article class="pack gift" id="gifts">
-        <div class="k"><span>Gift certificate</span></div>
-        <h3>Give the gift of calm</h3>
-        <p>For a birthday, a new parent, a tired friend. At checkout, tell me who it's for and they can book with it in their own name.</p>
-        <ul><li>Use it for Reflexology, Reiki, the combo or the foot bath</li><li>Never expires, so they can book when they're ready</li><li>The code is emailed straight away, to you or to them</li><li>Any leftover balance stays on the card for next time</li></ul>
-        <div class="gift-buy">
-          <a class="btn btn-ink" href="#contact" data-stripe="gift99">Buy $99</a>
-          <a class="btn btn-ink" href="#contact" data-stripe="gift198">Buy $198</a>
-          <a class="btn btn-ghost" href="#contact" data-stripe="giftCustom">Custom amount</a>
-        </div>
-        <p class="pay-fine">Pay securely with Stripe. The code arrives by email, and gift cards never expire.</p>
-      </article>
     </div>
   </div>
 </section>
@@ -1111,17 +1103,20 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
 </section>
 
 <!-- BOOK TEASER -->
-<section class="sec" id="book-teaser" data-view="home">
+<section class="sec" id="gifts" data-view="home">
   <div class="wrap">
-    <div class="teaser">
+    <div class="teaser gift-sec">
       <div>
-        <span class="eyebrow">Ready when you are</span>
-        <h2>Pick a time that suits you.</h2>
-        <p>My week runs Tuesday to Saturday, 10 a.m. to 10 p.m. Choose a session, tap an open hour, and you'll see exactly when you arrive and when you leave before you pay a small deposit.</p>
+        <span class="eyebrow">Gift certificates</span>
+        <h2>Give the gift of calm.</h2>
+        <p>For a birthday, a new parent, a tired friend. At checkout, tell me who it's for and they can book with it in their own name.</p>
+        <ul class="gift-list"><li>Use it for Reflexology, Reiki, the combo or the foot bath</li><li>Never expires, so they can book when they're ready</li><li>The code is emailed straight away, to you or to them</li><li>Any leftover balance stays on the card for next time</li></ul>
       </div>
-      <div class="teaser-ctl">
-        <a class="btn btn-cream" href="#book">Book a session</a>
-        <a class="btn btn-ghost" href="#questions">Read the FAQ</a>
+      <div class="teaser-ctl gift-buy">
+        <a class="btn btn-cream" href="#contact" data-stripe="gift99">Buy $99</a>
+        <a class="btn btn-cream" href="#contact" data-stripe="gift198">Buy $198</a>
+        <a class="btn btn-ghost" href="#contact" data-stripe="giftCustom">Custom amount</a>
+        <p class="pay-fine">Pay securely with Stripe. The code arrives by email.</p>
       </div>
     </div>
   </div>
