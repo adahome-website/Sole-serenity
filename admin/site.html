@@ -794,8 +794,8 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         </div>
         <div class="credit contact" id="contactBox">
           <span class="pay-l" style="margin:6px 0 0">Your details</span>
-          <label for="ctName"><span>Name <span class="req" aria-hidden="true">*</span></span><input id="ctName" type="text" autocomplete="name" placeholder="First and last name" required aria-required="true"></label>
-          <div class="ct-row"><label for="ctEmail"><span>Email <span class="req" aria-hidden="true">*</span></span><input id="ctEmail" type="email" autocomplete="email" placeholder="you@email.com" required aria-required="true"></label>
+          <label for="ctEmail"><span>Email <span class="req" aria-hidden="true">*</span></span><input id="ctEmail" type="email" autocomplete="email" placeholder="you@email.com" required aria-required="true"></label>
+          <div class="ct-row"><label for="ctName"><span>Name <span class="req" aria-hidden="true">*</span></span><input id="ctName" type="text" autocomplete="name" placeholder="First and last name" required aria-required="true"></label>
           <label for="ctPhone"><span>Phone</span><input id="ctPhone" type="tel" autocomplete="tel" placeholder="587-000-0000"></label></div>
         </div>
         <div class="note" id="goNote" role="alert"></div>
@@ -1702,9 +1702,15 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   $('ctEmail').addEventListener('blur',function(){var v=this.value.trim(),n=$('goNote');if(!v)return;var ep=emailProblem(v);if(ep){n.textContent=ep;n.classList.add('show')}else if(/email/i.test(n.textContent))n.classList.remove('show')});
   // as soon as a valid email is typed, look up their membership, package or gift card (matched by email)
   var emT=null;
+  // this device remembers who booked here, so a returning client's name and phone fill in once their email is typed
+  // (kept only in their own browser; the booking system never sends anyone's details back to the page)
+  function people(){try{return JSON.parse(localStorage.getItem('ss_people')||'{}')}catch(e){return {}}}
+  function rememberMe(em,nm,ph){em=String(em||'').trim().toLowerCase();if(!em||!nm)return;try{var p=people();p[em]={name:String(nm).trim(),phone:String(ph||'').trim()};localStorage.setItem('ss_people',JSON.stringify(p))}catch(e){}}
+  function fillFromDevice(){var me=people()[$('ctEmail').value.trim().toLowerCase()];if(!me)return;
+    if(!$('ctName').value.trim()&&me.name)$('ctName').value=me.name;if(!$('ctPhone').value.trim()&&me.phone)$('ctPhone').value=me.phone}
   $('ctEmail').addEventListener('input',function(){looked=false;FOUND=null;$('crFound').hidden=true;foundMode(false);if(!giftMode&&pay==='credit'){pay='deposit';payRender()}
-    clearTimeout(emT);emT=setTimeout(function(){if(!emailProblem($('ctEmail').value))recheck()},600)});
-  $('ctEmail').addEventListener('change',function(){if(looked)return;clearTimeout(emT);if(!emailProblem(this.value))recheck()});
+    clearTimeout(emT);emT=setTimeout(function(){if(!emailProblem($('ctEmail').value)){fillFromDevice();recheck()}},600)});
+  $('ctEmail').addEventListener('change',function(){if(looked)return;clearTimeout(emT);if(!emailProblem(this.value)){fillFromDevice();recheck()}});
   $('ctName').addEventListener('input',function(){if(FOUND&&!giftMode){clearTimeout(emT);emT=setTimeout(recheck,600)}});
   $('goBtn').addEventListener('click',function(){
     if(st.t===null)return;var n=$('goNote');reSeq++;clearTimeout(emT);
@@ -1774,7 +1780,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   var TZf=function(o){return new Intl.DateTimeFormat('en-US',Object.assign({timeZone:'America/Edmonton'},o))};
   function showConfirmation(c){
     // c: {service, minutes, start, end (Date), pay, deposit, total (dollars), status, email, name, credit}
-    resetPay();
+    rememberMe(c.email,c.name,c.phone||$('ctPhone').value);resetPay();
     var check=c.status==='needs_check',day=TZf({weekday:'long',month:'long',day:'numeric'}).format(c.start),t=function(d){return TZf({hour:'numeric',minute:'2-digit'}).format(d).toLowerCase()};
     $('okNextH').hidden=false;
     $('okTitle').textContent=check?'Request received':'You\'re booked';
