@@ -181,6 +181,7 @@ section{position:relative}
 .offer{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center;background:var(--ochre);color:var(--char);border-radius:26px;padding:clamp(22px,3vw,34px);margin-top:14px;position:relative;overflow:hidden}
 .offer>*{min-width:0;position:relative}
 .offer::before{content:"";position:absolute;right:-60px;top:-80px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,#e7cfae 0 40%,transparent 41%),radial-gradient(circle,rgba(163,95,60,.18) 0 70%,transparent 71%)}
+.offer .newonly{font-weight:700;font-size:15px;letter-spacing:.12em;color:#7d3a1c;text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:5px;text-decoration-color:#a35f3c} /* stands out without a chip */
 .offer .num{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin:0 0 10px}
 .offer h3{font-size:clamp(28px,3.4vw,46px);margin-bottom:10px}
 .offer p{margin:0;max-width:56ch}
@@ -939,11 +940,11 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     </div>
     <div class="offer">
       <div class="offer-txt">
-        <p class="num">New clients only · first visit</p>
+        <p class="num"><b class="newonly">New clients only</b> · your first visit</p>
         <h3>Two hours of Reflexology + Reiki for $99</h3>
-        <p>Your first visit is half price: one full hour of reflexology, then one full hour of Reiki, back to back. Usually $198.</p>
+        <p><b>New to Sole Serenity?</b> Your first visit is half price: one full hour of reflexology, then one full hour of Reiki, back to back. Usually $198. One per client.</p>
       </div>
-      <div class="offer-cta"><div class="offer-price"><s>$198</s><b>$99</b><small>2 hours · 50% off</small></div><a class="btn btn-ink" href="#book" data-pick="intro">Book a session</a></div>
+      <div class="offer-cta"><div class="offer-price"><s>$198</s><b>$99</b><small>2 hours · 50% off</small></div><a class="btn btn-ink" href="#book" data-pick="intro">Book my first visit</a></div>
     </div>
   </div>
 </section>
