@@ -34,7 +34,7 @@ header p{margin:2px 0 0;color:var(--ink2);font-size:14px}
 .btn.pay{background:var(--teal);color:#fff}
 .btn.danger{background:transparent;color:var(--bad);box-shadow:inset 0 0 0 1.5px currentColor}
 .btn:disabled{opacity:.5;cursor:wait}
-.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:18px 0 14px}
+.tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:18px 0 14px}
 .tab{appearance:none;cursor:pointer;text-align:left;border:0;border-radius:16px;padding:12px 14px;font:inherit;color:var(--cream);opacity:.6;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;min-width:0}
 .tab[aria-selected="true"]{opacity:1;box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--k)}
 .tab b{font-family:var(--display);font-size:18px;letter-spacing:-.01em;min-width:0}
@@ -42,7 +42,11 @@ header p{margin:2px 0 0;color:var(--ink2);font-size:14px}
 .tab em{font-style:normal;font-family:var(--display);font-weight:800;font-size:24px}
 .tab.appt{--k:var(--char);background:var(--char)} .tab.package{--k:var(--teal);background:var(--teal)} .tab.membership{--k:var(--terra);background:var(--terra)} .tab.gift{--k:var(--ochre);background:var(--ochre);color:#2b231a}
 :root[data-theme="dark"] .tab.appt{background:#4a3d31}
-@media (max-width:640px){.tabs{grid-template-columns:1fr 1fr}}
+@media (max-width:640px){.tabs{grid-template-columns:1fr 1fr}.tab.owing{grid-column:1/-1}}
+.tab.owing{--k:var(--bad);background:var(--bad)}.tab.owing.none{background:var(--paper2);color:var(--ink2);--k:var(--line)}
+.owe-amt{font:800 20px var(--display);color:var(--bad);white-space:nowrap}.owe-row{border-left-color:var(--bad)!important}
+.bal.m-owe b{color:var(--bad)}.bal.m-owe small{color:var(--bad);font-weight:600}
+.diff{font-size:14.5px;background:var(--paper2);border-radius:12px;padding:10px 14px;margin:0}
 .bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
 .addm{display:none}
 /* phones: Add sits beside the search inside the category, so it doesn't push the page down */
@@ -126,6 +130,7 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
     <button class="tab package" role="tab" data-k="package" aria-selected="false"><b>Packages</b><em id="n-package">–</em></button>
     <button class="tab membership" role="tab" data-k="membership" aria-selected="false"><b>Memberships</b><em id="n-membership">–</em></button>
     <button class="tab gift" role="tab" data-k="gift" aria-selected="false"><b>Gift cards</b><em id="n-gift">–</em></button>
+    <button class="tab owing none" role="tab" data-k="owing" aria-selected="false"><b>Owing</b><em id="n-owing">–</em></button>
   </div>
 
   <div class="bar">
@@ -142,6 +147,16 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
   <p style="margin:0;font-size:14px;color:var(--ink2)">Stripe charges the card saved at booking. Your booking system then emails the client one receipt for the full session (not Stripe), with the deposit shown and a link to Stripe's PDF receipt.</p>
   <p class="err" id="chErr" role="alert"></p>
   <div class="end"><button class="btn ghost" type="button" data-close>Not yet</button><button class="btn pay" type="button" id="chGo">Charge</button></div>
+</div></dialog>
+
+<dialog id="dlgLen"><div class="f">
+  <h2>Change the session</h2>
+  <p id="lnWho" style="margin:0"></p>
+  <div class="row"><label>Session<select id="lnSvc"></select></label><label>Length<select id="lnMin"></select></label></div>
+  <p class="diff" id="lnDiff"></p>
+  <label style="display:flex;gap:8px;align-items:center;font-weight:500" id="lnForceL" hidden><input type="checkbox" id="lnForce" style="width:auto"> Book over it anyway</label>
+  <p class="err" id="lnErr" role="alert"></p>
+  <div class="end"><button class="btn ghost" type="button" data-close>Back</button><button class="btn" type="button" id="lnGo">Save</button></div>
 </div></dialog>
 
 <dialog id="dlgCancel"><div class="f">
@@ -201,7 +216,9 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
   var $=function(id){return document.getElementById(id)};
   var API=window.SS_API||null, DEMO=!API, DEP=window.SS_DEPOSIT||4000;
   var KIND={package:'Package',membership:'Membership',gift:'Gift card'};
-  var tab='appt', scope='upcoming', appts=[], credits=[], open={}, cur=null;
+  var tab='appt', scope='upcoming', appts=[], credits=[], owing={bookings:[],memberships:[]}, open={}, cur=null;
+  // session prices (cents) for Change the session
+  var PRICES={refl:['Reflexology Treatment',{60:9900,90:14900,120:19800}],reiki:['Reiki Treatment',{60:9900,90:14900,120:19800}],combo:['Combination Treatment',{120:19800}],intro:['First visit: Reflexology + Reiki',{120:9900}],bath:['Aromatherapy & Restorative Foot Bath',{90:14000}]};
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
   function money(c){return '$'+((+c||0)/100).toFixed(2)}
   function today(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
@@ -215,7 +232,7 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
     return fetch(API+path,body?{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}:{}).then(function(r){return r.json().then(function(d){if(!r.ok)throw d;return d})});
   }
   function load(){
-    return Promise.all([call('/appointments?scope='+scope),call('/credits')]).then(function(r){appts=r[0].appointments;credits=r[1].credits;render()})
+    return Promise.all([call('/appointments?scope='+scope),call('/credits'),call('/owing')]).then(function(r){appts=r[0].appointments;credits=r[1].credits;owing=r[2]&&r[2].bookings?r[2]:{bookings:[],memberships:[]};render()})
       .catch(function(e){$('out').innerHTML='<div class="state">Couldn\'t load: '+esc(e.error||e.message||'network error')+'</div>'});
   }
 
@@ -232,10 +249,12 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
   function render(){
     $('n-appt').textContent=appts.filter(function(a){return scope==='upcoming'}).length||(scope==='upcoming'?0:'·');
     ['package','membership','gift'].forEach(function(k){$('n-'+k).textContent=credits.filter(function(c){return c.kind===k&&!bal(c).done}).length});
+    var nOwe=owing.bookings.length+owing.memberships.length;$('n-owing').textContent=nOwe;document.querySelector('.tab.owing').classList.toggle('none',!nOwe);
     document.querySelectorAll('.tab').forEach(function(t){t.setAttribute('aria-selected',String(t.dataset.k===tab))});
-    $('scope').hidden=tab!=='appt';$('addBtn').hidden=tab==='appt';$('addBtn2').hidden=tab==='appt';
+    $('scope').hidden=tab!=='appt';$('addBtn').hidden=tab==='appt'||tab==='owing';$('addBtn2').hidden=tab==='appt'||tab==='owing';
     var q=$('q').value.trim().toLowerCase();
     if(tab==='appt')return renderAppts(q);
+    if(tab==='owing')return renderOwing(q);
     var list=credits.filter(function(c){return c.kind===tab&&(!q||[c.buyer,c.recipient,c.email,c.phone,c.code].join(' ').toLowerCase().indexOf(q)>=0)});
     $('out').innerHTML=list.length?list.map(credit).join(''):'<div class="state">None yet.</div>';
   }
@@ -243,6 +262,8 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
     if(a.status==='needs_check')return '<span class="st warn">Said they have a '+esc((KIND[a.credit_type]||'membership, package or gift card').toLowerCase())+(a.credit_ref?' (“'+esc(a.credit_ref)+'”)':'')+', but it didn\'t match. Tap Find to pick it, or contact them.</span>';
     if(a.status==='noshow')return '<span class="st bad">No-show'+(a.pay==='deposit'?' · deposit kept':' · session used')+'</span>';
     if(a.status==='cancelled')return '<span class="st bad">Cancelled</span>';
+    if(a.extra_cents&&!a.extra_paid_at)return '<span class="st bad">Made longer · '+money(a.extra_cents)+' difference not paid yet</span>';
+    if(a.charge_error&&a.charged_cents==null)return '<span class="st bad">'+esc(a.charge_error)+'</span>';
     if(a.charged_cents!=null)return '<span class="st ok">Paid · '+money(a.deposit_cents+a.charged_cents)+' total</span>';
     if(a.status==='completed')return '<span class="st ok">Done · '+(KIND[a.credit_type]||'credit')+'</span>';
     if(a.pay==='deposit')return '<span class="st">Deposit '+money(a.deposit_cents)+' paid · balance '+money(a.balance_cents)+'</span>';
@@ -261,9 +282,11 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
       var acts='';
       var live=['confirmed','completed','needs_check'].indexOf(a.status)>=0;
       if(a.pay==='deposit'&&a.charged_cents==null&&(a.status==='confirmed'||a.status==='completed'))acts+='<button class="btn pay" data-charge="'+esc(a.id)+'">Charge balance '+money(a.balance_cents)+'</button>';
-      if(a.invoice_url)acts+='<a class="btn ghost" href="'+esc(a.invoice_url)+'" target="_blank" rel="noopener">Receipt</a>';
+      if(a.invoice_url&&a.charged_cents!=null)acts+='<a class="btn ghost" href="'+esc(a.invoice_url)+'" target="_blank" rel="noopener">Receipt</a>';
       if(a.pay==='credit'&&a.status==='confirmed')acts+='<button class="btn" data-complete="'+esc(a.id)+'">Mark done</button>';
       if(a.status==='needs_check')acts+='<button class="btn" data-link="'+esc(a.id)+'">Find their '+esc((KIND[a.credit_type]||'credit').toLowerCase())+'</button>';
+      if(['confirmed','needs_check'].indexOf(a.status)>=0&&a.charged_cents==null)acts+='<button class="btn ghost" data-len="'+esc(a.id)+'">Change length</button>';
+      if(a.extra_url&&!a.extra_paid_at)acts+='<button class="btn ghost" data-copy="'+esc(a.extra_url)+'" data-what="Payment link">Copy payment link</button>';
       if(a.status==='confirmed'||a.status==='needs_check')acts+='<button class="btn ghost" data-noshow="'+esc(a.id)+'">No-show</button><button class="btn danger" data-cancel="'+esc(a.id)+'">Cancel</button>';
       var ended=new Date(a.end_utc||a.start_utc)<new Date(),over=ended,due=ended&&a.pay==='deposit'&&a.charged_cents==null&&(a.status==='confirmed'||a.status==='completed');
       h+='<div class="appt-row '+esc(a.service)+(over?' past':'')+(due?' due':'')+'"><div class="tm"><b>'+esc(time)+'</b><small>'+esc(a.minutes)+' min</small></div>'+
@@ -273,9 +296,29 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
     $('out').innerHTML=h;
   }
   function fallbackCopy(x){var ta=document.createElement('textarea');ta.value=x;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}ta.remove()}
+  // everyone who owes money: balances not charged, declined cards, unpaid differences, failed membership payments
+  function renderOwing(q){
+    var m=function(x){return !q||[x.name||x.buyer,x.email,x.phone].join(' ').toLowerCase().indexOf(q)>=0};
+    var bs=owing.bookings.filter(m),ms=owing.memberships.filter(m),h='';
+    if(!bs.length&&!ms.length){$('out').innerHTML='<div class="state">No one owes anything. All paid up.</div>';return}
+    if(bs.length)h+='<p class="day">Sessions</p>'+bs.map(function(a){var acts='';
+      if(a.pay==='deposit'&&a.charged_cents==null)acts+='<button class="btn pay" data-charge="'+esc(a.id)+'">'+(a.charge_error?'Try again ':'Charge balance ')+money(a.owing_cents)+'</button>';
+      if(a.charge_error&&a.invoice_url)acts+='<button class="btn ghost" data-copy="'+esc(a.invoice_url)+'" data-what="Invoice link">Copy invoice link</button>';
+      if(a.extra_url&&!a.extra_paid_at)acts+='<button class="btn ghost" data-copy="'+esc(a.extra_url)+'" data-what="Payment link">Copy payment link</button>';
+      return '<div class="appt-row owe-row '+esc(a.service)+'"><div class="tm"><span class="owe-amt">'+money(a.owing_cents)+'</span></div><div class="who"><b>'+esc(a.name)+'</b> · '+esc(a.service_name)+' · '+esc(a.when)+'<small>'+esc(a.phone||'')+(a.phone?' · ':'')+esc(a.email)+'</small><span class="st bad">'+esc(a.owing_reason)+'</span></div><div class="acts">'+acts+'</div></div>'}).join('');
+    if(ms.length)h+='<p class="day">Memberships</p>'+ms.map(function(c){
+      return '<div class="appt-row owe-row"><div class="tm"><span class="owe-amt">'+(c.price_cents?money(c.price_cents):'')+'</span></div><div class="who"><b>'+esc(c.buyer)+'</b> · Monthly membership<small>'+esc(c.phone||'')+(c.phone?' · ':'')+esc(c.email||'')+'</small><span class="st bad">Monthly payment failed. Stripe tries the card again by itself. Until it’s paid, their bookings ask for the $40 deposit.</span></div><div class="acts"></div></div>'}).join('');
+    $('out').innerHTML=h;
+  }
+  function lenOpts(){var s=$('lnSvc').value,L=Object.keys(PRICES[s][1]);$('lnMin').innerHTML=L.map(function(n){return '<option value="'+n+'">'+n+' min · '+money(PRICES[s][1][n])+'</option>'}).join('');if(L.indexOf(String(cur.minutes))>=0&&s===cur.service)$('lnMin').value=String(cur.minutes);lenDiff()}
+  // what the change means for payment
+  function lenDiff(){var s=$('lnSvc').value,n=+$('lnMin').value,t=PRICES[s][1][n];
+    if(cur.pay==='deposit'){$('lnDiff').innerHTML='New total <b>'+money(t)+'</b>. Charge balance will charge <b>'+money(t-(cur.deposit_cents||0))+'</b> (after the deposit).';return}
+    var cov=cur.credit_type==='gift'?(cur.gift_cents||0)+(cur.deposit_cents||0):9900*(cur.credit_type==='package'&&cur.service==='combo'?2:1)+(cur.deposit_cents||0),d=Math.max(0,t-cov);
+    $('lnDiff').innerHTML=d?'Their '+esc((KIND[cur.credit_type]||'credit').toLowerCase())+' covers '+money(cov)+'. The difference is <b>'+money(d)+'</b>: they get an email with a link to pay it, and it shows under Owing until it’s paid.':'Their '+esc((KIND[cur.credit_type]||'credit').toLowerCase())+' still covers it. Nothing more to pay.'}
   function credit(c){
     var b=bal(c),u=c.uses||[],who=c.recipient||c.buyer,isOpen=!!open[c.id];
-    var h='<article class="rec '+c.kind+(c.kind==='membership'&&c.status==='ended'?' m-ended':'')+'"><button type="button" data-open="'+esc(c.id)+'" aria-expanded="'+isOpen+'"><div class="who"><b>'+esc(who)+'</b><small>'+(c.recipient?'Gift from '+esc(c.buyer)+' · ':'')+'Bought '+esc(fdate(c.bought))+(c.code?' · '+esc(c.code):'')+'</small></div><div class="bal'+(c.kind==='membership'?(c.status==='ended'?' m-off':' m-on'):'')+'"><b>'+esc(c.kind==='membership'&&c.status==='ended'?'Inactive':b.txt)+'</b><small>'+(c.kind==='membership'?'<i class="mdot" aria-hidden="true"></i>':'')+esc(c.kind==='membership'?(c.status==='ended'?'not paying':'active · '+b.sub):b.sub)+'</small></div></button>';
+    var h='<article class="rec '+c.kind+(c.kind==='membership'&&c.status==='ended'?' m-ended':'')+'"><button type="button" data-open="'+esc(c.id)+'" aria-expanded="'+isOpen+'"><div class="who"><b>'+esc(who)+'</b><small>'+(c.recipient?'Gift from '+esc(c.buyer)+' · ':'')+'Bought '+esc(fdate(c.bought))+(c.code?' · '+esc(c.code):'')+'</small></div><div class="bal'+(c.kind==='membership'?(c.status==='ended'?' m-off':c.status==='owing'?' m-owe':' m-on'):'')+'"><b>'+esc(c.kind==='membership'&&c.status==='ended'?'Inactive':c.kind==='membership'&&c.status==='owing'?'Payment failed':b.txt)+'</b><small>'+(c.kind==='membership'?'<i class="mdot" aria-hidden="true"></i>':'')+esc(c.kind==='membership'?(c.status==='ended'?'not paying':c.status==='owing'?'owing · deposit needed':'active · '+b.sub):b.sub)+'</small></div></button>';
     if(isOpen){
       h+='<div class="body"><div class="facts">'+(c.kind!=='gift'?'<div><small>'+(c.kind==='membership'?'Member':'Client')+'</small><span>'+esc(c.buyer)+'</span></div><div><small>'+(c.kind==='membership'?'Member since':'Bought')+'</small><span>'+esc(fdate(c.bought))+'</span></div>'+(c.expires?'<div><small>Expires</small><span>'+esc(fdate(c.expires))+'</span></div>':''):'<div><small>Gift card for</small><span>'+esc(c.recipient||c.buyer)+'</span></div>')+(c.kind==='gift'?'<div><small>Email</small><span>'+esc(c.recipient_email||c.email||'—')+'</span></div><div><small>Phone</small><span>'+esc(c.phone||'—')+'</span></div><div class="codebox"><small>Code</small><span><b>'+esc(c.code||'—')+'</b>'+(c.code?'<button type="button" class="copy" data-copy="'+esc(c.code)+'" aria-label="Copy code '+esc(c.code)+'"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span>Copy</span></button>':'')+'</span></div>':'<div><small>Phone</small><span>'+esc(c.phone||'—')+'</span></div><div><small>Email</small><span>'+esc(c.email||'—')+'</span></div>')+'</div>';
       h+=u.length?'<div class="tbl"><table><thead><tr><th>Date</th><th>Time</th><th>Service</th><th>Status</th>'+(c.kind==='gift'?'<th class="num">Taken</th>':'')+'<th></th></tr></thead><tbody>'+u.map(function(x){
@@ -297,14 +340,15 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
     if(d.charge){cur=find(d.charge);$('chWho').innerHTML='<b>'+esc(cur.name)+'</b> · '+esc(cur.service_name)+' · '+esc(cur.when);
       $('chSum').innerHTML='<div><span>'+esc(cur.service_name)+' ('+cur.minutes+' min)</span><span class="money">'+money(cur.price_cents)+'</span></div>'+(cur.gst_cents?'<div><span>GST</span><span class="money">'+money(cur.gst_cents)+'</span></div>':'')+'<div><span>Deposit already paid</span><span class="money">−'+money(cur.deposit_cents)+'</span></div><div class="tot"><span>Charge now</span><span class="money">'+money(cur.balance_cents)+'</span></div>';
       $('chErr').textContent='';$('chGo').disabled=false;$('dlgCharge').showModal();return}
-    if(d.complete)return act('/complete',{id:d.complete},'Marked as done.');
+    if(d.complete)return act('/complete',{id:d.complete},'Marked as done. Receipt sent.');
+    if(d.len){cur=find(d.len);$('lnWho').innerHTML='<b>'+esc(cur.name)+'</b> · '+esc(cur.when);$('lnSvc').innerHTML=Object.keys(PRICES).filter(function(k){return k!=='intro'||cur.service==='intro'}).map(function(k){return '<option value="'+k+'">'+esc(PRICES[k][0])+'</option>'}).join('');$('lnSvc').value=cur.service;lenOpts();$('lnErr').textContent='';$('lnForceL').hidden=true;$('lnForce').checked=false;$('dlgLen').showModal();return}
     if(d.noshow){if(!d.sure){d.sure='1';t.textContent='Tap again: no-show';return}return act('/noshow',{id:d.noshow},'Marked as a no-show.')}
     if(d.cancel){cur=find(d.cancel);$('caWho').innerHTML='<b>'+esc(cur.name)+'</b> · '+esc(cur.when);var hrs=(new Date(cur.start_utc)-Date.now())/36e5;$('caWhen').value=hrs>=48?'early':'late';var dep=cur.pay==='deposit';$('caWhen').options[0].text=dep?'Refund the $'+(cur.deposit_cents/100)+' deposit':'Refund (the session goes back on their '+(KIND[cur.credit_type]||'credit').toLowerCase()+')';$('caWhen').options[1].text=dep?'No refund (keep the deposit)':'No refund (the session is used)';$('caHint').textContent=hrs>=48?'They cancelled 48+ hours ahead, so a refund is the policy.':'This is within 48 hours, so no refund is the policy. You can still choose to refund.';$('caErr').textContent='';$('dlgCancel').showModal();return}
     if(d.link){cur=find(d.link);$('lkWho').innerHTML='<b>'+esc(cur.name)+'</b> said: '+esc(KIND[cur.credit_type]||'')+' “'+esc(cur.credit_ref||'')+'”';
       $('lkSel').innerHTML=credits.filter(function(c){return !bal(c).done}).map(function(c){return '<option value="'+esc(c.id)+'">'+esc(KIND[c.kind]+' · '+(c.recipient||c.buyer)+' · '+bal(c).txt+(c.code?' · '+c.code:''))+'</option>'}).join('');
       $('lkErr').textContent='';$('dlgLink').showModal();return}
     if(d.use){cur=cfind(d.use);var f=$('fUse');f.reset();f.date.value=today();$('amtL').hidden=cur.kind!=='gift';$('useErr').textContent='';$('dlgUse').showModal();return}
-    if(d.copy){var done=function(){var l=t.querySelector('span');if(l){l.textContent='Copied';setTimeout(function(){l.textContent='Copy'},1600)}toast('Code '+d.copy+' copied.')};
+    if(d.copy){var done=function(){var l=t.querySelector('span');if(l){l.textContent='Copied';setTimeout(function(){l.textContent='Copy'},1600)}toast(d.what?d.what+' copied. Paste it into a text or email.':'Code '+d.copy+' copied.')};
       try{navigator.clipboard.writeText(d.copy).then(done,function(){fallbackCopy(d.copy);done()})}catch(e){fallbackCopy(d.copy);done()}return}
     if(d.edit)return openRec(cfind(d.edit));
     if(d.end){var c=cfind(d.end);return act('/credits/save',{id:c.id,status:c.status==='ended'?'active':'ended'},c.status==='ended'?'Marked active.':'Marked inactive.')}
@@ -315,6 +359,11 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
     call('/charge',{id:cur.id}).then(function(r){$('dlgCharge').close();toast('Charged '+money(r.paid_cents)+'. Receipt sent to '+cur.email+'.');load()},function(e){$('chErr').textContent=e.error||'The charge didn\'t go through.'}).then(function(){b.disabled=false;b.textContent='Charge'})});
   $('caGo').addEventListener('click',function(){var early=$('caWhen').value==='early';call('/cancel',{id:cur.id,refund:early}).then(function(){$('dlgCancel').close();toast(early?(cur.pay==='deposit'?'Cancelled. Deposit refunded.':'Cancelled. Session returned.'):'Cancelled. '+(cur.pay==='deposit'?'Deposit kept.':'Session used.'));load()},function(e){$('caErr').textContent=e.error||'That didn\'t work.'})});
   $('lkGo').addEventListener('click',function(){call('/attach',{id:cur.id,credit_id:$('lkSel').value}).then(function(){$('dlgLink').close();toast('Booking confirmed and logged against it.');load()},function(e){$('lkErr').textContent=e.error||'That didn\'t work.'})});
+  $('lnSvc').addEventListener('change',lenOpts);$('lnMin').addEventListener('change',lenDiff);
+  $('lnGo').addEventListener('click',function(){var b=this;b.disabled=true;
+    call('/length',{id:cur.id,service:$('lnSvc').value,minutes:+$('lnMin').value,force:$('lnForce').checked}).then(function(r){$('dlgLen').close();
+      toast(r.extra_cents?'Saved. '+cur.name.split(' ')[0]+' was emailed a link to pay the '+money(r.extra_cents)+' difference.':'Saved.');load()},
+      function(e){$('lnErr').textContent=e.error||'That didn\'t work.';if(/anyway/.test(e.error||''))$('lnForceL').hidden=false}).then(function(){b.disabled=false})});
   $('q').addEventListener('input',render);
   $('addBtn').addEventListener('click',function(){openRec(null)});$('addBtn2').addEventListener('click',function(){openRec(null)});
   $('dlBtn').addEventListener('click',function(){var y=today().slice(0,4);if(!$('dlFrom').value)$('dlFrom').value=y+'-01-01';if(!$('dlTo').value)$('dlTo').value=today();$('dlWhat').value=tab==='appt'?'bookings':tab;$('dlErr').textContent='';$('dlgDl').showModal()});
@@ -349,6 +398,11 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
       if(path==='/credits')return res({credits:D.credits});
       if(path==='/charge'){a.charged_cents=a.balance_cents;a.status='completed';a.invoice_url='#';return res({paid_cents:a.balance_cents})}
       if(path==='/complete'){a.status='completed';return res({})}
+      if(path==='/owing'){var now=new Date().toISOString();return res({bookings:D.appts.filter(function(x){return (x.extra_cents&&!x.extra_paid_at)||(x.pay==='deposit'&&x.charged_cents==null&&x.status==='confirmed'&&(x.end_utc||x.start_utc)<now.slice(0,16))}).map(function(x){return Object.assign({},x,x.extra_cents?{owing_cents:x.extra_cents,owing_reason:'Longer session: difference not paid yet'}:{owing_cents:x.balance_cents,owing_reason:x.charge_error||'Balance not charged yet'})}),memberships:D.credits.filter(function(c){return c.status==='owing'})})}
+      if(path==='/length'){var P2=PRICES[body.service],t=P2[1][body.minutes];a.service=body.service;a.service_name=P2[0];a.minutes=body.minutes;a.price_cents=t;a.total_cents=t;
+        var e=new Date(new Date(a.start_utc).getTime()+body.minutes*6e4),hh=e.getHours(),mm=e.getMinutes();a.end_utc=a.ymd+'T'+String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0');a.when=a.when.replace(/–.*$/,'–'+ftime(String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0')));
+        if(a.pay==='deposit'){a.balance_cents=t-a.deposit_cents;return res({extra_cents:0})}
+        var cov=a.credit_type==='gift'?(a.gift_cents||0):9900,x=Math.max(0,t-cov);a.extra_cents=x||null;a.extra_url=x?'https://checkout.stripe.com/example':null;return res({extra_cents:x})}
       if(path==='/noshow'){a.status='noshow';return res({})}
       if(path==='/cancel'){D.appts=D.appts.filter(function(x){return x!==a});return res({})}
       if(path==='/attach'){a.status='confirmed';a.credit_id=body.credit_id;return res({})}
@@ -372,10 +426,11 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
       ap('a3',t0,18,'reiki',60,'Example Member','credit',{credit_type:'membership',credit_ref:'Example Member'}),
       ap('a4',t1,11,'bath',90,'Example Client C','deposit'),
       ap('a5',t2,16,'combo',120,'Example Client D','credit',{status:'needs_check',credit_type:'gift',credit_ref:'SS-GIFT-0001'}),
-      ap('a6',p1,15,'refl',90,'Example Client E','deposit'),
+      ap('a6',p1,15,'refl',90,'Example Client E','deposit',{charge_error:'Card declined: insufficient funds',invoice_url:'https://invoice.stripe.com/example'}),
     ],credits:[
       {id:'c1',kind:'package',buyer:'Example Client F',bought:day(-20),total:3,email:'f@example.com',phone:'587-000-0101',status:'active',uses:[{id:'u1',date_local:day(-14),start_local:'14:00',end_local:'15:00',service:'Reflexology',status:'used'}]},
       {id:'c2',kind:'membership',buyer:'Example Member',bought:day(-40),total:1,email:'member@example.com',status:'active',uses:[]},
+      {id:'c4',kind:'membership',buyer:'Example Member B',bought:day(-70),total:1,price_cents:8900,email:'memberb@example.com',phone:'587-000-0144',status:'owing',uses:[]},
       {id:'c3',kind:'gift',buyer:'Example Giver',recipient:'Example Client D',code:'SS-GIFT-0001',bought:day(-10),total:19800,email:'giver@example.com',status:'active',uses:[]}
     ]};
   }

@@ -158,7 +158,26 @@ window.SS_PERSIST = true;
     o.service_name = S.name; o.price_cents = price; o.gst_cents = 0; o.total_cents = price;
     o.balance_cents = b.pay === 'deposit' ? price - (b.deposit_cents || 0) : 0;
     o.when = fmtWhen(new Date(b.start_utc), new Date(b.end_utc)); o.ymd = localOf(new Date(b.start_utc)).ymd;
+    // what they still owe for a session that has happened
+    o.owing_cents = 0; o.owing_reason = null;
+    if (b.pay === 'deposit' && b.end_utc < new Date().toISOString() && b.status === 'confirmed' && b.charged_cents == null) { o.owing_cents = price - (b.deposit_cents || 0); o.owing_reason = b.charge_error || 'Balance not charged yet' }
+    else if (b.extra_cents && !b.extra_paid_at) { o.owing_cents = b.extra_cents; o.owing_reason = 'Longer session: difference not paid yet' }
     return o;
+  }
+  function coveredCents(b) { if (b.credit_type === 'gift') return (b.gift_cents || 0) + (b.deposit_cents || 0); return SERVICES.refl.prices[60] * (b.credit_type === 'package' && b.service === 'combo' ? 2 : 1) + (b.deposit_cents || 0) }
+  function thanksLinks() { var b = function (t) { return '<a href="#" style="display:inline-block;background:#2b231a;color:#fcf9f4;padding:12px 20px;border-radius:999px;text-decoration:none;font-family:Arial,sans-serif;font-weight:bold;margin:0 8px 8px 0">' + t + '</a>' };
+    return '<p>If you’d like to, you can add a tip or leave a review. Both mean a lot to a small practice like mine.</p><p>' + b('Add a tip') + b('Leave a review') + '</p>' }
+  // package / membership / gift card visit: each visit's share of what was paid; a Combination receipt covers the reflexology hour
+  function creditReceipt(bk) {
+    var v = view(bk), c = DB.credits.filter(function (x) { return x.id === bk.credit_id })[0], per = 0, label = '';
+    if (c && c.kind === 'package') { per = Math.round((c.price_cents || 0) / Math.max(1, c.total)); label = '1 session of your ' + c.total + '-session package (' + money(c.price_cents || 0) + ' ÷ ' + c.total + ')' }
+    else if (c && c.kind === 'membership') { per = Math.round((c.price_cents || 0) / Math.max(1, +c.total || 1)); label = 'This month’s membership session' }
+    else if (c && c.kind === 'gift') { per = bk.gift_cents || 0; label = 'From your gift card' }
+    var combo = bk.service === 'combo', card = (bk.deposit_cents || 0) + (bk.extra_paid_at ? bk.extra_cents || 0 : 0);
+    var rows = [[(combo ? 'Reflexology (the reflexology hour of your Combination)' : v.service_name) + ' · ' + (combo ? 60 : bk.minutes) + ' min', ''], [label, money(per)]].concat(card ? [['Paid by card', money(card)]] : []).concat([['Total for this receipt', money(per + (combo ? 0 : card))]]);
+    sendEmail(bk.email, 'Your receipt · Sole Serenity', '<p>Hi ' + esc(bk.name.split(' ')[0]) + ',</p><p>Thank you for coming in. Here is your receipt for ' + esc(v.when) + ':</p><table cellpadding="4" style="font-size:15px">' +
+      rows.map(function (r, i) { var last = i === rows.length - 1, bd = last ? ' style="border-top:1px solid #d9cdbb"' : ''; return '<tr><td' + bd + '>' + (last ? '<b>' + r[0] + '</b>' : esc(r[0])) + '</td><td align="right"' + bd + '>' + (last ? '<b>' + r[1] + '</b>' : r[1]) + '</td></tr>' }).join('') + '</table>' +
+      '<p style="font-size:14px;color:#5a4430">Melanie MacDougall, RCRT · RAC Reg. ST26-26049 · Sole Serenity Reflexology &amp; Reiki, Northwest Calgary.' + (combo ? ' Reiki isn’t covered by most insurance, so this receipt is for the reflexology hour.' : '') + '</p>' + thanksLinks() + '<p>Melanie</p>', 'receipt');
   }
   function usesOf(c) { return DB.uses.filter(function (u) { return u.credit_id === c.id }) }
 
@@ -201,7 +220,7 @@ window.SS_PERSIST = true;
     var exp = row.expires ? '<p>Your package is valid until <b>' + esc(fmtDate(localToUtc(row.expires, '12:00'))) + '</b>.</p>' : '';
     var howTo = exp + '<p>To use it, book on the website with this same email. I’ll recognise it and there’s no deposit to pay.' + (row.code ? ' You can also tap “Have a gift card code?” and enter the code.' : '') + '</p>';
     var policy = '<p>If you can’t make a session, text or email me at least 48 hours before. A no-show, or a cancellation within 48 hours, uses that session.</p><p>Melanie</p>';
-    var cancelM = row.kind === 'membership' ? '<p>You can cancel your membership anytime with one month’s notice. Just email me at hello@soleserenity.ca, or call or text 587-216-8588.</p>' : '';
+    var cancelM = row.kind === 'membership' ? '<p>You can cancel your membership anytime with 30 days’ notice. Just email me at hello@soleserenity.ca, or call or text 587-216-8588.</p>' : '';
     if (row.email) sendEmail(row.email, 'Your Sole Serenity ' + (row.kind === 'gift' ? 'gift card' : row.kind), '<p>Hi ' + esc(row.buyer) + ',</p><p>Thank you for buying ' + what + (row.recipient ? ' for ' + esc(row.recipient) : '') + '.</p>' +
       (row.code ? '<p>Gift card code: <b style="font-size:20px">' + row.code + '</b></p>' + (row.recipient_email ? '<p>I’ve also emailed the code to ' + esc(row.recipient || 'them') + '.</p>' : '<p>Pass the code on to ' + esc(row.recipient || 'them') + ' with your card or message.</p>') : howTo + cancelM + policy), 'purchase');
     if (row.code && row.recipient_email) sendEmail(row.recipient_email, 'A Sole Serenity gift card for you', '<p>Hi ' + esc(row.recipient || 'there') + ',</p><p>' + esc(row.buyer) + ' has given you ' + what + ' for reflexology or Reiki with me in Calgary.</p><p>Your code: <b style="font-size:20px">' + row.code + '</b></p>' + howTo + policy, 'purchase');
@@ -210,7 +229,7 @@ window.SS_PERSIST = true;
 
   /* ---------- availability + matching ---------- */
   var ACTIVE = ['held', 'confirmed', 'needs_check', 'completed', 'noshow'];
-  function busy(exceptId) { var now = new Date().toISOString(); return DB.bookings.filter(function (b) { return b.id !== exceptId && ACTIVE.indexOf(b.status) >= 0 && (b.status !== 'held' || b.hold_until > now) }).map(function (b) { return { start: b.start_utc, end: b.end_utc } }).concat(DB.calendar) }
+  function busy(exceptId) { var now = new Date().toISOString(); return DB.bookings.filter(function (b) { return b.id !== exceptId && ACTIVE.indexOf(b.status) >= 0 && (b.status !== 'held' || b.hold_until > now) }).map(function (b) { return { start: b.start_utc, end: b.end_utc } }).concat(DB.calendar.filter(function (c) { return !exceptId || c.booking !== exceptId })) }
   function overlaps(s, e) { return busy().some(function (b) { return new Date(b.start) < e && new Date(b.end) > s }) }
   function creditLeft(c, ym) {
     var u = usesOf(c);
@@ -219,10 +238,13 @@ window.SS_PERSIST = true;
     return c.total - u.reduce(function (a, x) { return a + (x.amount_cents || 0) }, 0);
   }
   // someone we already know: a past or upcoming booking, or a membership, package or gift card under this email
-  function isKnown(email) {
-    email = String(email || '').trim().toLowerCase(); if (!email) return false;
-    return DB.bookings.some(function (x) { return (x.email || '').toLowerCase() === email && ['confirmed', 'needs_check', 'completed', 'noshow'].indexOf(x.status) >= 0 }) ||
-      DB.credits.some(function (c) { return (c.email || '').trim().toLowerCase() === email || (c.recipient_email || '').trim().toLowerCase() === email });
+  // matched by email, or by phone (last 10 digits)
+  function last10(p) { return String(p || '').replace(/\D/g, '').slice(-10) }
+  function isKnown(email, phone) {
+    email = String(email || '').trim().toLowerCase(); var ph = last10(phone); if (!email && ph.length < 10) return false;
+    var same = function (e, p) { return (email && (e || '').trim().toLowerCase() === email) || (ph.length === 10 && last10(p) === ph) };
+    return DB.bookings.some(function (x) { return same(x.email, x.phone) && ['confirmed', 'needs_check', 'completed', 'noshow'].indexOf(x.status) >= 0 }) ||
+      DB.credits.some(function (c) { return same(c.email, c.phone) || (email && (c.recipient_email || '').trim().toLowerCase() === email) });
   }
   // the name and phone we have for this email: their latest booking, else a membership, package or gift card
   function personOf(email) {
@@ -294,7 +316,7 @@ window.SS_PERSIST = true;
   function api(path, body, method) {
     var u = new URL('https://x' + path), p = u.pathname;
     if (p === '/api/availability') return { tz: TZ, busy: busy() };
-    if (p === '/api/lookup') { var lr = { found: body.code ? lookupCode(body.code) : lookup(body.name, body.email, body.date, body.service, body.minutes) }; if (body.service === 'intro') lr.known = isKnown(body.email); if (!body.code && body.email) lr.person = personOf(body.email); return lr }
+    if (p === '/api/lookup') { var lr = { found: body.code ? lookupCode(body.code) : lookup(body.name, body.email, body.date, body.service, body.minutes) }; if (body.service === 'intro') lr.known = isKnown(body.email, body.phone); if (!body.code && body.email) lr.person = personOf(body.email); return lr }
     if (p === '/api/book') return book(body);
     if (p === '/api/booking') { var x = getB(u.searchParams.get('id')); if (!x) throw err('Not found', 404); var v = view(x); return { service: x.service, service_name: v.service_name, minutes: x.minutes, start_utc: x.start_utc, end_utc: x.end_utc, pay: x.pay, deposit_cents: x.deposit_cents, total_cents: v.total_cents, status: x.status, credit_type: x.credit_type, email: x.email, first_name: x.name.split(' ')[0], gift_cents: x.gift_cents, gift_left_cents: x.credit_type === 'gift' && x.credit_id ? creditLeft(DB.credits.filter(function (c) { return c.id === x.credit_id })[0]) : null } }
     if (p.indexOf('/admin/api') === 0) return admin(p.slice(10), body, u);
@@ -306,15 +328,16 @@ window.SS_PERSIST = true;
     var name = (b.name || '').trim(), email = (b.email || '').trim().toLowerCase();
     var start = localToUtc(b.date, b.time), end = new Date(start.getTime() + minutes * 6e4), L = localOf(start), Le = localOf(end);
     if (!name || !/^[A-Za-z0-9.!#$%&'*+\/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)*\.[A-Za-z]{2,}$/.test(email)) throw err('Please add your name and a valid email.', 400);
+    if (!/^\d{10,15}$/.test(String(b.phone || '').replace(/\D/g, ''))) throw err('Please add your phone number.', 400);
     if (overlaps(start, end)) throw err('Sorry, that time was just taken. Please pick another.', 409);
-    var pay = b.service === 'intro' ? 'deposit' : (b.pay === 'credit' ? 'credit' : 'deposit');
+    var pay = b.pay === 'credit' && (b.service !== 'intro' || b.credit_type === 'gift') ? 'credit' : 'deposit'; // the first visit: deposit or gift card
     // checked again on every booking: nothing left on the package / membership / gift card = regular booking with the $40 deposit
     var type = ['package', 'membership', 'gift'].indexOf(b.credit_type) >= 0 ? b.credit_type : 'package';
     var c = pay === 'credit' ? findCredit(type, (b.credit_ref || '').trim(), email, name, L.ymd, S.prices[minutes], b.service, minutes) : null;
     if (pay === 'credit' && !c) pay = 'deposit';
-    if (b.service === 'intro' && isKnown(email))
+    if (b.service === 'intro' && isKnown(email, b.phone))
       throw err('The first-visit offer is for new clients only, and you’ve been here before. Please choose the Combination (2 hours) instead.', 409);
-    var row = { id: rid('bk'), created: new Date().toISOString(), status: 'held', service: b.service, minutes: minutes, start_utc: start.toISOString(), end_utc: end.toISOString(), name: name, email: email, phone: b.phone || '', pay: pay, credit_type: null, credit_ref: null, credit_id: null, hold_until: new Date(Date.now() + 31 * 6e4).toISOString(), deposit_cents: 0, charged_cents: null };
+    var row = { id: rid('bk'), created: new Date().toISOString(), status: 'held', service: b.service, minutes: minutes, start_utc: start.toISOString(), end_utc: end.toISOString(), name: name, email: email, phone: b.phone || '', pay: pay, credit_type: null, credit_ref: null, credit_id: null, hold_until: new Date(Date.now() + 10 * 6e4).toISOString(), deposit_cents: 0, charged_cents: null };
     if (pay === 'deposit') { DB.bookings.push(row); notify(); return { ok: true, checkout_url: 'demo-checkout:' + row.id } }
     row.credit_type = type; row.credit_ref = (b.credit_ref || '').trim();
     if (c && type === 'gift') {
@@ -359,10 +382,25 @@ window.SS_PERSIST = true;
         '<table cellpadding="4" style="font-size:15px"><tr><td>' + esc(v.service_name) + '</td><td align="right">' + money(v.price_cents) + '</td></tr>' +
         '<tr><td>Deposit already paid</td><td align="right">−' + money(bk.deposit_cents) + '</td></tr><tr><td>Paid today</td><td align="right">' + money(bk.charged_cents) + '</td></tr>' +
         '<tr><td style="border-top:1px solid #d9cdbb"><b>Total paid for this session</b></td><td align="right" style="border-top:1px solid #d9cdbb"><b>' + money(v.total_cents) + '</b> · paid in full</td></tr></table>' +
-        '<p><a href="#" style="color:#a35f3c">Download the PDF receipt</a> (includes my RCRT registration for insurance claims).</p><p>Melanie</p>', 'receipt');
+        '<p><a href="#" style="color:#a35f3c">Download the PDF receipt</a> (includes my RCRT registration for insurance claims).</p>' + thanksLinks() + '<p>Melanie</p>', 'receipt');
       notify(); return { ok: true, paid_cents: bk.charged_cents, appointment: view(bk) };
     }
-    if (p === '/complete') { var b1 = getB(body.id); b1.status = 'completed'; DB.uses.forEach(function (x) { if (x.booking_id === b1.id) x.status = 'used' }); notify(); return { ok: true } }
+    if (p === '/complete') { var b1 = getB(body.id); b1.status = 'completed'; DB.uses.forEach(function (x) { if (x.booking_id === b1.id) x.status = 'used' }); if (!b1.receipt_sent_at) { creditReceipt(b1); b1.receipt_sent_at = new Date().toISOString() } notify(); return { ok: true } }
+    if (p === '/owing') return { bookings: DB.bookings.map(view).filter(function (v) { return v.owing_cents > 0 && ['confirmed', 'completed', 'noshow'].indexOf(v.status) >= 0 }), memberships: DB.credits.filter(function (c) { return c.status === 'owing' }) };
+    if (p === '/length') {
+      var b5 = getB(body.id), S5 = SERVICES[body.service || (b5 && b5.service)], mins = +body.minutes;
+      if (!b5 || !S5 || !S5.prices[mins]) throw err('Choose a session and a length it comes in.');
+      var st5 = new Date(b5.start_utc), en5 = new Date(st5.getTime() + mins * 6e4);
+      if (mins > b5.minutes && !body.force && busy(b5.id).some(function (x) { return new Date(x.start) < en5 && new Date(x.end) > st5 })) throw err('Something else is booked in that extra time. Tick "Book over it anyway" if that’s fine.', 409);
+      b5.service = body.service || b5.service; b5.minutes = mins; b5.end_utc = en5.toISOString();
+      DB.calendar.forEach(function (c) { if (c.booking === b5.id) c.end = b5.end_utc });
+      var extra = 0;
+      if (b5.pay !== 'deposit' && !b5.extra_paid_at) {
+        extra = Math.max(0, view(b5).total_cents - coveredCents(b5)); b5.extra_cents = extra || null; b5.extra_url = extra ? 'https://checkout.stripe.com/demo-' + b5.id : null;
+        if (extra) sendEmail(b5.email, 'Your session today · the difference to pay', '<p>Hi ' + esc(b5.name.split(' ')[0]) + ',</p><p>Your session changed to ' + esc(S5.name) + ', ' + mins + ' min. Your ' + esc(KIND[b5.credit_type] || 'credit') + ' covers ' + money(coveredCents(b5)) + ', so the difference is <b>' + money(extra) + '</b>.</p><p><a href="#" style="display:inline-block;background:#2b231a;color:#fcf9f4;padding:12px 20px;border-radius:999px;text-decoration:none;font-family:Arial,sans-serif;font-weight:bold">Pay ' + money(extra) + '</a></p><p>Melanie</p>', 'receipt');
+      }
+      notify(); return { ok: true, extra_cents: extra, pay_url: b5.extra_url || null, appointment: view(b5) };
+    }
     if (p === '/noshow') { var b2 = getB(body.id); b2.status = 'noshow'; DB.uses.forEach(function (x) { if (x.booking_id === b2.id) x.status = 'noshow' }); notify(); return { ok: true } }
     if (p === '/cancel') {
       var b3 = getB(body.id), refund = !!body.refund;
@@ -460,6 +498,8 @@ window.SS_PERSIST = true;
     DB.credits.push({ id: 'cr_sam', kind: 'package', buyer: 'Sam Example', email: 'sam@example.com', phone: '587-555-0163', bought: addDaysYmd(ymdOf(new Date()), -90), price_cents: 27500, total: 3, status: 'active' });
     ['-60', '-40', '-20'].forEach(function (d, i) { DB.uses.push({ id: 'us' + i, credit_id: 'cr_sam', booking_id: null, date_local: addDaysYmd(ymdOf(new Date()), +d), start_local: '10:00', end_local: '11:00', service: 'Reflexology', status: 'used', amount_cents: 0 }) });
     DB.credits.push({ id: 'cr_jordan', kind: 'membership', buyer: 'Jordan Example', email: 'jordan@example.com', phone: '587-555-0152', bought: addDaysYmd(ymdOf(new Date()), -70), price_cents: 8900, total: 1, status: 'active' });
+    DB.credits.push({ id: 'cr_casey', kind: 'membership', buyer: 'Casey Example', email: 'casey@example.com', phone: '587-555-0177', bought: addDaysYmd(ymdOf(new Date()), -100), price_cents: 8900, total: 1, status: 'owing' });
+    mk('bk_avery', lastThu, '11:00', 'refl', 90, 'Avery Example', 'avery@example.com', 'deposit', { stripe_pm: 'pm_demo', deposit_paid_at: new Date(Date.now() - 9 * 864e5).toISOString(), charge_error: 'Card declined: insufficient funds', invoice_url: 'https://invoice.stripe.com/demo' });
     DB.credits.push({ id: 'cr_lee', kind: 'gift', code: 'SS-3HNW-7RTB', buyer: 'Robin Example', recipient: 'Lee Example', recipient_email: 'lee@example.com', email: 'robin@example.com', bought: addDaysYmd(ymdOf(new Date()), -20), price_cents: 5000, total: 5000, status: 'active' });
     DB.credits.push({ id: 'cr_riley', kind: 'gift', code: 'SS-K7QM-4XPA', buyer: 'Morgan Example', recipient: 'Riley Example', recipient_email: 'riley@example.com', email: 'morgan@example.com', bought: addDaysYmd(ymdOf(new Date()), -9), price_cents: 19800, total: 19800, status: 'active' });
     // Appointments start empty: they fill up as you book on the website
@@ -487,7 +527,7 @@ window.SS_PERSIST = true;
     view: view, money: money, fmtWhen: fmtWhen
   };
   // Shared demo (the published website + admin): keep the data in this browser, so both pages see the same bookings
-  var KEY = 'ss_live_demo_v1';
+  var KEY = 'ss_live_demo_v2';
   if (window.SS_PERSIST) {
     var saved = null; try { saved = JSON.parse(localStorage.getItem(KEY) || 'null') } catch (e) { }
     if (saved && saved.bookings) DB = saved; else seed();
@@ -505,10 +545,10 @@ window.SS_PERSIST = true;
 <main>
   <section class="pane" id="p-site" role="tabpanel" aria-labelledby="t-site">
     <p class="strip"><b>What a client sees.</b> Book a session, buy a gift card, or try booking with <b>pat@example.com</b> (has a package), <b>jordan@example.com</b> (member) or <b>lee@example.com</b> (small gift card). Payments open a pretend Stripe checkout.</p>
-    <iframe id="f-site" src="site.html?v=1793686380" title="Client website"></iframe>
+    <iframe id="f-site" src="site.html?v=1793687524" title="Client website"></iframe>
   </section>
   <section class="pane" id="p-admin" role="tabpanel" aria-labelledby="t-admin" hidden>
-    <p class="strip"><b>What Melanie sees</b> after signing in. Appointments start empty and fill up as you book on the website. Then try <b>Charge balance</b>, <b>Cancel</b> or <b>No-show</b>.</p>
+    <p class="strip"><b>What Melanie sees</b> after signing in. Appointments fill up as you book on the website. Then try <b>Charge balance</b>, <b>Change length</b>, <b>Cancel</b> or <b>No-show</b>, and see who owes money under <b>Owing</b>.</p>
     <iframe id="f-admin" title="Melanie's admin page"></iframe>
   </section>
   <section class="pane" id="p-mail" role="tabpanel" aria-labelledby="t-mail" hidden>
