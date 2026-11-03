@@ -1634,7 +1634,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   $('segPay').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;pay=b.dataset.v;payRender();if(pay==='credit')$('crRef').focus()});
   $('crType').addEventListener('change',payRender);
 
-  var looked=false,FOUND=null,giftMode=false,KNOWN=false;
+  var looked=false,FOUND=null,giftMode=false,KNOWN=false,PERSON=null;
   // Once a membership/package/gift card is recognised, the only choice is the one in the "found" box
   // gift cards always pay for the full session: the card covers what it can, the rest is paid by card at booking
   function giftMath(f){var price=SESS[st.s].price[st.len]*(1+GST_RATE),bal=(f.balance_cents||0)/100,cover=Math.min(bal,price);return {price:price,bal:bal,cover:cover,due:Math.round((price-cover)*100)/100,left:Math.round((bal-cover)*100)/100}}
@@ -1686,7 +1686,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   var DEMO_CREDITS={'example member':{kind:'membership',ref:'Example Member',text:'a monthly membership, and this month\'s session is still available'}};
   function lookup(nm,em,code){
     if(!BOOKING_API)return new Promise(function(r){setTimeout(function(){r(code?(code.trim().toUpperCase()==='SS-DEMO-GIFT'?{kind:'gift',ref:'SS-DEMO-GIFT',balance_cents:5000,text:'a gift card with $50.00 left'}:null):DEMO_CREDITS[nm.toLowerCase()]||null)},400)});
-    return fetch(BOOKING_API+'/api/lookup',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:nm,email:em,code:code||'',service:st.s,minutes:st.len,date:st.date?st.date.getFullYear()+'-'+String(st.date.getMonth()+1).padStart(2,'0')+'-'+String(st.date.getDate()).padStart(2,'0'):''})}).then(function(r){return r.json()}).then(function(d){KNOWN=!!d.known;return d.found||null}).catch(function(){return null});
+    return fetch(BOOKING_API+'/api/lookup',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:nm,email:em,code:code||'',service:st.s,minutes:st.len,date:st.date?st.date.getFullYear()+'-'+String(st.date.getMonth()+1).padStart(2,'0')+'-'+String(st.date.getDate()).padStart(2,'0'):''})}).then(function(r){return r.json()}).then(function(d){KNOWN=!!d.known;PERSON=d.person||null;return d.found||null}).catch(function(){return null});
   }
   var reSeq=0;
   function recheck(){
@@ -1694,7 +1694,9 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     FOUND=null;$('crFound').hidden=true;foundMode(false);
     if(!giftMode&&pay==='credit'){pay='deposit';payRender()}
     if(emailProblem(em)||(giftMode&&!code))return;looked=true; // no time needed yet: their details and what they have show as soon as the email is in
-    KNOWN=false;lookup(nm,em,code).then(function(f){if(seq!==reSeq||!$('crFound').hidden)return;
+    KNOWN=false;PERSON=null;lookup(nm,em,code).then(function(f){if(seq!==reSeq||!$('crFound').hidden)return;
+      // anyone on file: fill in the name and phone we have for them
+      if(PERSON&&!giftMode){if(PERSON.name&&!$('ctName').value.trim())$('ctName').value=PERSON.name;if(PERSON.phone&&!$('ctPhone').value.trim())$('ctPhone').value=PERSON.phone}
       if(st.s==='intro'&&!giftMode){if(KNOWN){if(f&&f.name&&!$('ctName').value.trim())$('ctName').value=f.name;if(f&&f.phone&&!$('ctPhone').value.trim())$('ctPhone').value=f.phone;showNotNew($('ctName').value.trim())}return}
       if(!f)return;
       // the system is the source of truth: fill in the name and phone on their membership or package

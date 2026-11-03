@@ -222,6 +222,15 @@ window.SS_PERSIST = true;
     return DB.bookings.some(function (x) { return (x.email || '').toLowerCase() === email && ['confirmed', 'needs_check', 'completed', 'noshow'].indexOf(x.status) >= 0 }) ||
       DB.credits.some(function (c) { return (c.email || '').trim().toLowerCase() === email || (c.recipient_email || '').trim().toLowerCase() === email });
   }
+  // the name and phone we have for this email: their latest booking, else a membership, package or gift card
+  function personOf(email) {
+    email = String(email || '').trim().toLowerCase(); if (!email) return null;
+    var bks = DB.bookings.filter(function (x) { return (x.email || '').toLowerCase() === email && ['confirmed', 'needs_check', 'completed', 'noshow'].indexOf(x.status) >= 0 }).sort(function (a, b) { return a.start_utc < b.start_utc ? 1 : -1 });
+    var cr = DB.credits.filter(function (c) { return (c.email || '').trim().toLowerCase() === email || (c.recipient_email || '').trim().toLowerCase() === email }).sort(function (a, b) { return a.bought < b.bought ? 1 : -1 })[0];
+    var asRec = cr && (cr.recipient_email || '').trim().toLowerCase() === email;
+    var name = (bks[0] && bks[0].name) || (cr ? (asRec ? cr.recipient : cr.buyer) : '') || '', phone = (bks[0] && bks[0].phone) || (cr && !asRec ? cr.phone : '') || '';
+    return name || phone ? { name: name, phone: phone } : null;
+  }
   function norm(x) { return String(x || '').trim().replace(/\s+/g, ' ').toLowerCase() }
   function lookupCode(code) {
     var c = DB.credits.filter(function (x) { return x.kind === 'gift' && x.status === 'active' && norm(x.code) === norm(code) })[0], left = c ? creditLeft(c) : 0;
@@ -279,7 +288,7 @@ window.SS_PERSIST = true;
   function api(path, body, method) {
     var u = new URL('https://x' + path), p = u.pathname;
     if (p === '/api/availability') return { tz: TZ, busy: busy() };
-    if (p === '/api/lookup') { var lr = { found: body.code ? lookupCode(body.code) : lookup(body.name, body.email, body.date, body.service, body.minutes) }; if (body.service === 'intro') lr.known = isKnown(body.email); return lr }
+    if (p === '/api/lookup') { var lr = { found: body.code ? lookupCode(body.code) : lookup(body.name, body.email, body.date, body.service, body.minutes) }; if (body.service === 'intro') lr.known = isKnown(body.email); if (!body.code && body.email) lr.person = personOf(body.email); return lr }
     if (p === '/api/book') return book(body);
     if (p === '/api/booking') { var x = getB(u.searchParams.get('id')); if (!x) throw err('Not found', 404); var v = view(x); return { service_name: v.service_name, minutes: x.minutes, start_utc: x.start_utc, end_utc: x.end_utc, pay: x.pay, deposit_cents: x.deposit_cents, total_cents: v.total_cents, status: x.status, credit_type: x.credit_type, email: x.email, first_name: x.name.split(' ')[0], gift_cents: x.gift_cents, gift_left_cents: x.credit_type === 'gift' && x.credit_id ? creditLeft(DB.credits.filter(function (c) { return c.id === x.credit_id })[0]) : null } }
     if (p.indexOf('/admin/api') === 0) return admin(p.slice(10), body, u);
