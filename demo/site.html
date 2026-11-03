@@ -425,6 +425,14 @@ section{position:relative}
 .panel.line{border:2px solid var(--ink)}
 .panel h3{font-size:clamp(32px,3.6vw,48px);margin:14px 0 22px}
 .steps{list-style:none;padding:0;margin:0;counter-reset:s}
+/* What to expect / Studio policies: tap the heading to open or close */
+.acc>summary{list-style:none;cursor:pointer;display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.acc>summary::-webkit-details-marker{display:none}
+.acc>summary::after{content:"+";flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font:500 26px/1 var(--body);background:color-mix(in srgb,currentColor 12%,transparent);transition:transform .2s}
+.acc[open]>summary::after{transform:rotate(45deg)}
+.acc>summary:focus-visible{outline:3px solid var(--focus);outline-offset:4px;border-radius:12px}
+.acc>summary h3{margin-bottom:0}.acc[open]>summary h3{margin-bottom:14px}
+.two{align-items:start}
 .steps li{counter-increment:s;display:grid;grid-template-columns:44px 1fr;gap:14px;padding:14px 0;border-top:1px solid color-mix(in srgb,currentColor 20%,transparent)}
 .steps li::before{content:counter(s,decimal-leading-zero);font-family:var(--mono);font-size:13px;color:var(--ochre);padding-top:3px}
 .steps li>div{min-width:0}
@@ -1356,19 +1364,19 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
 <!-- FIRST VISIT + POLICIES -->
 <section class="sec" id="visit" style="padding-top:0" data-view="questions">
   <div class="wrap two">
-    <div class="panel ink">
-      <span class="eyebrow" style="color:var(--ochre)">Your first visit</span>
-      <h3>What to expect.</h3>
+    <details class="panel ink acc" open>
+      <summary><span class="acc-h"><span class="eyebrow" style="color:var(--ochre)">Your first visit</span>
+      <h3>What to expect.</h3></span></summary>
       <ol class="steps">
         <li><div><b>Book and pay your deposit</b><p>Your time is held once your deposit is in, and I'll message you the exact NW Calgary address.</p></div></li>
         <li><div><b>Arrive a few minutes early</b><p>Your session starts and finishes at the booked time, so a few minutes of settling in helps you make the most of it.</p></div></li>
         <li><div><b>A short intake</b><p>I'll ask a few questions about your health, your comfort, any allergies or fragrance sensitivities, and what you'd like from today.</p></div></li>
         <li><div><b>Wear something comfortable</b><p>Reflexology: clothes on, shoes and socks off. Reiki: fully clothed. Loose layers are perfect.</p></div></li>
       </ol>
-    </div>
-    <div class="panel line" id="policies">
-      <span class="eyebrow">Studio policies</span>
-      <h3>The fine print, plainly.</h3>
+    </details>
+    <details class="panel line acc" id="policies" open>
+      <summary><span class="acc-h"><span class="eyebrow">Studio policies</span>
+      <h3>The fine print, plainly.</h3></span></summary>
       <ol class="steps">
         <li><div><b>Deposit</b><p>A $40 deposit holds your booking and comes off your session total.</p></div></li>
         <li><div><b>Cancellation</b><p>Text or email me at least 48 hours before your appointment and I'll refund your deposit. Within 48 hours, the deposit isn't refunded.</p></div></li>
@@ -1376,7 +1384,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         <li><div><b>Late arrival</b><p>Your session still finishes at the booked time, so the next client's time is protected too.</p></div></li>
         <li><div><b>Scent-free option</b><p>Ask for scent-free and I won't use any oils. Essential oils are only ever used with your consent.</p></div></li>
       </ol>
-    </div>
+    </details>
   </div>
 </section>
 
@@ -2077,6 +2085,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   $('tabBreath').addEventListener('click',function(){tab('b')});
   $('tabSense').addEventListener('click',function(){tab('s')});
 
+  if(matchMedia('(max-width:860px)').matches)document.querySelectorAll('details.acc').forEach(function(d){d.open=false});
   /* ---------- inside-a-session tabs ---------- */
   var rsTabs=[$('rsTabRk'),$('rsTabRx')];
   function rsSelect(i,focus){
