@@ -519,6 +519,15 @@ section{position:relative}
 @keyframes nightFall{0%{opacity:.72}14%{opacity:0}64%{opacity:0}80%,100%{opacity:.72}}
 @keyframes starsOut{0%{opacity:1}10%,70%{opacity:0}84%,100%{opacity:1}}
 .sun-day{animation:sunDay 36s linear infinite}
+/* Melanie walks in as the sun rises, sits to meditate through the day, and walks off at sunset */
+@keyframes melMove{0%,4%{transform:translate(-60px,334px)}16%,60%{transform:translate(412px,334px)}74%,100%{transform:translate(680px,334px)}}
+@keyframes melWalk{0%,16%{opacity:1}17.5%,58.5%{opacity:0}60%,100%{opacity:1}}
+@keyframes melSit{0%,16%{opacity:0}17.5%,58.5%{opacity:1}60%,100%{opacity:0}}
+@keyframes melBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+.mel-move{transform:translate(412px,334px);animation:melMove 36s linear infinite}
+.mel-walk{opacity:0;animation:melWalk 36s linear infinite}
+.mel-sit{animation:melSit 36s linear infinite}
+.mel-bob{animation:melBob .55s ease-in-out infinite}
 .night{opacity:0;animation:nightFall 36s ease-in-out infinite;pointer-events:none}
 .stars{opacity:0;animation:starsOut 36s ease-in-out infinite}
 .wave{animation:ripple 7s ease-in-out infinite}
@@ -861,6 +870,24 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
             <path d="M0 404 h140 M200 404 h120 M400 404 h160" opacity=".45"/>
           </g>
           <path d="M260 340 h240 v-6 h-240z" fill="#2f4441" opacity=".35"/>
+          <g class="mel-move" aria-hidden="true">
+            <g class="mel-walk"><g class="mel-bob"><g transform="scale(2)">
+              <rect x="-4.5" y="-16" width="3.2" height="16" rx="1.4" fill="#2b231a"/><rect x="1.3" y="-16" width="3.2" height="16" rx="1.4" fill="#2b231a"/>
+              <ellipse cx="0" cy="-37" rx="6.6" ry="8.4" fill="#2b1d14"/>
+              <path d="M-7.5 -14 L-5 -32 Q0 -35.5 5 -32 L7.5 -14 Z" fill="#2f4441"/>
+              <circle cx="0.6" cy="-39.5" r="4.8" fill="#e2b994"/>
+              <path d="M-4.6 -41 Q0 -47 5.4 -41 Q2 -43 -4.6 -41Z" fill="#2b1d14"/>
+            </g></g></g>
+            <g class="mel-sit"><g transform="scale(2)">
+              <ellipse cx="0" cy="-3.6" rx="12" ry="4" fill="#2b231a"/>
+              <ellipse cx="0" cy="-27" rx="6.6" ry="8.4" fill="#2b1d14"/>
+              <path d="M-7 -5 L-5 -22 Q0 -25.5 5 -22 L7 -5 Z" fill="#2f4441"/>
+              <path d="M-4.5 -20 L-9.5 -6.5M4.5 -20 L9.5 -6.5" stroke="#2f4441" stroke-width="2.6" stroke-linecap="round"/>
+              <circle cx="-9.8" cy="-6" r="1.8" fill="#e2b994"/><circle cx="9.8" cy="-6" r="1.8" fill="#e2b994"/>
+              <circle cx="0" cy="-29.5" r="4.8" fill="#e2b994"/>
+              <path d="M-5 -31 Q0 -37 5 -31 Q1 -33 -5 -31Z" fill="#2b1d14"/>
+            </g></g>
+          </g>
           <rect class="night" width="600" height="420" fill="#0f1a26"/>
           <g class="stars" fill="#fcf9f4">
             <circle cx="70" cy="60" r="2.2"/><circle cx="150" cy="110" r="1.6"/><circle cx="230" cy="40" r="2"/><circle cx="330" cy="90" r="1.5"/>
