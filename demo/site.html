@@ -143,7 +143,7 @@ section{position:relative}
 .class.o .art text{fill:var(--char)}
 .class{border-radius:26px;padding:22px;display:flex;flex-direction:column;min-width:0;position:relative;overflow:hidden}
 .class{display:grid;grid-row:span 6;grid-template-rows:subgrid;row-gap:0;align-content:start}
-.class>.art{align-self:center;justify-self:center;max-width:300px}
+.class>.art{align-self:center;justify-self:start;max-width:300px} /* drawings start at the same left edge as the title */
 .class>ul{align-self:stretch}
 .class>.cfoot{align-self:end}
 .class.t{background:var(--teal);color:var(--cream)}
@@ -862,7 +862,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     <div class="classes">
       <article class="class t">
         <p class="num">01 · Body</p>
-        <svg class="art" viewBox="-21 0 240 156" role="img" aria-label="Illustration: the sole of a right foot with its reflex zones (toes, ball, arch, heel)">
+        <svg class="art" viewBox="18 0 240 156" role="img" aria-label="Illustration: the sole of a right foot with its reflex zones (toes, ball, arch, heel)">
           <use href="#sole" x="10" y="4" width="68" height="136"/>
           <g font-family="DM Mono,monospace" font-size="9.5" letter-spacing=".6" fill="#fcf9f4">
             <circle cx="96" cy="39" r="3.5" fill="#d6b48c"/><text x="104" y="42">TOES · HEAD</text>
@@ -878,7 +878,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
       </article>
       <article class="class r">
         <p class="num">02 · Energy</p>
-        <svg class="art" viewBox="-68 0 240 150" role="img" aria-label="Illustration: Melanie with her hands hovering beside a line of seven Reiki hand positions, crown to feet">
+        <svg class="art" viewBox="-2 0 240 150" role="img" aria-label="Illustration: Melanie with her hands hovering beside a line of seven Reiki hand positions, crown to feet">
           <g transform="translate(-62 0)">
           <path d="M64 46C62 26 74 18 82 19C94 18 102 28 100 46C102 60 104 72 98 82C94 76 92 68 92 60L70 60C70 68 68 76 62 82C58 72 64 60 64 46Z" fill="#2b1d14"/>
           <path d="M62 132C62 88 66 66 82 64C98 66 102 88 102 132Z" fill="#3a332d"/>
@@ -899,7 +899,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
       </article>
       <article class="class c">
         <p class="num">03 · Both</p>
-        <svg class="art" viewBox="-56 0 240 150" role="img" aria-label="Illustration: the sole of a foot beside a line of seven Reiki hand positions">
+        <svg class="art" viewBox="18 0 240 150" role="img" aria-label="Illustration: the sole of a foot beside a line of seven Reiki hand positions">
           <use href="#sole" x="12" y="6" width="58" height="116"/>
           <path d="M110 18V120" stroke="#fcf9f4" stroke-width="3" stroke-linecap="round" opacity=".7"/>
           <g fill="#d6b48c" stroke="#fcf9f4" stroke-width="2"><circle cx="110" cy="18" r="6"/><circle cx="110" cy="35" r="6"/><circle cx="110" cy="52" r="6"/><circle cx="110" cy="69" r="6"/><circle cx="110" cy="86" r="6"/><circle cx="110" cy="103" r="6"/><circle cx="110" cy="120" r="6"/></g>
@@ -911,7 +911,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
       </article>
       <article class="class o">
         <p class="num">04 · Ritual</p>
-        <svg class="art" viewBox="0 0 240 150" role="img" aria-label="Illustration: a pair of feet resting in a warm foot basin">
+        <svg class="art" viewBox="15 0 240 150" role="img" aria-label="Illustration: a pair of feet resting in a warm foot basin">
           <path d="M206 74q6 -8 0 -16q-6 -8 0 -16M224 70q6 -8 0 -16q-6 -8 0 -16" stroke="#a35f3c" stroke-width="3" fill="none" stroke-linecap="round"/>
           <path d="M84 4V68C84 82 80 94 90 100H166C178 100 182 92 174 88C162 84 136 80 118 72C114 70 110 66 110 60V4Z" fill="#efe2cf"/>
           <path d="M58 6V72C58 86 54 98 64 104H140C152 104 156 96 148 92C136 88 110 84 92 76C88 74 84 70 84 64V6Z" fill="#fcf9f4"/>
