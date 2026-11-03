@@ -604,8 +604,8 @@ window.SS_PERSIST = true;
     if(d.type==='buy'){DEMO_UI.buy(d.payload,function(ok,row){reply({ok:ok,row:row})});return}
     if(d.type==='receipt'){DEMO_UI.receipt(d.payload);reply(true);return}
   });
-  ov.addEventListener('click',function(e){if(e.target===ov&&done){var b=$('coCx');if(b)b.click()}});
-  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!ov.hidden){var b=$('coCx')||$('bCx');if(b)b.click()}});
+  // like the real Stripe page: clicking outside the checkout does nothing (they use Cancel or their device's back button)
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!ov.hidden){var b=$('bCx');if(b)b.click()}});
 })();
 </script>
 

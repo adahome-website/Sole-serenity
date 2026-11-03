@@ -1845,7 +1845,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   function escH(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
   // something went wrong: booking not made / payment not completed
   function showIssue(o){
-    okFill({title:o.title||'Not booked yet',sub:o.sub,next:o.next||['Nothing was charged.','You can try again, or text me at 587-216-8588 and I’ll book it for you.']});
+    okFill({title:o.title||'Not booked yet',sub:o.sub,next:o.next||[]}); // no "What happens next" on these pages
     okShow(true,o.retry===false?null:{label:o.retryLabel||'Try again',fn:function(){location.hash='home';setTimeout(function(){openBook(null,null)},50)}});
   }
   // after buying a package, membership or gift card
