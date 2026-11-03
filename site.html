@@ -324,6 +324,13 @@ section{position:relative}
 .scene-ctl .btn{padding:12px 18px;font-size:14px}
 .cairn-five{margin:20px 0 0;font-size:14px;opacity:.85;border-top:1px solid rgba(252,249,244,.25);padding-top:14px;max-width:48ch}
 @media (prefers-reduced-motion:reduce){.cairn-stage.cairn-breathing .cairn-ring{opacity:.6}}
+/* web hover: the exercise card (cairn, sunrise breath, 5-4-3-2-1) lifts a little with a soft shadow */
+.scene-wrap{transition:transform .25s ease,filter .25s ease}
+@media (hover:hover) and (pointer:fine){
+  .scene-wrap:not(.is-off):hover,.scene-wrap:not(.is-off):focus-within{transform:translateY(-6px);filter:drop-shadow(0 18px 26px rgba(20,14,8,.35))}
+  .scene-wrap:hover .cairn-stage,.scene-wrap:hover .breath{cursor:pointer}
+}
+@media (prefers-reduced-motion:reduce){.scene-wrap:hover,.scene-wrap:focus-within{transform:none!important}}
 @media (max-width:860px){.ground-grid{grid-template-columns:1fr;gap:6px}.ground-grid>.g-scenes{margin:0;justify-items:start;justify-self:start}}
 
 /* reiki flow */
