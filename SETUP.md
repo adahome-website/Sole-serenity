@@ -12,7 +12,7 @@ This folder is Melanie's whole online setup: her **website** (in `public/`) and 
   - Every booking checks again what's left. Packages and memberships are found by the email on file only, so clients must book with the same email they bought with (capitals and spaces don't matter; the name isn't used). Gift cards are found by the recipient's name, their email or the code. Package holders see how many sessions are left. If nothing is left (all package sessions used, or this month's membership session already booked), the booking is a regular one with the $40 deposit; the booking system enforces this too.
   - Each time someone opens booking, the payment choice starts fresh: a gift card code or package from an earlier attempt is never remembered.
   - Gift cards always pay for the whole session. The client sees their balance and what's left after the visit. If the card doesn't cover it all, the rest is paid by card right away in Stripe Checkout, so nothing is collected afterwards.
-- **First-visit offer.** 2 hours of Reflexology + Reiki for $99. Anyone who has booked before is turned away automatically, matched by email.
+- **First-visit offer.** 2 hours of Reflexology + Reiki for $99. Anyone already on file (a past booking, or a membership, package or gift card under their email) is told as soon as they type their email that they are not eligible, and the booking system refuses it too.
 - **Emails to clients** (all branded and automatic):
   - a **booking confirmation** with the details and address, as soon as they book
   - a **reminder** about 3 days before, while there's still time to cancel with a refund
