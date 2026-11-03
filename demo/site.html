@@ -1381,6 +1381,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   /* Live booking: put the booking function's address here (e.g. 'https://book.soleserenity.ca').
      Left empty, the page runs as a prototype with sample "taken" times and nothing is charged. */
   var BOOKING_API='https://demo.local'; // served by the booking system itself, so it's always the same address
+  window.SS_PROTOTYPE=!BOOKING_API; // preview page with no booking system behind it
   var GST_RATE=0; // 0 until Melanie is GST-registered; then 0.05 (match GST_RATE in the booking system)
   var BUSY=null, TAKEN=BOOKING_API?'taken':'taken (sample)';
   function loadBusy(){
@@ -2032,6 +2033,35 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   document.querySelectorAll('[data-stripe]').forEach(function(a){
     var u=STRIPE_LINKS[a.getAttribute('data-stripe')];
     if(u){a.href=u;a.target='_blank';a.rel='noopener';}
+  });
+  // Preview only (no Stripe links yet): a pretend checkout so the buy buttons can be tried end to end
+  var P={reset3:{kind:'package',total:3,price:279,label:'3-session reset'},reset10:{kind:'package',total:10,price:890,label:'The Deep Ten'},monthly:{kind:'membership',total:1,price:89,label:'Monthly ritual membership'},
+    gift99:{kind:'gift',price:99,label:'Gift card $99'},gift198:{kind:'gift',price:198,label:'Gift card $198'},giftCustom:{kind:'gift',custom:true,label:'Gift card, custom amount'}};
+  var dlgP=document.createElement('dialog');dlgP.className='proto-co';dlgP.setAttribute('aria-label','Checkout');document.body.appendChild(dlgP);
+  var css=document.createElement('style');css.textContent='.proto-co{border:0;border-radius:18px;padding:0;width:min(420px,calc(100vw - 32px));box-shadow:0 30px 80px rgba(0,0,0,.35);font:15px/1.45 var(--body,system-ui)}.proto-co::backdrop{background:rgba(20,16,12,.55)}.proto-co .h{background:#f6f1ea;padding:18px 22px;border-bottom:1px solid #e6ddd0}.proto-co .h small{display:block;color:#6b5a48;font-size:12.5px}.proto-co .h b{display:block;font-size:28px;margin-top:2px;color:#2b231a}.proto-co .b{padding:16px 22px 20px;display:grid;gap:11px;color:#2b231a}.proto-co label{display:grid;gap:4px;font-size:13px;font-weight:600}.proto-co input{font:15px var(--body,system-ui);padding:10px 12px;border:1px solid #d6ccbf;border-radius:10px;color:#2b231a;background:#fff}.proto-co .pay{background:#2b231a;color:#fcf9f4;border:0;border-radius:999px;padding:13px;font:700 15px var(--body,system-ui);cursor:pointer}.proto-co .cx{background:none;border:0;color:#6b5a48;cursor:pointer;font-size:14px}.proto-co .err{color:#a35f3c;font-size:13.5px;margin:0;min-height:0}.proto-co .fine{font-size:12px;color:#6b5a48;margin:0}';document.head.appendChild(css);
+  function e(x){return String(x).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function code(){var A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',c='';for(var i=0;i<8;i++)c+=A[Math.floor(Math.random()*A.length)];return 'SS-'+c.slice(0,4)+'-'+c.slice(4)}
+  document.addEventListener('click',function(ev){
+    var a=ev.target.closest&&ev.target.closest('[data-stripe]');if(!a||!window.SS_PROTOTYPE)return;
+    var key=a.getAttribute('data-stripe'),it=P[key];if(!it||STRIPE_LINKS[key])return;
+    ev.preventDefault();var gift=it.kind==='gift';
+    dlgP.innerHTML='<div class="h"><small>Sole Serenity · secure checkout (preview, nothing is charged)</small><b>'+(it.custom?'Gift card':'$'+it.price)+'</b>'+e(it.label)+(it.kind==='membership'?' · billed monthly':'')+'</div><div class="b">'+
+      (it.custom?'<label>Amount ($)<input id="pcAmt" type="number" min="20" value="150"></label>':'')+
+      '<label>'+(gift?'Your name (required)':'Your name, the person using it (required)')+'<input id="pcName" autocomplete="name"></label><label>Your email (required)<input id="pcEmail" type="email" autocomplete="email"></label>'+
+      (gift?'<label>Who is the gift for? (required)<input id="pcRec"></label><label>Their email (optional, we\'ll send them the code)<input id="pcRecE" type="email"></label>':'')+
+      '<label>Card number<input value="4242 4242 4242 4242" inputmode="numeric"></label><p class="err" id="pcErr"></p><button class="pay" type="button" id="pcPay">Pay</button><p class="fine">On the live site this opens Stripe\u2019s secure checkout.</p><button class="cx" type="button" id="pcCx">\u2039 Back to Sole Serenity</button></div>';
+    dlgP.showModal();document.getElementById('pcName').focus();
+    document.getElementById('pcCx').onclick=function(){dlgP.close()};
+    document.getElementById('pcPay').onclick=function(){
+      var g=function(id){var el=document.getElementById(id);return el?el.value.trim():''};
+      var name=g('pcName'),email=g('pcEmail'),rec=g('pcRec'),amt=it.custom?+g('pcAmt'):it.price,err=document.getElementById('pcErr');
+      if(!name){err.textContent='Please add your name.';return}
+      if(!/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(email)){err.textContent='Please add a valid email.';return}
+      if(gift&&!rec){err.textContent='Please add the name of the person the gift is for.';return}
+      if(!(amt>0)){err.textContent='Please enter an amount.';return}
+      dlgP.close();
+      window.SS_showPurchase({kind:it.kind,code:gift?code():null,recipient:gift?rec:null,recipient_email:gift?g('pcRecE')||null:null,email:email,name:name,total:gift?amt*100:it.total,total_cents:gift?amt*100:null,price_cents:amt*100});
+    };
   });
 })();
 </script>
