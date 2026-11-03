@@ -1686,7 +1686,10 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     FOUND=null;$('crFound').hidden=true;foundMode(false);
     if(!giftMode&&pay==='credit'){pay='deposit';payRender()}
     if(st.t===null||emailProblem(em)||(giftMode&&!code))return;looked=true;
-    lookup(nm,em,code).then(function(f){if(seq!==reSeq||!$('crFound').hidden)return;if(f)showFound(f,giftMode?'':nm)});
+    lookup(nm,em,code).then(function(f){if(seq!==reSeq||!$('crFound').hidden)return;if(!f)return;
+      // the system is the source of truth: fill in the name and phone on their membership or package
+      if(f.kind!=='gift'){if(f.name&&!$('ctName').value.trim())$('ctName').value=f.name;if(f.phone&&!$('ctPhone').value.trim())$('ctPhone').value=f.phone;nm=$('ctName').value.trim()}
+      showFound(f,giftMode?'':nm)});
   }
   $('crRef').addEventListener('input',function(){if(giftMode&&FOUND){FOUND=null;$('crFound').hidden=true;foundMode(false)}});
   /* ---------- email check: real format, plus a nudge for common typos (gmial.com, hotmal.com, .con) ---------- */
