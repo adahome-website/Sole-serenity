@@ -104,8 +104,8 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
 <div class="wrap">
   <header>
     <div class="t"><h1>Sole Serenity · Admin</h1><p>Appointments, balances, packages, memberships and gift cards.</p></div>
-    <button class="btn ghost" id="dlBtn" type="button">Download</button>
-    <button class="btn ghost" id="addBtn" type="button" hidden>+ Add a purchase</button>
+    <button class="btn ghost" id="dlBtn" type="button"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v8M4.5 6.5 8 10l3.5-3.5M2.5 13.5h11"/></svg>Download</button>
+    <button class="btn ghost" id="addBtn" type="button" hidden><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add</button>
   </header>
   <p class="demo" id="demo" hidden>Preview with example data. On the live admin page these are Melanie's real bookings, and Charge balance charges the client's saved card in Stripe.</p>
 
@@ -221,7 +221,7 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
     $('n-appt').textContent=appts.filter(function(a){return scope==='upcoming'}).length||(scope==='upcoming'?0:'·');
     ['package','membership','gift'].forEach(function(k){$('n-'+k).textContent=credits.filter(function(c){return c.kind===k&&!bal(c).done}).length});
     document.querySelectorAll('.tab').forEach(function(t){t.setAttribute('aria-selected',String(t.dataset.k===tab))});
-    $('scope').hidden=tab!=='appt';$('addBtn').hidden=tab==='appt';if(tab!=='appt')$('addBtn').textContent='+ Add a '+KIND[tab].toLowerCase();
+    $('scope').hidden=tab!=='appt';$('addBtn').hidden=tab==='appt';
     var q=$('q').value.trim().toLowerCase();
     if(tab==='appt')return renderAppts(q);
     var list=credits.filter(function(c){return c.kind===tab&&(!q||[c.buyer,c.recipient,c.email,c.phone,c.code].join(' ').toLowerCase().indexOf(q)>=0)});
