@@ -559,14 +559,16 @@ window.SS_PERSIST = true;
       var P=DEMO.PRODUCTS[key];if(!P)return;var gift=P.kind==='gift';done=cb||null;
       co.innerHTML='<div class="co-h"><small>Sole Serenity</small><b>'+(P.custom?'Gift card':DEMO.money(P.price))+'</b><span>'+esc(P.label)+(P.kind==='membership'?' · billed monthly':'')+'</span><br><span class="co-tag">Pretend Stripe checkout · no real payment</span></div>'+
         '<div class="co-b">'+(P.custom?'<label>Amount ($)<input id="bAmt" type="number" min="20" value="150"></label>':'')+
-        '<label>'+(gift?'Your name':'Your name (the person using it)')+'<input id="bName" placeholder="First and last name"></label><label>Your email<input id="bEmail" type="email" placeholder="you@email.com"></label>'+
-        (gift?'<label>Who is the gift for?<input id="bRec" placeholder="Their name"></label><label>Their email (optional, we\'ll send them the code)<input id="bRecE" type="email"></label>':'')+
+        '<label>'+(gift?'Your name (required)':'Your name, the person using it (required)')+'<input id="bName" placeholder="First and last name"></label><label>Your email (required)<input id="bEmail" type="email" placeholder="you@email.com"></label>'+
+        (gift?'<label>Who is the gift for? (required)<input id="bRec" placeholder="Their name"></label><label>Their email (optional, we\'ll send them the code)<input id="bRecE" type="email"></label>':'')+
         '<label>Card number<input value="4242 4242 4242 4242"></label><p class="err" id="bErr"></p><button class="pay" type="button" id="bPay">Pay</button><button class="cx" type="button" id="bCx">‹ Back to Sole Serenity</button></div>';
       ov.hidden=false;$('bName').focus();
       $('bCx').onclick=function(){close(false)};
       $('bPay').onclick=function(){
         var f={name:$('bName').value.trim(),email:$('bEmail').value.trim(),recipient:gift?$('bRec').value.trim():'',recipient_email:gift?$('bRecE').value.trim():'',amount:P.custom?$('bAmt').value:0};
-        if(!f.name||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email)){$('bErr').textContent='Add your name and email.';return}
+        if(!f.name){$('bErr').textContent='Please add your name.';$('bName').focus();return}
+        if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email)){$('bErr').textContent='Please add a valid email.';$('bEmail').focus();return}
+        if(gift&&!f.recipient){$('bErr').textContent='Please add the name of the person the gift is for.';$('bRec').focus();return}
         if(P.custom&&!(+f.amount>0)){$('bErr').textContent='Enter an amount.';return}
         var row=DEMO.purchase(key,f);close(true,{kind:row.kind,code:row.code,recipient:row.recipient,recipient_email:row.recipient_email,email:row.email,name:row.buyer,total:row.total,total_cents:row.total,price_cents:row.price_cents});
       };
