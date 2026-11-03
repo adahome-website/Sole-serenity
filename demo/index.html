@@ -190,10 +190,11 @@ main{flex:1;min-height:0;position:relative}
   function purchaseEmails(row) {
     var what = row.kind === 'gift' ? 'a ' + money(row.total) + ' gift card' : row.kind === 'package' ? 'a ' + row.total + '-session package' : 'a monthly membership';
     var exp = row.expires ? '<p>Your package is valid until <b>' + esc(fmtDate(localToUtc(row.expires, '12:00'))) + '</b>.</p>' : '';
-    var howTo = exp + '<p>To use it, book on the website with your name and email. I’ll recognise it and there’s no deposit to pay.' + (row.code ? ' You can also tap “Have a gift card code?” and enter the code.' : '') + '</p>';
+    var howTo = exp + '<p>To use it, book on the website with this same email. I’ll recognise it and there’s no deposit to pay.' + (row.code ? ' You can also tap “Have a gift card code?” and enter the code.' : '') + '</p>';
     var policy = '<p>If you can’t make a session, text or email me at least 48 hours before. A no-show, or a cancellation within 48 hours, uses that session.</p><p>Melanie</p>';
+    var cancelM = row.kind === 'membership' ? '<p>You can cancel your membership anytime with one month’s notice. Just email me at hello@soleserenity.ca, or call or text 587-216-8588.</p>' : '';
     if (row.email) sendEmail(row.email, 'Your Sole Serenity ' + (row.kind === 'gift' ? 'gift card' : row.kind), '<p>Hi ' + esc(row.buyer) + ',</p><p>Thank you for buying ' + what + (row.recipient ? ' for ' + esc(row.recipient) : '') + '.</p>' +
-      (row.code ? '<p>Gift card code: <b style="font-size:20px">' + row.code + '</b></p>' + (row.recipient_email ? '<p>I’ve also emailed the code to ' + esc(row.recipient || 'them') + '.</p>' : '<p>Pass the code on to ' + esc(row.recipient || 'them') + ' with your card or message.</p>') : howTo + policy), 'purchase');
+      (row.code ? '<p>Gift card code: <b style="font-size:20px">' + row.code + '</b></p>' + (row.recipient_email ? '<p>I’ve also emailed the code to ' + esc(row.recipient || 'them') + '.</p>' : '<p>Pass the code on to ' + esc(row.recipient || 'them') + ' with your card or message.</p>') : howTo + cancelM + policy), 'purchase');
     if (row.code && row.recipient_email) sendEmail(row.recipient_email, 'A Sole Serenity gift card for you', '<p>Hi ' + esc(row.recipient || 'there') + ',</p><p>' + esc(row.buyer) + ' has given you ' + what + ' for reflexology or Reiki with me in Calgary.</p><p>Your code: <b style="font-size:20px">' + row.code + '</b></p>' + howTo + policy, 'purchase');
     alertMelanie('New ' + row.kind + ': ' + row.buyer, row.buyer + ' bought ' + what + (row.recipient ? ' for ' + row.recipient : '') + '. ' + (row.code ? 'Code ' + row.code + '. ' : '') + 'It’s in your admin page.');
   }

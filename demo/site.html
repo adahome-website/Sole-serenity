@@ -1314,6 +1314,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     <details><summary>How do I cancel or move my booking?</summary><div class="a">Text me at 587-216-8588 or send me an email at least 48 hours before your appointment, and I'll refund your deposit in full or find you a new time. Within 48 hours I'm not able to refund the deposit, because that time was held just for you.</div></details>
     <details><summary>I have a package. Do I need to pay a deposit?</summary><div class="a">No. Book with the same email you used to buy it, and I'll recognise your package, show how many sessions are left and ask if you'd like to use one, with nothing to pay. Packages are just for the person who bought them, and I find them by email, so it needs to be the same address. Packages don't expire. If you need to cancel, text or email me at least 48 hours ahead and your session stays in your package. A no-show or a cancellation within 48 hours uses that session.</div></details>
     <details><summary>How does booking work with a membership?</summary><div class="a">Book with the same email as your membership and I'll recognise you, with nothing to pay at booking. Memberships are just for the member, and I find them by email, so it needs to be the same address. Your membership includes one session a month. If you need to cancel, text or email me at least 48 hours ahead so you can rebook within the month. A no-show or a cancellation within 48 hours uses that month's session.</div></details>
+<details><summary>How do I cancel my membership?</summary><div class="a">You can cancel anytime with one month’s notice. Just email me at <a href="mailto:hello@soleserenity.ca">hello@soleserenity.ca</a>, or call or text 587-216-8588. Your membership continues for that last month, so you can still book your session.</div></details>
     <details><summary>Can I book with a gift card?</summary><div class="a">Yes, and there's no deposit. Gift cards can be bought for anyone: book in the name the card was given to, or tap "Have a gift card code?" and enter the code. I'll take the session from your gift card. A no-show or a cancellation within 48 hours is also taken from your gift card, so please text or email me at least 48 hours ahead if plans change.</div></details>
     <details><summary>Is there an offer for my first visit?</summary><div class="a">Yes. If it's your first time with me, you can book two hours of Reflexology + Reiki (one full hour of each) for $99, half the usual $198. It's for new clients only, once per person. Choose "First visit · $99" when you book.</div></details>
     <details><summary>Can I have some Reiki in my reflexology session?</summary><div class="a">They're two separate sessions, so a reflexology hour is all reflexology. If you'd love both, book the 2-hour Combination. You'll have one full hour of each, back to back, for $198.</div></details>
@@ -1378,7 +1379,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         <div class="foot-hi"><h2>Ready to lift yourself up?</h2></div>
         <a class="btn btn-cream" href="#book">Book a session</a>
       </div>
-      <div><h4>Contact</h4><p class="phone">587-216-8588</p><p>Call or text me. Questions about gift certificates or packages are welcome.</p></div>
+      <div><h4>Contact</h4><p class="phone">587-216-8588</p><p><a href="mailto:hello@soleserenity.ca">hello@soleserenity.ca</a></p><p>Call, text or email me. Questions about gift certificates or packages are welcome.</p></div>
       <div><h4>Hours</h4><p>Tuesday – Saturday<br>10 a.m. – 10 p.m.</p></div>
       <div><h4>Location</h4><p>Northwest Calgary, Alberta. Exact address sent after booking + deposit.</p><p>RCRT · Reflexology Association of Canada Reg. No. ST26-26049</p></div>
     </div>
@@ -1798,7 +1799,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     okFill({title:pkg?'Your package is ready':'Welcome, you’re a member',sub:'Thank you'+(first?', '+first:'')+'. A confirmation is on its way to '+(r.email?escH(r.email):'your email')+'.',
       card:row(pkg?(r.total>=10?'The Deep Ten':r.total+'-session package'):'Monthly ritual',pkg?(r.total+' sessions'):'1 session a month')+row(pkg?'Paid':'Billed monthly','$'+(r.price_cents/100)),
       next:[pkg?'Book whenever suits you. Book with this same email and I’ll recognise your package. Nothing to pay at booking.':'Book your session for this month whenever suits you. Book with this same email and I’ll recognise your membership. Nothing to pay at booking.',
-        pkg?'Your package doesn’t expire.':'You can cancel your membership anytime.',
+        pkg?'Your package doesn’t expire.':'You can cancel your membership anytime with one month’s notice. Just email me at <a href="mailto:hello@soleserenity.ca">hello@soleserenity.ca</a>, or call or text <a href="tel:+15872168588">587-216-8588</a>.',
         'Cancel or move a session at least 48 hours before; a no-show or a late cancellation uses that session.']});
     okShow(false,{label:'Book my first session',fn:function(){location.hash='home';setTimeout(function(){openBook(null,null)},50)}});
   }
