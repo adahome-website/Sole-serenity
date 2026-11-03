@@ -1610,11 +1610,22 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     return fetch(BOOKING_API+'/api/lookup',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:nm,email:em,code:code||'',service:st.s,minutes:st.len,date:st.date?st.date.getFullYear()+'-'+String(st.date.getMonth()+1).padStart(2,'0')+'-'+String(st.date.getDate()).padStart(2,'0'):''})}).then(function(r){return r.json()}).then(function(d){return d.found||null}).catch(function(){return null});
   }
   $('crRef').addEventListener('input',function(){if(giftMode&&FOUND){FOUND=null;$('crFound').hidden=true;foundMode(false)}});
+  /* ---------- email check: real format, plus a nudge for common typos (gmial.com, hotmal.com, .con) ---------- */
+  var EMAIL_RE=/^[A-Za-z0-9.!#$%&'*+\/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)*\.[A-Za-z]{2,}$/;
+  var TYPO={'gmial.com':'gmail.com','gmai.com':'gmail.com','gmal.com':'gmail.com','gamil.com':'gmail.com','gmail.co':'gmail.com','gmail.con':'gmail.com','gnail.com':'gmail.com','hotmial.com':'hotmail.com','hotmal.com':'hotmail.com','hotmail.co':'hotmail.com','hotmail.con':'hotmail.com','yaho.com':'yahoo.com','yahoo.con':'yahoo.com','outlok.com':'outlook.com','outlook.con':'outlook.com','icloud.con':'icloud.com','shaw.ac':'shaw.ca','telus.nte':'telus.net'};
+  // returns '' when fine, otherwise a message to show
+  function emailProblem(e){
+    e=String(e||'').trim();if(!e)return 'Please add your email so I can send your confirmation.';
+    if(!EMAIL_RE.test(e)||/\.\./.test(e))return 'That email doesn\u2019t look right. Please check it (for example name@gmail.com).';
+    var dom=e.split('@')[1].toLowerCase();if(TYPO[dom])return 'Did you mean '+e.split('@')[0]+'@'+TYPO[dom]+'? Please fix the email so your confirmation reaches you.';
+    return '';
+  }
+  $('ctEmail').addEventListener('blur',function(){var v=this.value.trim(),n=$('goNote');if(!v)return;var ep=emailProblem(v);if(ep){n.textContent=ep;n.classList.add('show')}else if(/email/i.test(n.textContent))n.classList.remove('show')});
   ['ctName','ctEmail'].forEach(function(id){$(id).addEventListener('input',function(){looked=false;FOUND=null;$('crFound').hidden=true;foundMode(false);if(!giftMode&&pay==='credit'){pay='deposit';payRender()}})});
   $('goBtn').addEventListener('click',function(){
     if(st.t===null)return;var n=$('goNote');
     var nm=$('ctName').value.trim(),em=$('ctEmail').value.trim();
-    if(!nm||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){n.textContent=!nm?'Please add your name.':'Please add a valid email so I can send your confirmation. Phone is optional.';n.classList.add('show');(nm?$('ctEmail'):$('ctName')).focus();return}
+    var ep=emailProblem(em);if(!nm||ep){n.textContent=!nm?'Please add your name.':ep;n.classList.add('show');(nm?$('ctEmail'):$('ctName')).focus();return}
     var b=$('goBtn');
     if(giftMode){ // check the code first, so they see the balance and anything left to pay
       var code=$('crRef').value.trim();
@@ -1648,7 +1659,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   function doBook(){
     if(st.t===null)return;var S=SESS[st.s],n=$('goNote');
     var nm=$('ctName').value.trim(),em=$('ctEmail').value.trim(),ph=$('ctPhone').value.trim();
-    if(!nm||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){n.textContent=!nm?'Please add your name.':'Please add a valid email so I can send your confirmation. Phone is optional.';n.classList.add('show');(nm?$('ctEmail'):$('ctName')).focus();return}
+    var ep=emailProblem(em);if(!nm||ep){n.textContent=!nm?'Please add your name.':ep;n.classList.add('show');(nm?$('ctEmail'):$('ctName')).focus();return}
     if(BOOKING_API){
       if(pay==='credit'&&!$('crRef').value.trim()){n.textContent='Please add the '+CREDIT[$('crType').value].label.toLowerCase()+' so I can match your booking.';n.classList.add('show');$('crRef').focus();return}
       var b=$('goBtn');b.disabled=true;var prev=b.textContent;b.textContent='One moment…';
@@ -1961,7 +1972,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     var ints=[].map.call(this.querySelectorAll('input[name=interest]:checked'),function(c){return c.value});
     function say(m){t.textContent=m;t.classList.add('show')}
     if(!name){say('Please add your name.');$('joinName').focus();return}
-    if(!/^\S+@\S+\.\S+$/.test(email)){say('Please add an email address so I can reach you.');$('joinEmail').focus();return}
+    var ep=emailProblem(email);if(ep){say(ep.replace('send your confirmation','reach you').replace('your confirmation reaches you','I can reach you'));$('joinEmail').focus();return}
     var ok='Thank you, '+name+'. Your request is in, and I\'ll be in touch as soon as the dates are set.';
     if(!JOIN_ENDPOINT){say(ok);this.reset();return}
     btn.disabled=true;var form=this;

@@ -283,7 +283,7 @@ window.SS_PERSIST = true;
     if (!S || !S.prices[minutes]) throw err('Please choose a session and length.');
     var name = (b.name || '').trim(), email = (b.email || '').trim().toLowerCase();
     var start = localToUtc(b.date, b.time), end = new Date(start.getTime() + minutes * 6e4), L = localOf(start), Le = localOf(end);
-    if (!name || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw err('Please add your name and a valid email.', 400);
+    if (!name || !/^[A-Za-z0-9.!#$%&'*+\/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)*\.[A-Za-z]{2,}$/.test(email)) throw err('Please add your name and a valid email.', 400);
     if (overlaps(start, end)) throw err('Sorry, that time was just taken. Please pick another.', 409);
     var pay = b.service === 'intro' ? 'deposit' : (b.pay === 'credit' ? 'credit' : 'deposit');
     // checked again on every booking: nothing left on the package / membership / gift card = regular booking with the $40 deposit
@@ -566,7 +566,7 @@ window.SS_PERSIST = true;
       $('bPay').onclick=function(){
         var f={name:$('bName').value.trim(),email:$('bEmail').value.trim(),recipient:gift?$('bRec').value.trim():'',recipient_email:gift?$('bRecE').value.trim():'',amount:P.custom?$('bAmt').value:0};
         if(!f.name){$('bErr').textContent='Please add your name.';$('bName').focus();return}
-        if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email)){$('bErr').textContent='Please add a valid email.';$('bEmail').focus();return}
+        if(!/^[A-Za-z0-9.!#$%&'*+\/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)*\.[A-Za-z]{2,}$/.test(f.email)){$('bErr').textContent='Please add a valid email.';$('bEmail').focus();return}
         if(gift&&!f.recipient){$('bErr').textContent='Please add the name of the person the gift is for.';$('bRec').focus();return}
         if(P.custom&&!(+f.amount>0)){$('bErr').textContent='Enter an amount.';return}
         var row=DEMO.purchase(key,f);close(true,{kind:row.kind,code:row.code,recipient:row.recipient,recipient_email:row.recipient_email,email:row.email,name:row.buyer,total:row.total,total_cents:row.total,price_cents:row.price_cents});
