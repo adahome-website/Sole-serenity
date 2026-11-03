@@ -79,6 +79,10 @@ header p{margin:2px 0 0;color:var(--ink2);font-size:14px}
 .rec .body{padding:0 16px 16px;border-top:1px solid var(--line)}
 .facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:14px 0}
 .facts div{background:var(--paper2);border-radius:10px;padding:8px 10px;min-width:0}
+.codebox>span{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.codebox b{font:600 15px var(--mono);letter-spacing:.04em}
+.copy{appearance:none;display:inline-flex;align-items:center;gap:5px;border:0;border-radius:8px;background:var(--char);color:var(--cream);font:600 12.5px var(--body);padding:5px 9px;cursor:pointer}.copy svg{display:block}
+form.f input[readonly]{background:var(--paper2);color:var(--ink2);border-style:dashed;cursor:not-allowed}
+form.f label{display:block}form.f label>input,form.f label>select,form.f label>textarea{margin-top:5px}
 .facts small{display:block;font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
 .facts span{font-weight:600;overflow-wrap:anywhere}
 @media (max-width:640px){.facts{grid-template-columns:1fr 1fr}}
@@ -170,9 +174,9 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
   <div class="row"><label>Bought by<i class="req" aria-hidden="true">*</i><input name="buyer" required></label><label>For (who uses it)<input name="recipient" placeholder="Same as buyer"></label></div>
   <div class="row"><label>Phone<input name="phone" type="tel"></label><label>Email<i class="req" aria-hidden="true">*</i><input name="email" type="email" required></label></div>
   <div class="row"><label>Date bought<i class="req" aria-hidden="true">*</i><input name="bought" type="date" required></label><label>Amount paid ($)<input name="price" type="number" min="0" step="0.01"></label></div>
-  <div class="row"><label><span id="totL">Sessions included</span><i class="req" aria-hidden="true">*</i><input name="total" type="number" min="1" step="1" required></label><label id="codeL">Code<input name="code" placeholder="Leave blank to create one"></label></div>
+  <div class="row"><label><span id="totL">Sessions included</span><i class="req" aria-hidden="true">*</i><input name="total" type="number" min="1" step="1" required></label><label id="codeL">Code<input name="code" readonly tabindex="-1" placeholder="Created automatically" title="The code is created for you and can't be changed"></label></div>
   <div class="row" id="expRow"><label>Expires<input name="expires" type="date"></label><span></span></div>
-  <div class="row" id="giftRow"><label>Recipient's email (optional)<input name="recipient_email" type="email"></label><label style="display:flex;align-items:center;gap:8px;padding-top:18px"><input name="send_code" type="checkbox" checked style="width:18px;min-height:0;padding:0"> Email the code</label></div>
+  <div class="row" id="giftRow"><label>Recipient's email<input name="recipient_email" type="email"></label><span></span></div>
   <label>Notes<textarea name="notes" rows="2"></textarea></label>
   <p class="err" id="recErr" role="alert"></p>
   <div class="end"><button class="btn ghost" type="button" data-close>Cancel</button><button class="btn" type="submit">Save</button></div>
@@ -263,11 +267,12 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
     });
     $('out').innerHTML=h;
   }
+  function fallbackCopy(x){var ta=document.createElement('textarea');ta.value=x;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}ta.remove()}
   function credit(c){
     var b=bal(c),u=c.uses||[],who=c.recipient||c.buyer,isOpen=!!open[c.id];
     var h='<article class="rec '+c.kind+(c.kind==='membership'&&c.status==='ended'?' m-ended':'')+'"><button type="button" data-open="'+esc(c.id)+'" aria-expanded="'+isOpen+'"><div class="who"><b>'+esc(who)+'</b><small>'+(c.recipient?'Gift from '+esc(c.buyer)+' · ':'')+'Bought '+esc(fdate(c.bought))+(c.code?' · '+esc(c.code):'')+'</small></div><div class="bal'+(c.kind==='membership'?(c.status==='ended'?' m-off':' m-on'):'')+'"><b>'+esc(c.kind==='membership'&&c.status==='ended'?'Inactive':b.txt)+'</b><small>'+(c.kind==='membership'?'<i class="mdot" aria-hidden="true"></i>':'')+esc(c.kind==='membership'?(c.status==='ended'?'not paying':'active · '+b.sub):b.sub)+'</small></div></button>';
     if(isOpen){
-      h+='<div class="body"><div class="facts">'+(c.kind!=='gift'?'<div><small>'+(c.kind==='membership'?'Member':'Client')+'</small><span>'+esc(c.buyer)+'</span></div><div><small>'+(c.kind==='membership'?'Member since':'Bought')+'</small><span>'+esc(fdate(c.bought))+'</span></div>'+(c.expires?'<div><small>Expires</small><span>'+esc(fdate(c.expires))+'</span></div>':''):'<div><small>Bought by</small><span>'+esc(c.buyer)+'</span></div><div><small>For</small><span>'+esc(c.recipient||c.buyer)+'</span></div>')+'<div><small>Phone</small><span>'+esc(c.phone||'—')+'</span></div><div><small>Email</small><span>'+esc(c.email||'—')+'</span></div></div>';
+      h+='<div class="body"><div class="facts">'+(c.kind!=='gift'?'<div><small>'+(c.kind==='membership'?'Member':'Client')+'</small><span>'+esc(c.buyer)+'</span></div><div><small>'+(c.kind==='membership'?'Member since':'Bought')+'</small><span>'+esc(fdate(c.bought))+'</span></div>'+(c.expires?'<div><small>Expires</small><span>'+esc(fdate(c.expires))+'</span></div>':''):'<div><small>Gift card for</small><span>'+esc(c.recipient||c.buyer)+'</span></div>')+(c.kind==='gift'?'<div><small>Email</small><span>'+esc(c.recipient_email||c.email||'—')+'</span></div><div><small>Phone</small><span>'+esc(c.phone||'—')+'</span></div><div class="codebox"><small>Code</small><span><b>'+esc(c.code||'—')+'</b>'+(c.code?'<button type="button" class="copy" data-copy="'+esc(c.code)+'" aria-label="Copy code '+esc(c.code)+'"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span>Copy</span></button>':'')+'</span></div>':'<div><small>Phone</small><span>'+esc(c.phone||'—')+'</span></div><div><small>Email</small><span>'+esc(c.email||'—')+'</span></div>')+'</div>';
       h+=u.length?'<div class="tbl"><table><thead><tr><th>Date</th><th>Time</th><th>Service</th><th>Status</th>'+(c.kind==='gift'?'<th class="num">Taken</th>':'')+'<th></th></tr></thead><tbody>'+u.map(function(x){
         return '<tr><td>'+esc(fdate(x.date_local))+'</td><td>'+esc(ftime(x.start_local))+'–'+esc(ftime(x.end_local))+'</td><td>'+esc(x.service||'')+'</td><td>'+esc({booked:'Booked',used:'Came',noshow:'No-show',late:'Late cancel'}[x.status]||x.status)+'</td>'+(c.kind==='gift'?'<td class="num">'+money(x.amount_cents)+'</td>':'')+'<td><button class="btn ghost" style="padding:4px 9px" data-unuse="'+esc(x.id)+'" aria-label="Remove">×</button></td></tr>'}).join('')+'</tbody></table></div>':'<p style="color:var(--ink2);margin:0">No sessions yet.</p>';
       h+='<div class="acts" style="justify-content:flex-start;margin-top:12px"><button class="btn" data-use="'+esc(c.id)+'">+ Log a session</button><button class="btn ghost" data-edit="'+esc(c.id)+'">Edit</button>'+(c.kind==='membership'?'<button class="btn ghost '+(c.status==='ended'?'act-on':'act-off')+'" data-end="'+esc(c.id)+'">'+(c.status==='ended'?'Mark active':'Mark inactive')+'</button>':'')+'</div>'+(c.kind==='membership'?'<p style="margin:10px 0 0;font-size:13.5px;color:var(--ink2)">Memberships paid through Stripe switch to inactive by themselves if the payment stops, and back to active when it restarts.</p>':'')+'</div>';
@@ -294,6 +299,8 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
       $('lkSel').innerHTML=credits.filter(function(c){return !bal(c).done}).map(function(c){return '<option value="'+esc(c.id)+'">'+esc(KIND[c.kind]+' · '+(c.recipient||c.buyer)+' · '+bal(c).txt+(c.code?' · '+c.code:''))+'</option>'}).join('');
       $('lkErr').textContent='';$('dlgLink').showModal();return}
     if(d.use){cur=cfind(d.use);var f=$('fUse');f.reset();f.date.value=today();$('amtL').hidden=cur.kind!=='gift';$('useErr').textContent='';$('dlgUse').showModal();return}
+    if(d.copy){var done=function(){var l=t.querySelector('span');if(l){l.textContent='Copied';setTimeout(function(){l.textContent='Copy'},1600)}toast('Code '+d.copy+' copied.')};
+      try{navigator.clipboard.writeText(d.copy).then(done,function(){fallbackCopy(d.copy);done()})}catch(e){fallbackCopy(d.copy);done()}return}
     if(d.edit)return openRec(cfind(d.edit));
     if(d.end){var c=cfind(d.end);return act('/credits/save',{id:c.id,status:c.status==='ended'?'active':'ended'},c.status==='ended'?'Marked active.':'Marked inactive.')}
     if(d.unuse)return act('/uses/delete',{id:d.unuse},'Removed.');
@@ -319,10 +326,10 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
     fR.kind.value=c?c.kind:tab;['buyer','recipient','recipient_email','phone','email','bought','code','notes','expires'].forEach(function(n){fR[n].value=c&&c[n]||''});
     fR.price.value=c&&c.price_cents!=null?c.price_cents/100:'';fR.total.value=c?(c.kind==='gift'?c.total/100:c.total):(tab==='package'?3:tab==='membership'?1:'');if(!c)fR.bought.value=today();kindL();$('dlgRec').showModal()}
   fR.addEventListener('submit',function(e){e.preventDefault();var k=fR.kind.value;
-    var d={kind:k,buyer:fR.buyer.value.trim(),recipient:fR.recipient.value.trim(),phone:fR.phone.value.trim(),email:fR.email.value.trim().toLowerCase(),bought:fR.bought.value,code:fR.code.value.trim(),notes:fR.notes.value.trim(),recipient_email:fR.recipient_email.value.trim().toLowerCase(),expires:'',send_code:!editing&&k==='gift'&&fR.send_code.checked,
+    var d={kind:k,buyer:fR.buyer.value.trim(),recipient:fR.recipient.value.trim(),phone:fR.phone.value.trim(),email:fR.email.value.trim().toLowerCase(),bought:fR.bought.value,code:fR.code.value.trim(),notes:fR.notes.value.trim(),recipient_email:fR.recipient_email.value.trim().toLowerCase(),expires:'',send_code:false,
       price_cents:fR.price.value?Math.round(+fR.price.value*100):null,total:k==='gift'?Math.round(+fR.total.value*100):+fR.total.value};
     if(editing)d.id=editing.id;
-    call('/credits/save',d).then(function(r){$('dlgRec').close();toast(r&&r.code&&!editing?'Gift card '+r.code+' created'+(d.send_code&&(d.email||d.recipient_email)?' and emailed.':'.'):'Saved.');load()},function(er){$('recErr').textContent=er.error||'Didn\'t save.'})});
+    call('/credits/save',d).then(function(r){$('dlgRec').close();toast(r&&r.code&&!editing?'Gift card '+r.code+' created'+'.':'Saved.');load()},function(er){$('recErr').textContent=er.error||'Didn\'t save.'})});
   var fU=$('fUse');
   fU.addEventListener('submit',function(e){e.preventDefault();if(fU.end.value<=fU.start.value){$('useErr').textContent='End time needs to be after the start time.';return}
     call('/uses/add',{credit_id:cur.id,date:fU.date.value,start:fU.start.value,end:fU.end.value,service:fU.service.value,status:fU.status.value,amount_cents:cur.kind==='gift'?Math.round(+fU.amount.value*100):0})

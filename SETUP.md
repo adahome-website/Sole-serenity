@@ -45,7 +45,7 @@ It takes about 2 hours to set up once. After that there is nothing to run or upd
    - Packages and memberships are only for the person who buys them, so they get no "who is it for" field.
    - On each gift card link, add two **custom fields** (type Text):
      - key `recipient`, label "Who is the gift for?" (required, not optional)
-     - key `recipient_email`, label "Their email (optional, we'll send them the code)", marked optional.
+     - key `recipient_email`, label "Their email (we'll send them the code)", set as not required.
    - On each link, under **After payment**, choose **Don't show confirmation page → redirect to your website** and enter `https://<her-domain>/?bought={CHECKOUT_SESSION_ID}`. Buyers then land on the site's own thank-you page with their gift card code or package details.
    - Copy each link's id (starts `plink_`) into `PURCHASE_LINKS` in `wrangler.toml`.
    - Paste each link's URL into `STRIPE_LINKS` near the bottom of `public/index.html` so the Buy buttons work.
