@@ -577,7 +577,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
 .found{margin-top:14px;background:rgba(252,249,244,.1);border:1.5px solid var(--ochre);border-radius:14px;padding:14px}
 .found[hidden]{display:none}
 .found p{margin:0 0 12px;font-size:14.5px}
-.contact .req{color:#d6b48c;font-weight:700;margin-left:1px}
+.contact .req,#creditBox .req{color:#d6b48c;font-weight:700;margin-left:1px}
 .found-btns{display:flex;flex-wrap:wrap;gap:8px}.found-btns [hidden],#goBtn[hidden],#giftLink[hidden]{display:none}
 .found-btns .btn{padding:11px 15px;font-size:14px}
 .linkish{appearance:none;border:0;background:none;color:var(--ochre);font:600 14px var(--body);text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:10px 0 0;display:block;margin:0 auto}
@@ -795,7 +795,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
             </select>
           </label>
           <label for="crRef"><span id="crRefL">Name on your package</span>
-            <input id="crRef" type="text" autocomplete="name" placeholder="Your full name">
+            <input id="crRef" type="text" autocomplete="name" placeholder="Your full name" required aria-required="true">
           </label>
           <p class="cr-warn" id="crWarn" role="note"></p>
         </div>
@@ -1607,7 +1607,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     $('segPay').querySelectorAll('button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.v===pay?'true':'false')});
     $('creditBox').hidden=!c;
     if(c){
-      $('crRefL').textContent=C.label;$('crRef').placeholder=C.ph;$('crRef').setAttribute('autocomplete',C.ac);
+      $('crRefL').innerHTML=C.label+'<span class="req" aria-hidden="true">*</span>';$('crRef').placeholder=C.ph;$('crRef').setAttribute('autocomplete',C.ac);
       $('depRow').innerHTML=C.dep;$('depRow').hidden=false;$('polDep').innerHTML=C.pol;$('polDep').hidden=false;$('crWarn').innerHTML=C.warn;
       $('goBtn').textContent='Continue';
       $('goFine').textContent='Press Continue to see what’s on your '+(k==='gift'?'gift card':k)+' before you book.';

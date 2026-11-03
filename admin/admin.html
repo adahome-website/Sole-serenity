@@ -99,6 +99,7 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
 .err{color:var(--bad);font-size:14px;margin:0}
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--char);color:var(--cream);padding:12px 18px;border-radius:14px;font-size:14.5px;box-shadow:0 10px 30px rgba(0,0,0,.3);max-width:calc(100vw - 32px);z-index:9}
 .toast[hidden]{display:none}
+.req{font-style:normal;color:#a35f3c;font-weight:700;margin-left:2px}
 </style></head>
 <body>
 <div class="wrap">
@@ -162,10 +163,10 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
 <dialog id="dlgRec"><form class="f" id="fRec">
   <h2 id="fRecT">Add a purchase</h2>
   <label>Category<select name="kind"><option value="package">Package (3-session reset or Deep Ten)</option><option value="membership">Monthly membership</option><option value="gift">Gift card</option></select></label>
-  <div class="row"><label>Bought by<input name="buyer" required></label><label>For (who uses it)<input name="recipient" placeholder="Same as buyer"></label></div>
+  <div class="row"><label>Bought by<i class="req" aria-hidden="true">*</i><input name="buyer" required></label><label>For (who uses it)<input name="recipient" placeholder="Same as buyer"></label></div>
   <div class="row"><label>Phone<input name="phone" type="tel"></label><label>Email<input name="email" type="email"></label></div>
-  <div class="row"><label>Date bought<input name="bought" type="date" required></label><label>Amount paid ($)<input name="price" type="number" min="0" step="0.01"></label></div>
-  <div class="row"><label><span id="totL">Sessions included</span><input name="total" type="number" min="1" step="1" required></label><label id="codeL">Code<input name="code" placeholder="Leave blank to create one"></label></div>
+  <div class="row"><label>Date bought<i class="req" aria-hidden="true">*</i><input name="bought" type="date" required></label><label>Amount paid ($)<input name="price" type="number" min="0" step="0.01"></label></div>
+  <div class="row"><label><span id="totL">Sessions included</span><i class="req" aria-hidden="true">*</i><input name="total" type="number" min="1" step="1" required></label><label id="codeL">Code<input name="code" placeholder="Leave blank to create one"></label></div>
   <div class="row" id="expRow"><label>Expires<input name="expires" type="date"></label><span></span></div>
   <div class="row" id="giftRow"><label>Recipient's email (optional)<input name="recipient_email" type="email"></label><label style="display:flex;align-items:center;gap:8px;padding-top:18px"><input name="send_code" type="checkbox" checked style="width:18px;min-height:0;padding:0"> Email the code</label></div>
   <label>Notes<textarea name="notes" rows="2"></textarea></label>
@@ -175,8 +176,8 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
 
 <dialog id="dlgUse"><form class="f" id="fUse">
   <h2>Log a session</h2>
-  <div class="row"><label>Date<input name="date" type="date" required></label><label>Service<select name="service"><option>Reflexology</option><option>Reiki</option><option>Reflexology + Reiki</option><option>Foot bath</option></select></label></div>
-  <div class="row"><label>Arrive<input name="start" type="time" required></label><label>Leave<input name="end" type="time" required></label></div>
+  <div class="row"><label>Date<i class="req" aria-hidden="true">*</i><input name="date" type="date" required></label><label>Service<select name="service"><option>Reflexology</option><option>Reiki</option><option>Reflexology + Reiki</option><option>Foot bath</option></select></label></div>
+  <div class="row"><label>Arrive<i class="req" aria-hidden="true">*</i><input name="start" type="time" required></label><label>Leave<i class="req" aria-hidden="true">*</i><input name="end" type="time" required></label></div>
   <div class="row"><label>What happened<select name="status"><option value="used">Came</option><option value="noshow">No-show (lost)</option><option value="late">Cancelled within 48h (lost)</option></select></label><label id="amtL">Taken from card ($)<input name="amount" type="number" min="0" step="0.01"></label></div>
   <p class="err" id="useErr" role="alert"></p>
   <div class="end"><button class="btn ghost" type="button" data-close>Cancel</button><button class="btn" type="submit">Log it</button></div>
