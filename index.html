@@ -234,13 +234,13 @@ window.SS_PERSIST = true;
       if (!mine) continue;
       var u = usesOf(c);
       if (c.kind === 'package' && u.length >= c.total) { usedPackage = usedPackage || c; continue }
-      if (c.kind === 'package' && u.length < c.total) { var l = c.total - u.length; return L({ kind: 'package', ref: c.recipient || c.buyer, text: 'a ' + c.total + '-session package with ' + l + ' session' + (l > 1 ? 's' : '') + ' left' }) }
+      if (c.kind === 'package' && u.length < c.total) { var l = c.total - u.length; return L({ kind: 'package', total: c.total, left: l, ref: c.recipient || c.buyer, text: 'a ' + c.total + '-session package with ' + l + ' session' + (l > 1 ? 's' : '') + ' left' }) }
       if (c.kind === 'membership' && !creditLeft(c, ym)) { usedMember = c; continue }
-      if (c.kind === 'membership') return L({ kind: 'membership', ref: c.buyer, text: 'a monthly membership, and this month’s session is still available' });
+      if (c.kind === 'membership') return L({ kind: 'membership', total: 1, left: 1, ref: c.buyer, text: 'a monthly membership, and this month’s session is still available' });
       if (c.kind === 'gift') { var left = creditLeft(c); if (left > 0) return { kind: 'gift', ref: c.code, balance_cents: left, text: 'a gift card with ' + money(left) + ' left' } }
     }
-    if (usedMember) return { kind: 'membership', blocked: true, ref: usedMember.buyer, text: 'a monthly membership, but this month’s session is already booked' };
-    if (usedPackage) return { kind: 'package', blocked: true, ref: usedPackage.buyer, text: usedPackage.total > 1 ? 'a ' + usedPackage.total + '-session package, but all ' + usedPackage.total + ' sessions have been used' : 'a 1-session package, but its session has been used' };
+    if (usedMember) return { kind: 'membership', blocked: true, total: 1, left: 0, ref: usedMember.buyer, text: 'a monthly membership, but this month’s session is already booked' };
+    if (usedPackage) return { kind: 'package', blocked: true, total: usedPackage.total, left: 0, ref: usedPackage.buyer, text: usedPackage.total > 1 ? 'a ' + usedPackage.total + '-session package, but all ' + usedPackage.total + ' sessions have been used' : 'a 1-session package, but its session has been used' };
     return null;
   }
   // Packages and memberships cover a 60-minute Reiki or Reflexology session only

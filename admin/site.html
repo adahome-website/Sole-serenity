@@ -589,6 +589,9 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
 .found{margin-top:14px;background:rgba(252,249,244,.1);border:1.5px solid var(--ochre);border-radius:14px;padding:14px}
 .found[hidden]{display:none}
 .found p{margin:0 0 12px;font-size:14.5px}
+.cr-meter{margin:0 0 12px}.cr-mh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px}.cr-mh b{font-size:15.5px}.cr-mh span{font-size:14px;color:var(--ochre);font-weight:600;white-space:nowrap}
+.cr-dots{display:flex;gap:5px}.cr-dots i{flex:1;height:9px;border-radius:5px;background:rgba(252,249,244,.16)}.cr-dots i.on{background:var(--ochre)}
+.found p.cr-fine{font-size:13px;opacity:.8;margin-top:-4px}
 .contact .req,#creditBox .req{color:#d6b48c;font-weight:700;margin-left:1px}
 .found-btns{display:flex;flex-wrap:wrap;gap:8px}.found-btns [hidden],#goBtn[hidden],#giftLink[hidden]{display:none}
 .found-btns .btn{padding:11px 15px;font-size:14px}
@@ -815,9 +818,10 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
           <p class="cr-warn" id="crWarn" role="note"></p>
         </div>
         <div class="found" id="crFound" hidden>
+          <div class="cr-meter" id="crMeter" hidden><div class="cr-mh"><b id="crMK"></b><span id="crMN"></span></div><div class="cr-dots" id="crDots" aria-hidden="true"></div></div>
           <p id="crFoundT"></p>
           <p class="cr-warn" id="crFoundW"></p>
-          <div class="found-btns"><button class="btn btn-cream" type="button" id="useCred">Use it for this visit</button><button class="btn btn-cream" type="button" id="switch60" hidden>Switch to 60 minutes</button><button class="btn btn-ghost" type="button" id="payDepInstead" hidden>Pay the $40 deposit</button></div>
+          <div class="found-btns"><button class="btn btn-cream" type="button" id="useCred">Use it for this visit</button><button class="btn btn-cream" type="button" id="switch60" data-s="refl" hidden>Use membership for Reflexology 60 min</button><button class="btn btn-cream" type="button" id="switch60b" data-s="reiki" hidden>Use membership for Reiki 60 min</button><button class="btn btn-ghost" type="button" id="payDepInstead" hidden>Pay the $40 deposit</button></div>
         </div>
         <ul class="bk-pol">
           <li id="polDep" hidden><b>Deposit:</b> holds your time and comes off your total. To cancel, text or email me at least 48 hours before and I'll refund it in full; within 48 hours it isn't refunded.</li>
@@ -1637,19 +1641,33 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   function m2(x){return '$'+(Math.round(x*100)%100?x.toFixed(2):String(Math.round(x)))}
   function showFound(f,nm){
     FOUND=f;var hi=nm?'Welcome back, '+firstName(nm)+'. ':'';
-    $('switch60').hidden=true;
-    if(f.blocked&&f.reason==='length'){ // packages and memberships: 60-minute Reiki or Reflexology only
-      $('crFoundT').textContent=hi+'You have '+f.text+'. Your '+(f.kind==='membership'?'membership':'package')+' covers a 60-minute Reiki or Reflexology session only, so '+SESS[st.s].name+' for '+st.len+' minutes is a regular booking with the $40 deposit.';
-      $('crFoundW').innerHTML='';$('crFoundW').hidden=true;$('useCred').hidden=true;$('payDepInstead').hidden=false;$('payDepInstead').textContent='Book it with the $40 deposit';
-      $('switch60').hidden=false;$('switch60').textContent='Use my '+(f.kind==='membership'?'membership':'package')+' for '+((st.s==='refl'||st.s==='reiki')?SESS[st.s].name:'Reflexology')+' 60 min';
-      $('crFound').hidden=false;foundMode(true);$('switch60').focus();return}
-    if(f.blocked){$('crFoundT').textContent=hi+'You have '+f.text+'. '+(f.kind==='membership'?'To book an extra session, pay the $40 deposit as usual.':'There are no sessions left on it, so this is a regular booking with the $40 deposit.');$('crFoundW').innerHTML='';$('crFoundW').hidden=true;$('useCred').hidden=true;$('payDepInstead').hidden=false;$('payDepInstead').textContent='Pay the $40 deposit';$('crFound').hidden=false;foundMode(true);$('payDepInstead').focus();return}
+    $('switch60').hidden=true;$('switch60b').hidden=true;$('crMeter').hidden=true;$('crFoundT').className='';
+    if(f.kind!=='gift'){ // a visual count of what's left, then what it can be used for
+      var mem=f.kind==='membership',tot=f.total||1,left=f.left!=null?f.left:(f.blocked&&f.reason!=='length'?0:1),word=mem?'membership':'package';
+      $('crMK').textContent=(nm?firstName(nm)+', you have ':'You have ')+(mem?'a membership':'a '+(tot>=10?'Deep Ten':tot+'-session')+' package');
+      $('crMN').textContent=left+' of '+tot+' left'+(mem?' this month':'');
+      $('crDots').innerHTML=new Array(tot+1).join('.').split('').map(function(_,i){return '<i'+(i<left?' class="on"':'')+'></i>'}).join('');
+      $('crMeter').hidden=false;
+      $('crFoundW').innerHTML='';$('crFoundW').hidden=true;
+      if(f.blocked&&f.reason==='length'){
+        $('crFoundT').className='cr-fine';$('crFoundT').textContent=(mem?'Memberships':'Packages')+' can only be used for a 60-minute Reiki or Reflexology session.';
+        $('useCred').hidden=true;
+        $('switch60').textContent='Use '+word+' for Reflexology 60 min';$('switch60b').textContent='Use '+word+' for Reiki 60 min';
+        $('switch60').hidden=false;$('switch60b').hidden=false;
+        $('payDepInstead').hidden=false;$('payDepInstead').textContent='Continue this booking instead';
+        $('crFound').hidden=false;foundMode(true);return}
+      if(f.blocked){
+        $('crFoundT').textContent=mem?'This month’s session is already booked. You can still book this one with the $40 deposit.':'All sessions on your package have been used, so this is a regular booking with the $40 deposit.';
+        $('useCred').hidden=true;$('payDepInstead').hidden=false;$('payDepInstead').textContent='Continue this booking';
+        $('crFound').hidden=false;foundMode(true);return}
+      $('crFoundT').textContent='Use it for this visit? Nothing to pay today.';
+      $('useCred').textContent='Use '+word+' for this visit';
+    }
     if(f.kind==='gift'){var g=giftMath(f);
       $('crFoundT').innerHTML=esc2(hi)+'Your gift card has <b>'+m2(g.bal)+'</b> on it. This session is '+m2(g.price)+'.'+(g.due>0
         ?' The card covers '+m2(g.cover)+', and the remaining <b>'+m2(g.due)+'</b> is paid by card now, so your session is paid in full.'
         :' It comes off your card, leaving <b>'+m2(g.left)+'</b>. Nothing to pay today.');
       $('useCred').textContent=g.due>0?'Use my gift card and pay '+m2(g.due):'Use it for this visit';}
-    else{$('crFoundT').textContent=hi+'You have '+f.text+'. Use it for this visit? Nothing to pay today.';$('useCred').textContent='Use it for this visit'}
     $('crFoundW').hidden=false;$('useCred').hidden=false;$('payDepInstead').hidden=true;
     $('crFoundW').innerHTML=CREDIT[f.kind].warn;$('crFound').hidden=false;foundMode(true);$('useCred').focus();
   }
@@ -1686,7 +1704,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   var emT=null;
   $('ctEmail').addEventListener('input',function(){looked=false;FOUND=null;$('crFound').hidden=true;foundMode(false);if(!giftMode&&pay==='credit'){pay='deposit';payRender()}
     clearTimeout(emT);emT=setTimeout(function(){if(!emailProblem($('ctEmail').value))recheck()},600)});
-  $('ctEmail').addEventListener('change',function(){clearTimeout(emT);if(!emailProblem(this.value))recheck()});
+  $('ctEmail').addEventListener('change',function(){if(looked)return;clearTimeout(emT);if(!emailProblem(this.value))recheck()});
   $('ctName').addEventListener('input',function(){if(FOUND&&!giftMode){clearTimeout(emT);emT=setTimeout(recheck,600)}});
   $('goBtn').addEventListener('click',function(){
     if(st.t===null)return;var n=$('goNote');reSeq++;clearTimeout(emT);
@@ -1713,11 +1731,12 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   $('useCred').addEventListener('click',function(){if(!FOUND)return;pay='credit';$('crType').value=FOUND.kind;payRender();$('crRef').value=FOUND.ref;$('creditBox').hidden=true;$('crFound').hidden=true;$('goNote').classList.remove('show');
     doBook()});
   // switch to a session the package or membership covers, then check again
-  $('switch60').addEventListener('click',function(){
-    if(st.s!=='refl'&&st.s!=='reiki')st.s='refl';st.len=60;$('crFound').hidden=true;FOUND=null;foundMode(false);render();
+  function switchTo(){
+    st.s=this.dataset.s;st.len=60;$('crFound').hidden=true;FOUND=null;foundMode(false);render();
     if(st.t===null){var n=$('goNote');n.textContent='Switched to '+SESS[st.s].name+' · 60 min. That time no longer fits, so please pick a time again.';n.classList.add('show');dlg.classList.remove('step2');window.scrollTo(0,0);return}
     $('goBtn').click();
-  });
+  }
+  $('switch60').addEventListener('click',switchTo);$('switch60b').addEventListener('click',switchTo);
   $('payDepInstead').addEventListener('click',function(){$('crFound').hidden=true;pay='deposit';payRender();doBook()});
   $('giftLink').addEventListener('click',function(){
     if(giftMode){giftMode=false;pay='deposit';payRender();this.textContent='Have a gift card code?';return}
