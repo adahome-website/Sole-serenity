@@ -505,7 +505,7 @@ section{position:relative}
 .mel-sprite{position:absolute;width:0;height:0;overflow:hidden}
 .bar{position:fixed;left:0;right:0;bottom:0;z-index:50;padding:10px max(12px,env(safe-area-inset-left,0px)) calc(10px + env(safe-area-inset-bottom,0px));pointer-events:none}
 .bar-in{pointer-events:auto;max-width:1240px;margin:0 auto;background:var(--char);color:var(--cream);border-radius:22px;display:flex;align-items:center;gap:14px;padding:10px 10px 10px 14px;box-shadow:0 14px 40px rgba(20,14,8,.35)}
-.bar-dot{width:42px;height:42px;border-radius:12px;flex:none;background:#a35f3c;display:grid;place-items:center}
+.bar-dot{width:42px;height:42px;border-radius:12px;flex:none;background:linear-gradient(90deg,#4c6b66 50%,#a35f3c 50%);display:grid;place-items:center}
 .bar-dot svg{display:block}
 .bar-txt{min-width:0;flex:1}
 .bar-txt b{display:block;font-family:var(--display);font-weight:800;font-size:18px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1539,7 +1539,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     var g={
       refl:'<use href="#sole" x="9" y="2" width="14" height="28"/>',
       reiki:hand,
-      intro:'<use href="#sole" x="2" y="5" width="11" height="22"/><g transform="translate(13 6) scale(.62)">'+hand+'</g>',
+      intro:'<use href="#sole" x="0.5" y="2.5" width="14" height="27"/><g transform="translate(10.5 3.5) scale(.76)">'+hand+'</g>',
       combo:'<use href="#sole" x="2" y="5" width="11" height="22"/><g transform="translate(13 6) scale(.62)">'+hand+'</g>',
       bath:'<path d="M11 13q2-2.5 0-5t0-5M17 13q2-2.5 0-5t0-5M23 13q2-2.5 0-5t0-5" stroke="#2b231a" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M3 17h26l-3.2 9.2a2 2 0 0 1-1.9 1.3H8.1a2 2 0 0 1-1.9-1.3z" fill="#2b231a"/><path d="M8 21h5" stroke="#d6b48c" stroke-width="1.6" stroke-linecap="round"/>'
     };
@@ -1550,7 +1550,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     if(S.lens.indexOf(st.len)<0)st.len=S.lens[0];
     if(st.t!==null&&!fits(st.date,st.t,st.len))st.t=null;
     document.documentElement.style.setProperty('--sess',S.col);
-    var bd=document.querySelector('.bar-dot');if(bd&&!bd.firstChild)bd.innerHTML=barIcon('reiki'); // the bottom bar always shows the hand
+    var bd=document.querySelector('.bar-dot');if(bd&&!bd.firstChild)bd.innerHTML=barIcon('intro'); // the bottom bar shows the foot and the hand (the first-visit special)
     setPressed('segSess',st.s);setPressed('segLen',st.len);
     [].forEach.call($('segLen').querySelectorAll('button'),function(b){var L=+b.dataset.v,ok=S.lens.indexOf(L)>=0;b.disabled=!ok;b.textContent=L+' min'});
     $('bkCont').textContent='Continue · $'+S.price[st.len]; // the price stays in view on tablets and phones
