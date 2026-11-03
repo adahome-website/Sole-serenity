@@ -349,26 +349,26 @@ section{position:relative}
 .rs-stack{display:grid}
 .rs-stack>.rs-panel{grid-area:1/1}
 .rs-stack>.is-off{visibility:hidden;pointer-events:none}
-.rs-panel{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:12px;align-items:stretch}
+.rs-panel{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,34%);gap:14px;align-items:stretch}
 .rs-fig{justify-content:center}
 .rs-panel .flow{grid-template-columns:1fr 1fr;grid-auto-rows:1fr;border-radius:22px} /* all four steps the same size, in both tabs */
-.rs-panel .flow>div{padding:14px 16px 16px}
-.rs-panel .flow .n{font-size:40px}
-.rs-panel .flow h3{font-size:20px;margin:8px 0 4px}
-.rs-panel .flow p{font-size:14px;line-height:1.45}
-.rs-fig{margin:0;background:var(--paper2);border-radius:22px;padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
-.rs-fig>svg{width:100%;max-width:96px;height:auto;margin:0;flex:none}
+.rs-panel .flow>div{padding:26px 26px 28px}
+.rs-panel .flow .n{font-size:54px}
+.rs-panel .flow h3{font-size:24px;margin:14px 0 6px}
+.rs-panel .flow p{font-size:15.5px;line-height:1.5}
+.rs-fig{margin:0;background:var(--paper2);border-radius:22px;padding:24px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.rs-fig>svg{width:100%;max-width:130px;height:auto;margin:0;flex:none}
 .rs-fig{flex-direction:row;align-items:center}
 .rs-panel .flow>div{min-height:0}
 .rs-fig [data-s]{transition:opacity .25s}
 .rs-fig.hl [data-s]{opacity:.22}
 .rs-fig.hl [data-s].on{opacity:1}
 .rs-fig.hl .rk-aura.on{opacity:.6}
-.rs-fig figcaption{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--ink2)}
+.rs-fig figcaption{display:flex;gap:10px;align-items:flex-start;font-size:15px;line-height:1.5;color:var(--ink2)}
 .rs-key{list-style:none;margin:0;padding:0;display:grid;gap:3px}
 .rs-key i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:0}
 @media (max-width:860px){.rs-panel{grid-template-columns:1fr}.rs-fig{flex-direction:row;align-items:center}.rs-fig>svg{max-width:120px;margin:0}}
-@media (max-width:520px){.rs-panel .flow{grid-template-columns:1fr}}
+@media (max-width:520px){.rs-panel .flow{grid-template-columns:1fr}.rs-panel .flow>div{padding:18px 18px 20px}.rs-panel .flow .n{font-size:42px}.rs-panel .flow h3{font-size:21px;margin:10px 0 4px}.rs-fig{padding:16px}.rs-fig>svg{max-width:100px}}
 
 
 /* packages */
@@ -1241,7 +1241,6 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         </svg>
         <figcaption><span>Seven positions: crown, throat, heart, solar plexus, lower abdomen, knees, feet.</span></figcaption>
       </figure>
-      <div class="rs-next"><button type="button" class="btn btn-ink" data-rs="1">See what a reflexology session is like <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
     </div>
     <div class="rs-panel is-off" id="rsPanelRx" role="tabpanel" aria-labelledby="rsTabRx" tabindex="0" inert>
       <div class="flow rx" data-fig="rxFig">
