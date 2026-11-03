@@ -685,7 +685,8 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   .bk-week{grid-area:week;display:flex;flex-direction:column}
   .bk-week .tt-note{margin-top:auto;padding-top:14px}
   /* the schedule stretches to the height of the visit panel beside it */
-  .bk-week .grid{flex:none;grid-template-rows:auto;grid-auto-rows:38px}
+  .bk-week .grid{flex:none;grid-template-rows:auto;grid-auto-rows:38px;grid-template-columns:40px repeat(5,minmax(0,1fr));padding-right:40px}
+.bk-week .legend{justify-content:center}
   .bk-week .grid .slot{height:auto;min-height:30px}
   .bk-right{grid-area:right}
 }
@@ -716,6 +717,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
 .ticket .vline{height:12px;border-radius:6px;margin:14px 0 16px;gap:3px}.ticket .vline div{border-radius:6px}
 .ticket .times{border-bottom:0;border-top:2px dashed rgba(252,249,244,.22);padding:16px 0 2px;margin:0}
 .ticket::before,.ticket::after{top:var(--notch,104px)}
+.tk-price{text-align:right}.tk-price .tk-was{display:block;margin-top:4px;font:600 13px var(--body);letter-spacing:0;color:#d9c9b4;text-decoration:line-through}
 </style>
 
 <svg class="mel-sprite" width="0" height="0" aria-hidden="true" focusable="false">
@@ -1611,11 +1613,11 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     $('bkCont').textContent='Continue · $'+S.price[st.len]; // the price stays in view on tablets and phones
     paintWeek();buildCal();buildTimes();
     var price=S.price[st.len],has=st.t!==null;
-    $('sumName').textContent=S.name;var durTxt=st.len+' min'+(st.s==='intro'?' · 50% off':'');
+    $('sumName').textContent=S.name;var durTxt=st.len+' min';
     var crb=$('segPay').querySelector('[data-v="credit"]');if(crb){crb.disabled=st.s==='intro';if(st.s==='intro'&&pay==='credit'){pay='deposit';payRender()}}
     $('giftLink').hidden=st.s==='intro'||!!FOUND;
     var gst=Math.round(price*GST_RATE*100)/100;
-    $('sumTotal').textContent='$'+price;
+    $('sumTotal').innerHTML='$'+price+(st.s==='intro'?'<s class="tk-was">$'+SESS.combo.price[120]+'</s>':''); // first visit: the usual price, crossed out
     $('sumGst').hidden=!GST_RATE;if(GST_RATE)$('sumGst').textContent='+ $'+gst.toFixed(2)+' GST ('+(GST_RATE*100)+'%) = $'+(price+gst).toFixed(2)+' total';
     var vl=$('vline');vl.innerHTML='';
     timeline(st.s,st.len).forEach(function(s){var el=document.createElement('div');el.style.flex=s[1];el.style.background=s[2];el.title=s[0];vl.appendChild(el)});
@@ -1702,7 +1704,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
       $('crMeter').hidden=false;
       $('crFoundW').innerHTML='';$('crFoundW').hidden=true;
       if(f.blocked&&f.reason==='length'){
-        $('crFoundT').className='cr-fine';$('crFoundT').textContent=(mem?'Memberships':'Packages')+' can only be used for a 60-minute Reiki or Reflexology session.';
+        $('crFoundT').className='cr-fine';$('crFoundT').textContent=mem?'Memberships can only be used for a 60-minute Reiki or Reflexology session.':'Packages cover a 60-minute Reiki or Reflexology session, or the 2-hour Combination (2 sessions).';
         $('useCred').hidden=true;
         $('switch60').textContent='Use '+word+' for Reflexology 60 min';$('switch60b').textContent='Use '+word+' for Reiki 60 min';
         $('switch60').hidden=false;$('switch60b').hidden=false;
@@ -1714,6 +1716,13 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         $('crFound').hidden=false;foundMode(true);return}
       $('crFoundT').textContent='Use it for this visit? Nothing to pay today.';
       $('useCred').textContent='Use '+word+' for this visit';
+      if(!mem&&f.need===2&&!f.partial){ // Combination: one package session per hour
+        $('crFoundT').textContent='The Combination uses 2 sessions, one for each hour. Nothing to pay today.';
+        $('useCred').textContent='Use 2 package sessions for this visit';}
+      if(!mem&&f.partial){ // only 1 left: it covers one hour, the other hour is paid by card now
+        var due=(f.due_cents||0)/100;due=m2(GST_RATE&&f.due_cents==null?due*(1+GST_RATE):due);
+        $('crFoundT').textContent='The Combination uses 2 sessions, one for each hour. You have 1 left, so it covers one hour and the other hour is '+due+', paid by card now.';
+        $('useCred').textContent='Use my last session and pay '+due;}
     }
     if(f.kind==='gift'){var g=giftMath(f);
       $('crFoundT').innerHTML=esc2(hi)+'Your gift card has <b>'+m2(g.bal)+'</b> on it. This session is '+m2(g.price)+'.'+(g.due>0
@@ -1823,7 +1832,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
       fetch(BOOKING_API+'/api/book',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json().then(function(d){if(!r.ok)throw d;return d})})
         .then(function(d){
           if(d.checkout_url){window.SSDEMO.checkout(d.checkout_url.split(':')[1],function(ok){var bid=d.checkout_url.split(':')[1];if(ok){b.textContent=prev;showBooked(bid)}else{b.disabled=false;b.textContent=prev;loadBusy();var n=$('goNote');n.textContent='Payment not completed, so nothing was charged. Your time isn\u2019t held yet: press Book with $40 deposit, or pick another time.';n.classList.add('show');setTimeout(function(){n.classList.add('show');n.scrollIntoView({block:'center'})},500)}if(ok)loadBusy()});return}
-          if(true){var gx={status:d.status,pay:'credit'};if(FOUND&&FOUND.kind==='gift'&&pay==='credit'){var g=giftMath(FOUND);gx.gift=g.cover;gx.giftLeft=g.left;gx.card=0}showConfirmation(confFromState(gx));b.textContent=prev;loadBusy();return}
+          if(true){var gx={status:d.status,pay:'credit'};if(FOUND&&FOUND.kind==='gift'&&pay==='credit'){var g=giftMath(FOUND);gx.gift=g.cover;gx.giftLeft=g.left;gx.card=0}if($('crType').value==='package'&&pay==='credit')gx.pkgSessions=st.s==='combo'?2:1;showConfirmation(confFromState(gx));b.textContent=prev;loadBusy();return}
           n.textContent=d.status==='needs_check'?'You\'re booked: '+S.name+' on '+longDate(st.date)+' at '+fmt(st.t)+'. I\'ll double-check your membership, package or gift card and email you a confirmation.':'You\'re booked: '+S.name+' on '+longDate(st.date)+', '+fmt(st.t)+' to '+fmt(st.t+st.len)+'. A confirmation is on its way to your email.';
           n.classList.add('show');b.textContent=prev;loadBusy();
         },function(e){b.disabled=false;b.textContent=prev;loadBusy();showIssue({sub:(e&&e.error)||'Something went wrong on my side, so your time wasn’t booked.',retryLabel:'Back to booking'})});
@@ -1850,7 +1859,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     $('okTitle').textContent='You\'re booked';
     $('okSub').textContent=check?'Thank you'+(c.name?', '+c.name.split(' ')[0]:'')+'. I\'ll check your '+(c.credit||'membership, package or gift card')+' and confirm by email shortly.':'Thank you'+(c.name?', '+c.name.split(' ')[0]:'')+'. Your time is held just for you. A confirmation is on its way to '+(c.email||'your email')+'.';
     var giftPaid=c.gift!=null;
-    var paid=giftPaid?'<div class="ok-row"><span>From your gift card</span><span>'+m2(c.gift)+'</span></div>'+(c.card?'<div class="ok-row"><span>Paid by card today</span><span>'+m2(c.card)+'</span></div>':'')+'<div class="ok-row"><span>Paid in full</span><span>Nothing more to pay</span></div>'+(c.giftLeft!=null?'<div class="ok-row"><span>Left on your gift card</span><span>'+m2(c.giftLeft)+'</span></div>':''):c.pay==='deposit'?'<div class="ok-row"><span>Deposit paid today</span><span>$'+c.deposit+'</span></div><div class="ok-row"><span>Due after your session</span><span>$'+(c.total-c.deposit)+'</span></div>':'<div class="ok-row"><span>Paid with</span><span>Your '+(c.credit||'credit')+' · $0 today</span></div>';
+    var paid=giftPaid?'<div class="ok-row"><span>From your gift card</span><span>'+m2(c.gift)+'</span></div>'+(c.card?'<div class="ok-row"><span>Paid by card today</span><span>'+m2(c.card)+'</span></div>':'')+'<div class="ok-row"><span>Paid in full</span><span>Nothing more to pay</span></div>'+(c.giftLeft!=null?'<div class="ok-row"><span>Left on your gift card</span><span>'+m2(c.giftLeft)+'</span></div>':''):c.pkgSessions?'<div class="ok-row"><span>From your package</span><span>'+c.pkgSessions+' session'+(c.pkgSessions>1?'s':'')+'</span></div>'+(c.pkgCard?'<div class="ok-row"><span>Paid by card today</span><span>'+m2(c.pkgCard)+'</span></div><div class="ok-row"><span>Paid in full</span><span>Nothing more to pay</span></div>':''):c.pay==='deposit'?'<div class="ok-row"><span>Deposit paid today</span><span>$'+c.deposit+'</span></div><div class="ok-row"><span>Due after your session</span><span>$'+(c.total-c.deposit)+'</span></div>':'<div class="ok-row"><span>Paid with</span><span>Your '+(c.credit||'credit')+' · $0 today</span></div>';
     $('okCard').innerHTML='<div class="ok-times"><div><small>Start</small><b>'+t(c.start)+'</b></div><div><small>End</small><b>'+t(c.end)+'</b></div></div>'+
       '<div class="ok-row"><span>'+day+'</span><span>'+c.minutes+' min</span></div><div class="ok-row"><span>'+c.service+'</span><span>$'+c.total+'</span></div>'+paid;
     var next=[check?'I\'ll email you once I\'ve matched your '+(c.credit||'purchase')+'. Nothing to pay today.':'Your confirmation email has the details and the studio address in Northwest Calgary.',
@@ -1939,7 +1948,8 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
       if(!b||!b.start_utc)return;
       var gift=b.credit_type==='gift'&&b.gift_cents!=null;
       showConfirmation({service:b.service_name,minutes:b.minutes,start:new Date(b.start_utc),end:new Date(b.end_utc),pay:b.pay,deposit:b.deposit_cents/100,total:b.total_cents/100,status:b.status,email:b.email,name:b.first_name,credit:CREDIT_NAMES[b.credit_type],
-        gift:gift?b.gift_cents/100:null,card:gift?(b.deposit_cents||0)/100:null,giftLeft:gift&&b.gift_left_cents!=null?b.gift_left_cents/100:null});
+        gift:gift?b.gift_cents/100:null,card:gift?(b.deposit_cents||0)/100:null,giftLeft:gift&&b.gift_left_cents!=null?b.gift_left_cents/100:null,
+        pkgSessions:b.credit_type==='package'?(b.service==='combo'&&!b.deposit_cents?2:1):null,pkgCard:b.credit_type==='package'&&b.deposit_cents?b.deposit_cents/100:null});
       try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}
     }).catch(function(){});
   }

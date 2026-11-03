@@ -170,6 +170,8 @@ window.SS_PERSIST = true;
     return bk.pay === 'deposit'
       ? 'Your ' + money(bk.deposit_cents || 0) + ' deposit comes off your total. To cancel or move, text or email me at least 48 hours before and I’ll refund it in full. Within 48 hours, or if you don’t come, it isn’t refunded.'
       : bk.credit_type === 'gift' && bk.gift_cents != null ? 'Paid in full: ' + money(bk.gift_cents) + ' from your gift card' + (bk.deposit_cents ? ' and ' + money(bk.deposit_cents) + ' by card' : '') + '. To cancel or move, text or email me at least 48 hours before and it all goes back. A no-show, or a cancellation within 48 hours, isn’t refunded.'
+      : bk.credit_type === 'package' && bk.pkg_topup ? 'Paid in full: your last package session and ' + money(bk.deposit_cents || bk.topup_cents || 0) + ' by card. To cancel or move, text or email me at least 48 hours before and the session and payment go back. A no-show, or a cancellation within 48 hours, uses them.'
+      : bk.credit_type === 'package' && bk.service === 'combo' ? 'This visit uses 2 sessions from your package (one hour each). There’s no deposit. To cancel or move, text or email me at least 48 hours before. A no-show, or a cancellation within 48 hours, uses both sessions.'
       : 'There’s no deposit. To cancel or move, text or email me at least 48 hours before. A no-show, or a cancellation within 48 hours, uses that session.';
   }
   function detailsCard(bk, withAddress) {
@@ -249,7 +251,7 @@ window.SS_PERSIST = true;
       if (!mine) continue;
       var u = usesOf(c);
       if (c.kind === 'package' && u.length >= c.total) { usedPackage = usedPackage || c; continue }
-      if (c.kind === 'package' && u.length < c.total) { var l = c.total - u.length; return L({ kind: 'package', total: c.total, left: l, name: c.buyer || '', phone: c.phone || '', ref: c.recipient || c.buyer, text: 'a ' + c.total + '-session package with ' + l + ' session' + (l > 1 ? 's' : '') + ' left' }) }
+      if (c.kind === 'package' && u.length < c.total) { var l = c.total - u.length, po = !service || pkgOk(service, minutes), nd = pkgNeed(service), o = { kind: 'package', total: c.total, left: l, need: po ? nd : 1, name: c.buyer || '', phone: c.phone || '', ref: c.recipient || c.buyer, text: 'a ' + c.total + '-session package with ' + l + ' session' + (l > 1 ? 's' : '') + ' left' }; if (po && nd > l) { o.partial = true; o.due_cents = SERVICES.combo.prices[120] - SERVICES.refl.prices[60] } if (!po) { o.blocked = true; o.reason = 'length' } return o }
       if (c.kind === 'membership' && !creditLeft(c, ym)) { usedMember = c; continue }
       if (c.kind === 'membership') { var pm = Math.max(1, +c.total || 1), lm = creditLeft(c, ym); return L({ kind: 'membership', total: pm, left: lm, name: c.buyer || '', phone: c.phone || '', ref: c.buyer, text: pm > 1 ? 'a monthly membership with ' + lm + ' of ' + pm + ' sessions left this month' : 'a monthly membership, and this month’s session is still available' }) }
       if (c.kind === 'gift') { var left = creditLeft(c); if (left > 0) return { kind: 'gift', ref: c.code, balance_cents: left, text: 'a gift card with ' + money(left) + ' left' } }
@@ -260,8 +262,12 @@ window.SS_PERSIST = true;
   }
   // Packages and memberships cover a 60-minute Reiki or Reflexology session only
   function passOk(service, minutes) { return (service === 'refl' || service === 'reiki') && +minutes === 60 }
+  // packages also cover the 2-hour Combination: 2 sessions, or the last session + the other hour paid by card
+  function pkgOk(service, minutes) { return passOk(service, minutes) || (service === 'combo' && +minutes === 120) }
+  function pkgNeed(service) { return service === 'combo' ? 2 : 1 }
   function findCredit(type, ref, email, name, ymd, cents, service, minutes) {
-    if ((type === 'package' || type === 'membership') && !passOk(service, minutes)) return null;
+    if (type === 'membership' && !passOk(service, minutes)) return null;
+    if (type === 'package' && !pkgOk(service, minutes)) return null;
     var r = norm(ref); name = norm(name);
     var m = DB.credits.filter(function (c) {
       if (c.kind !== type || c.status !== 'active') return false;
@@ -290,7 +296,7 @@ window.SS_PERSIST = true;
     if (p === '/api/availability') return { tz: TZ, busy: busy() };
     if (p === '/api/lookup') { var lr = { found: body.code ? lookupCode(body.code) : lookup(body.name, body.email, body.date, body.service, body.minutes) }; if (body.service === 'intro') lr.known = isKnown(body.email); if (!body.code && body.email) lr.person = personOf(body.email); return lr }
     if (p === '/api/book') return book(body);
-    if (p === '/api/booking') { var x = getB(u.searchParams.get('id')); if (!x) throw err('Not found', 404); var v = view(x); return { service_name: v.service_name, minutes: x.minutes, start_utc: x.start_utc, end_utc: x.end_utc, pay: x.pay, deposit_cents: x.deposit_cents, total_cents: v.total_cents, status: x.status, credit_type: x.credit_type, email: x.email, first_name: x.name.split(' ')[0], gift_cents: x.gift_cents, gift_left_cents: x.credit_type === 'gift' && x.credit_id ? creditLeft(DB.credits.filter(function (c) { return c.id === x.credit_id })[0]) : null } }
+    if (p === '/api/booking') { var x = getB(u.searchParams.get('id')); if (!x) throw err('Not found', 404); var v = view(x); return { service: x.service, service_name: v.service_name, minutes: x.minutes, start_utc: x.start_utc, end_utc: x.end_utc, pay: x.pay, deposit_cents: x.deposit_cents, total_cents: v.total_cents, status: x.status, credit_type: x.credit_type, email: x.email, first_name: x.name.split(' ')[0], gift_cents: x.gift_cents, gift_left_cents: x.credit_type === 'gift' && x.credit_id ? creditLeft(DB.credits.filter(function (c) { return c.id === x.credit_id })[0]) : null } }
     if (p.indexOf('/admin/api') === 0) return admin(p.slice(10), body, u);
     throw err('Not found', 404);
   }
@@ -316,6 +322,18 @@ window.SS_PERSIST = true;
       var due = S.prices[minutes] - Math.min(S.prices[minutes], creditLeft(c));
       row.credit_id = c.id; addUse(row, c);
       if (due > 0) { row.topup_cents = due; DB.bookings.push(row); notify(); return { ok: true, checkout_url: 'demo-checkout:' + row.id } }
+    }
+    if (c && type === 'package' && pkgNeed(b.service) > 1) {
+      // Combination on a package: one session per hour; with only 1 left, the other hour is paid by card now
+      var left = c.total - usesOf(c).length, mid = localOf(new Date(start.getTime() + 36e5)).hm;
+      var hrs = [[L.hm, mid, 'Combination · reflexology hour'], [mid, Le.hm, 'Combination · Reiki hour']].slice(0, Math.min(left, 2));
+      row.credit_id = c.id;
+      hrs.forEach(function (h) { DB.uses.push({ id: rid('use'), created: new Date().toISOString(), credit_id: c.id, booking_id: row.id, date_local: L.ymd, start_local: h[0], end_local: h[1], service: h[2], status: 'booked', amount_cents: 0 }) });
+      if (left < 2) { row.topup_cents = S.prices[minutes] - SERVICES.refl.prices[60]; row.pkg_topup = true; DB.bookings.push(row); notify(); return { ok: true, checkout_url: 'demo-checkout:' + row.id } }
+      row.status = 'confirmed'; row.hold_until = null; DB.bookings.push(row);
+      DB.calendar.push({ start: row.start_utc, end: row.end_utc, booking: row.id });
+      confirmEmail(row); newBookingAlert(row); notify();
+      return { ok: true, status: row.status };
     }
     row.status = c ? 'confirmed' : 'needs_check'; row.credit_id = c ? c.id : null; row.hold_until = null;
     DB.bookings.push(row); if (c && type !== 'gift') addUse(row, c);
@@ -383,11 +401,11 @@ window.SS_PERSIST = true;
   function topupPaid(id) {
     var bk = getB(id); if (!bk) return;
     bk.status = 'confirmed'; bk.deposit_cents = bk.topup_cents; bk.hold_until = null; bk.deposit_paid_at = new Date().toISOString();
-    bk.notes = 'Gift card ' + money(bk.gift_cents) + ' + ' + money(bk.topup_cents) + ' by card · paid in full';
+    bk.notes = bk.pkg_topup ? '1 package session + ' + money(bk.topup_cents) + ' by card · paid in full' : 'Gift card ' + money(bk.gift_cents) + ' + ' + money(bk.topup_cents) + ' by card · paid in full';
     DB.calendar.push({ start: bk.start_utc, end: bk.end_utc, booking: bk.id });
     confirmEmail(bk); newBookingAlert(bk); notify();
   }
-  function checkoutCancelled(id) { var bk = getB(id); if (bk && bk.status === 'held') { bk.status = 'cancelled'; bk.notes = bk.topup_cents ? 'Gift card top-up not paid' : 'Deposit checkout not finished'; if (bk.topup_cents) DB.uses = DB.uses.filter(function (u) { return u.booking_id !== id }); notify() } }
+  function checkoutCancelled(id) { var bk = getB(id); if (bk && bk.status === 'held') { bk.status = 'cancelled'; bk.notes = bk.pkg_topup ? 'Package top-up not paid' : bk.topup_cents ? 'Gift card top-up not paid' : 'Deposit checkout not finished'; if (bk.topup_cents) DB.uses = DB.uses.filter(function (u) { return u.booking_id !== id }); notify() } }
   var PRODUCTS = { reset3: { kind: 'package', total: 3, price: 27500, label: '3-session package' }, reset10: { kind: 'package', total: 10, price: 89000, label: 'The Deep Ten (10 sessions)' }, monthly: { kind: 'membership', total: 1, price: 8900, label: 'Monthly ritual membership' }, gift99: { kind: 'gift', total: 9900, price: 9900, label: 'Gift card $99' }, gift198: { kind: 'gift', total: 19800, price: 19800, label: 'Gift card $198' }, giftCustom: { kind: 'gift', custom: true, label: 'Gift card, custom amount' } };
   function purchase(key, f) {
     var P = PRODUCTS[key], amt = P.custom ? Math.round(+f.amount * 100) : P.price;
@@ -487,7 +505,7 @@ window.SS_PERSIST = true;
 <main>
   <section class="pane" id="p-site" role="tabpanel" aria-labelledby="t-site">
     <p class="strip"><b>What a client sees.</b> Book a session, buy a gift card, or try booking with <b>pat@example.com</b> (has a package), <b>jordan@example.com</b> (member) or <b>lee@example.com</b> (small gift card). Payments open a pretend Stripe checkout.</p>
-    <iframe id="f-site" src="site.html?v=1793685857" title="Client website"></iframe>
+    <iframe id="f-site" src="site.html?v=1793686088" title="Client website"></iframe>
   </section>
   <section class="pane" id="p-admin" role="tabpanel" aria-labelledby="t-admin" hidden>
     <p class="strip"><b>What Melanie sees</b> after signing in. Appointments start empty and fill up as you book on the website. Then try <b>Charge balance</b>, <b>Cancel</b> or <b>No-show</b>.</p>
@@ -564,7 +582,7 @@ window.SS_PERSIST = true;
     checkout:function(id,cb){
       var bk=DEMO.db().bookings.filter(function(b){return b.id===id})[0];done=cb;
       var v=DEMO.view(bk),top=bk.topup_cents||0,amt=top?DEMO.money(top):'$40.00';
-      co.innerHTML='<div class="co-h"><small>Sole Serenity · '+(top?'rest after gift card':'deposit')+'</small><b>'+amt+'</b><span>'+esc(v.service_name)+' · '+esc(v.when)+'</span>'+(top?'<br><span>Session '+DEMO.money(v.total_cents)+' · gift card '+DEMO.money(bk.gift_cents)+' · paid in full</span>':'')+'<br><span class="co-tag">Pretend Stripe checkout · no real payment</span></div>'+
+      co.innerHTML='<div class="co-h"><small>Sole Serenity · '+(top?(bk.pkg_topup?'second hour of your Combination':'rest after gift card'):'deposit')+'</small><b>'+amt+'</b><span>'+esc(v.service_name)+' · '+esc(v.when)+'</span>'+(top?'<br><span>Session '+DEMO.money(v.total_cents)+' · '+(bk.pkg_topup?'your last package session covers one hour':'gift card '+DEMO.money(bk.gift_cents))+' · paid in full</span>':'')+'<br><span class="co-tag">Pretend Stripe checkout · no real payment</span></div>'+
         '<div class="co-b"><label>Email<input value="'+esc(bk.email)+'" readonly></label><label>Card number<input value="4242 4242 4242 4242" inputmode="numeric"></label><div class="r2"><label>Expiry<input value="12 / 30"></label><label>CVC<input value="123"></label></div>'+
         '<label>Name on card<input value="'+esc(bk.name)+'"></label><button class="pay" type="button" id="coPay">Pay '+amt+'</button><p class="note">'+(top?'This pays the rest of your session. Nothing more is due after it.':'Your card is saved for the rest of the payment after your session.')+'</p><button class="cx" type="button" id="coCx">‹ Back to Sole Serenity</button></div>';
       ov.hidden=false;$('coPay').focus();

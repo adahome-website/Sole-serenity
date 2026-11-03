@@ -246,6 +246,8 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
     if(a.charged_cents!=null)return '<span class="st ok">Paid · '+money(a.deposit_cents+a.charged_cents)+' total</span>';
     if(a.status==='completed')return '<span class="st ok">Done · '+(KIND[a.credit_type]||'credit')+'</span>';
     if(a.pay==='deposit')return '<span class="st">Deposit '+money(a.deposit_cents)+' paid · balance '+money(a.balance_cents)+'</span>';
+    if(a.credit_type==='package'&&a.deposit_cents)return '<span class="st ok">Package · 1 session + '+money(a.deposit_cents)+' by card · paid in full</span>';
+    if(a.credit_type==='package'&&a.service==='combo')return '<span class="st">Package · 2 sessions'+(a.credit_ref?' · '+esc(a.credit_ref):'')+'</span>';
     if(a.credit_type==='gift'&&a.gift_cents!=null)return '<span class="st ok">Gift card '+money(a.gift_cents)+(a.deposit_cents?' + '+money(a.deposit_cents)+' by card':'')+' · paid in full</span>';
     return '<span class="st">'+(KIND[a.credit_type]||'Credit')+(a.credit_ref?' · '+esc(a.credit_ref):'')+'</span>';
   }
