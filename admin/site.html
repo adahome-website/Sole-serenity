@@ -1693,7 +1693,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     var seq=++reSeq,nm=$('ctName').value.trim(),em=$('ctEmail').value.trim(),code=giftMode?$('crRef').value.trim():'';
     FOUND=null;$('crFound').hidden=true;foundMode(false);
     if(!giftMode&&pay==='credit'){pay='deposit';payRender()}
-    if(st.t===null||emailProblem(em)||(giftMode&&!code))return;looked=true;
+    if(emailProblem(em)||(giftMode&&!code))return;looked=true; // no time needed yet: their details and what they have show as soon as the email is in
     KNOWN=false;lookup(nm,em,code).then(function(f){if(seq!==reSeq||!$('crFound').hidden)return;
       if(st.s==='intro'&&!giftMode){if(KNOWN){if(f&&f.name&&!$('ctName').value.trim())$('ctName').value=f.name;if(f&&f.phone&&!$('ctPhone').value.trim())$('ctPhone').value=f.phone;showNotNew($('ctName').value.trim())}return}
       if(!f)return;
@@ -1748,17 +1748,19 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
       showFound(f,nm);
     });
   });
-  $('useCred').addEventListener('click',function(){if(!FOUND)return;pay='credit';$('crType').value=FOUND.kind;payRender();$('crRef').value=FOUND.ref;$('creditBox').hidden=true;$('crFound').hidden=true;$('goNote').classList.remove('show');
+  function needTime(){if(st.t!==null)return false;var n=$('goNote');n.textContent='Now pick a time on the schedule.';n.classList.add('show');return true}
+  $('useCred').addEventListener('click',function(){if(!FOUND||needTime())return;pay='credit';$('crType').value=FOUND.kind;payRender();$('crRef').value=FOUND.ref;$('creditBox').hidden=true;$('crFound').hidden=true;$('goNote').classList.remove('show');
     doBook()});
   // switch to a session the package or membership covers, then check again
   function switchTo(){
-    st.s=this.dataset.s;st.len=60;$('crFound').hidden=true;FOUND=null;foundMode(false);render();
+    var hadT=st.t!==null;st.s=this.dataset.s;st.len=60;$('crFound').hidden=true;FOUND=null;foundMode(false);render();
+    if(!hadT)return; // no time picked yet: the box refreshes for the new session by itself
     if(st.t===null){var n=$('goNote');n.textContent='Switched to '+SESS[st.s].name+' · 60 min. That time no longer fits, so please pick a time again.';n.classList.add('show');dlg.classList.remove('step2');window.scrollTo(0,0);return}
     $('goBtn').click();
   }
   $('switch60').addEventListener('click',switchTo);$('switch60b').addEventListener('click',switchTo);
   $('toCombo').addEventListener('click',function(){st.s='combo';st.len=120;$('crFound').hidden=true;FOUND=null;foundMode(false);render()});
-  $('payDepInstead').addEventListener('click',function(){$('crFound').hidden=true;pay='deposit';payRender();doBook()});
+  $('payDepInstead').addEventListener('click',function(){if(needTime())return;$('crFound').hidden=true;pay='deposit';payRender();doBook()});
   $('giftLink').addEventListener('click',function(){
     if(giftMode){giftMode=false;pay='deposit';payRender();this.textContent='Have a gift card code?';return}
     giftMode=true;$('crFound').hidden=true;$('crRef').value='';pay='credit';$('crType').value='gift';payRender();this.textContent='I don’t have a code';$('crRef').focus()});
