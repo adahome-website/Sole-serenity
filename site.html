@@ -487,7 +487,13 @@ section{position:relative}
 
 @keyframes drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 @keyframes ripple{0%,100%{transform:translateX(0)}50%{transform:translateX(-14px)}}
-.sun-bob{animation:drift 9s ease-in-out infinite}
+/* hero: the sun rises from the left into the centre, stays a while, then sets to the right and the scene turns to night */
+@keyframes sunDay{0%{transform:translate(-300px,240px)}8%{transform:translate(-140px,60px)}16%{transform:translate(0,0)}62%{transform:translate(0,0)}70%{transform:translate(140px,60px)}78%,100%{transform:translate(300px,240px)}}
+@keyframes nightFall{0%{opacity:.72}14%{opacity:0}64%{opacity:0}80%,100%{opacity:.72}}
+@keyframes starsOut{0%{opacity:1}10%,70%{opacity:0}84%,100%{opacity:1}}
+.sun-day{animation:sunDay 36s linear infinite}
+.night{opacity:0;animation:nightFall 36s ease-in-out infinite;pointer-events:none}
+.stars{opacity:0;animation:starsOut 36s ease-in-out infinite}
 .wave{animation:ripple 7s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
@@ -812,10 +818,10 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
       <div class="blk hero-art" aria-hidden="true">
         <svg viewBox="0 0 600 420" preserveAspectRatio="xMidYMid slice">
           <rect width="600" height="420" fill="#e3c9a5"/>
-          <g class="sun-bob">
-            <circle cx="380" cy="170" r="128" fill="#d6b48c"/>
-            <circle cx="380" cy="170" r="92" fill="#c49a6a"/>
-            <circle cx="380" cy="170" r="58" fill="#a35f3c"/>
+          <g class="sun-day">
+            <circle cx="300" cy="170" r="128" fill="#d6b48c"/>
+            <circle cx="300" cy="170" r="92" fill="#c49a6a"/>
+            <circle cx="300" cy="170" r="58" fill="#a35f3c"/>
           </g>
           <path d="M-20 300 Q120 170 260 260 T560 220 L640 420 L-20 420Z" fill="#8f8f62"/>
           <path d="M-20 330 Q90 250 200 300 Q330 370 460 280 Q560 220 640 290 L640 420 L-20 420Z" fill="#6e6b45"/>
@@ -828,6 +834,12 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
             <path d="M0 404 h140 M200 404 h120 M400 404 h160" opacity=".45"/>
           </g>
           <path d="M260 340 h240 v-6 h-240z" fill="#2f4441" opacity=".35"/>
+          <rect class="night" width="600" height="420" fill="#0f1a26"/>
+          <g class="stars" fill="#fcf9f4">
+            <circle cx="70" cy="60" r="2.2"/><circle cx="150" cy="110" r="1.6"/><circle cx="230" cy="40" r="2"/><circle cx="330" cy="90" r="1.5"/>
+            <circle cx="410" cy="50" r="2.3"/><circle cx="480" cy="120" r="1.6"/><circle cx="550" cy="70" r="2"/><circle cx="270" cy="150" r="1.4"/>
+            <path d="M505 40a22 22 0 1 0 18 34a17 17 0 1 1 -18 -34z" opacity=".9"/>
+          </g>
         </svg>
       </div>
       <div class="blk hero-hours">
