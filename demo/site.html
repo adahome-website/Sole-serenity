@@ -707,6 +707,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
 @media (max-width:899px){.bk-dlg{width:100%;height:auto;max-height:none;border-radius:22px;margin:0}}
 /* phones: tighter gaps between sections */
 @media (max-width:640px){.sec{padding:32px 0}.pack{display:flex;flex-direction:column;padding:20px}.pack h3{margin:14px 0 4px}.pack .amt{margin:8px 0 0}.pack .save{margin:8px 0 8px}.pack ul{margin:10px 0 12px}.pack li{padding:6px 0}.pack .btn{margin-top:8px}.pack .pay-fine{margin-top:8px}.pack>p:not(.pay-fine){margin:0}.classes{align-items:stretch}.class{padding:18px;display:flex;flex-direction:column}.class .cfoot{align-self:stretch;margin-top:auto;padding-top:10px;flex-direction:column;align-items:stretch;gap:10px;text-align:left}.class .cfoot>*{align-self:stretch}.class .cfoot .btn{width:100%;justify-content:center}.class .art{margin:8px 0 8px}.class h3{margin-bottom:6px}.class p{margin-bottom:8px}.class ul{margin:2px 0 10px}.packs{gap:10px}.teaser.gift-sec{padding:20px;gap:16px}.teaser h2{margin:8px 0 8px}.gift-buy{margin-top:14px;gap:8px}.gift-list{gap:8px;grid-auto-flow:column;grid-auto-columns:78%;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;padding-bottom:6px;scrollbar-width:none}.gift-list::-webkit-scrollbar{display:none}.gift-list li{scroll-snap-align:start}.gift-list li{padding:10px 12px;gap:12px}.gift-main>p{margin-bottom:0}.offer .fv{display:none}.rs-fig{display:none!important}.reviews{display:grid;grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:82%;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;padding-bottom:8px;scrollbar-width:none}.reviews::-webkit-scrollbar{display:none}.reviews>.rev{scroll-snap-align:start}.sense-card{aspect-ratio:auto;padding:14px;border-radius:22px}.sec-head{margin-bottom:20px}.foot{margin-top:0}.g-stack>.is-off{display:none}.ground-grid{gap:18px}.cr-mh{flex-direction:column;align-items:flex-start;gap:4px}.found-btns .btn{width:100%;justify-content:center;line-height:1.25}}
+.ft-contact{line-height:1.7}.ft-contact a{color:inherit}.ft-tel{text-decoration:none}.ft-tel:hover{text-decoration:underline}
 </style>
 
 <svg class="mel-sprite" width="0" height="0" aria-hidden="true" focusable="false">
@@ -1414,7 +1415,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         <div class="foot-hi"><h2>Ready to lift yourself up?</h2></div>
         <a class="btn btn-cream" href="#book">Book a session</a>
       </div>
-      <div><h4>Contact</h4><p class="phone">587-216-8588</p><p><a href="mailto:hello@soleserenity.ca">hello@soleserenity.ca</a></p><p>Call, text or email me. Questions about gift certificates or packages are welcome.</p></div>
+      <div><h4>Contact</h4><p class="ft-contact"><a class="ft-tel" href="tel:+15872168588">587-216-8588</a><br><a href="mailto:hello@soleserenity.ca">hello@soleserenity.ca</a></p><p>Call, text or email me. Questions about gift certificates or packages are welcome.</p></div>
       <div><h4>Hours</h4><p>Tuesday – Saturday<br>10 a.m. – 10 p.m.</p></div>
       <div><h4>Location</h4><p>123 Example Street NW<br>Calgary, AB T3A 0A1</p><p>RCRT · Reflexology Association of Canada Reg. No. ST26-26049</p></div>
     </div>
@@ -1816,7 +1817,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         time:String(Math.floor(st.t/60)).padStart(2,'0')+':00',name:nm,email:em,phone:ph,pay:pay,credit_type:$('crType').value,credit_ref:$('crRef').value.trim()};
       fetch(BOOKING_API+'/api/book',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json().then(function(d){if(!r.ok)throw d;return d})})
         .then(function(d){
-          if(d.checkout_url){window.SSDEMO.checkout(d.checkout_url.split(':')[1],function(ok){var bid=d.checkout_url.split(':')[1];if(ok){b.textContent=prev;showBooked(bid)}else{b.disabled=false;b.textContent=prev;showIssue({title:'Payment not completed',sub:'Nothing was charged, so your time isn\u2019t held yet.'})}loadBusy()});return}
+          if(d.checkout_url){window.SSDEMO.checkout(d.checkout_url.split(':')[1],function(ok){var bid=d.checkout_url.split(':')[1];if(ok){b.textContent=prev;showBooked(bid)}else{b.disabled=false;b.textContent=prev;loadBusy();var n=$('goNote');n.textContent='Payment not completed, so nothing was charged. Your time isn\u2019t held yet: press Continue to pay the deposit, or pick another time.';n.classList.add('show');setTimeout(function(){n.classList.add('show');n.scrollIntoView({block:'center'})},500)}if(ok)loadBusy()});return}
           if(true){var gx={status:d.status,pay:'credit'};if(FOUND&&FOUND.kind==='gift'&&pay==='credit'){var g=giftMath(FOUND);gx.gift=g.cover;gx.giftLeft=g.left;gx.card=0}showConfirmation(confFromState(gx));b.textContent=prev;loadBusy();return}
           n.textContent=d.status==='needs_check'?'Thank you. I\'ve got your request for '+S.name+' on '+longDate(st.date)+' at '+fmt(st.t)+'. I\'ll check your membership, package or gift card and confirm by email.':'You\'re booked: '+S.name+' on '+longDate(st.date)+', '+fmt(st.t)+' to '+fmt(st.t+st.len)+'. A confirmation is on its way to your email.';
           n.classList.add('show');b.textContent=prev;loadBusy();
@@ -1901,6 +1902,17 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     okShow(false,{label:'Book my first session',fn:function(){location.hash='home';setTimeout(function(){openBook(null,null)},50)}});
   }
   window.SS_showPurchase=showPurchase;window.SS_showIssue=showIssue;
+  // Stripe checkout cancelled (Cancel, or the back arrow): no error page. Go straight back to booking with everything as they left it.
+  function savePending(){try{sessionStorage.setItem('ss_pending',JSON.stringify({s:st.s,len:st.len,d:st.date?+st.date:null,t:st.t,em:$('ctEmail').value,nm:$('ctName').value,ph:$('ctPhone').value}))}catch(e){}}
+  function backToBooking(){
+    var p=null;try{p=JSON.parse(sessionStorage.getItem('ss_pending')||'null');sessionStorage.removeItem('ss_pending')}catch(e){}
+    if(p&&SESS[p.s]){st.s=p.s;st.len=p.len;if(p.d){st.date=new Date(p.d);wk=weekStartFor(st.date);calM=new Date(st.date.getFullYear(),st.date.getMonth(),1)}st.t=p.t}
+    openBook(null,null);
+    if(p){$('ctEmail').value=p.em||'';$('ctName').value=p.nm||'';$('ctPhone').value=p.ph||'';try{buildWeek()}catch(e){}render();if(st.t!==null)dlg.classList.add('step2')}
+    if(typeof loadBusy==='function')loadBusy();
+    var n=$('goNote');n.textContent='Payment not completed, so nothing was charged. Your time isn’t held yet: press Continue to pay the deposit, or pick another time.';n.classList.add('show');setTimeout(function(){n.classList.add('show')},600);
+  }
+  window.SS_backToBooking=backToBooking;
   $('okDone').addEventListener('click',function(){location.hash='home'});
   function confFromState(extra){
     var S=SESS[st.s],d=st.date,start=new Date(d.getFullYear(),d.getMonth(),d.getDate(),Math.floor(st.t/60),st.t%60),end=new Date(start.getTime()+st.len*6e4);
@@ -1908,7 +1920,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   }
   var CREDIT_NAMES={package:'package',membership:'membership',gift:'gift card'};
   // back from Stripe Checkout: ?booked=<booking id>
-  if(/[?&]booking=cancelled/.test(location.search)){try{history.replaceState(null,'',location.pathname)}catch(e){}setTimeout(function(){showIssue({title:'Payment not completed',sub:'The deposit wasn’t paid, so your time isn’t held yet.'})},0)}
+  if(/[?&]booking=cancelled/.test(location.search)){try{history.replaceState(null,'',location.pathname)}catch(e){}setTimeout(backToBooking,0)}
   var boughtId=(location.search.match(/[?&]bought=([\w-]+)/)||[])[1];
   if(boughtId&&BOOKING_API){
     var tries=0;(function poll(){fetch(BOOKING_API+'/api/purchase?session='+encodeURIComponent(boughtId)).then(function(r){return r.json()}).then(function(d){
