@@ -783,8 +783,8 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         <div class="ticket" aria-live="polite">
           <p class="sum-when" id="sumWhen">Pick a time on the schedule.</p>
           <div class="times">
-            <div><small>Arrive</small><b id="tArr">—</b></div>
-            <div><small>Leave</small><b id="tLeave">—</b></div>
+            <div><small>Start</small><b id="tArr">—</b></div>
+            <div><small>End</small><b id="tLeave">—</b></div>
           </div>
           <div class="vline" id="vline" aria-label="Timeline of your visit"></div>
           <div class="vscale"><span id="vs0"></span><span id="vs1"></span><span id="vs2"></span></div>
@@ -1785,7 +1785,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         .then(function(d){
           if(d.checkout_url){window.SSDEMO.checkout(d.checkout_url.split(':')[1],function(ok){var bid=d.checkout_url.split(':')[1];if(ok){b.textContent=prev;showBooked(bid)}else{b.disabled=false;b.textContent=prev;showIssue({title:'Payment not completed',sub:'Nothing was charged, so your time isn\u2019t held yet.'})}loadBusy()});return}
           if(true){var gx={status:d.status,pay:'credit'};if(FOUND&&FOUND.kind==='gift'&&pay==='credit'){var g=giftMath(FOUND);gx.gift=g.cover;gx.giftLeft=g.left;gx.card=0}showConfirmation(confFromState(gx));b.textContent=prev;loadBusy();return}
-          n.textContent=d.status==='needs_check'?'Thank you. I\'ve got your request for '+S.name+' on '+longDate(st.date)+' at '+fmt(st.t)+'. I\'ll check your membership, package or gift card and confirm by email.':'You\'re booked: '+S.name+' on '+longDate(st.date)+', arrive '+fmt(st.t)+', leave '+fmt(st.t+st.len)+'. A confirmation is on its way to your email.';
+          n.textContent=d.status==='needs_check'?'Thank you. I\'ve got your request for '+S.name+' on '+longDate(st.date)+' at '+fmt(st.t)+'. I\'ll check your membership, package or gift card and confirm by email.':'You\'re booked: '+S.name+' on '+longDate(st.date)+', '+fmt(st.t)+' to '+fmt(st.t+st.len)+'. A confirmation is on its way to your email.';
           n.classList.add('show');b.textContent=prev;loadBusy();
         },function(e){b.disabled=false;b.textContent=prev;loadBusy();showIssue({sub:(e&&e.error)||'Something went wrong on my side, so your time wasn’t booked.',retryLabel:'Back to booking'})});
       return;
@@ -1793,9 +1793,9 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     if(pay==='credit'){
       var k=$('crType').value,ref=$('crRef').value.trim();
       if(!ref){n.textContent='Please add the '+CREDIT[k].label.toLowerCase()+' so I can match your booking.';n.classList.add('show');$('crRef').focus();return}
-      n.textContent='Thank you. Your request for '+S.name+' on '+longDate(st.date)+' (arrive '+fmt(st.t)+', leave '+fmt(st.t+st.len)+') goes straight to me, with nothing to pay today. I\'ll check your '+(k==='gift'?'gift card':k)+' and confirm by message. (Prototype: nothing is sent.)';
+      n.textContent='Thank you. Your request for '+S.name+' on '+longDate(st.date)+' ('+fmt(st.t)+' to '+fmt(st.t+st.len)+') goes straight to me, with nothing to pay today. I\'ll check your '+(k==='gift'?'gift card':k)+' and confirm by message. (Prototype: nothing is sent.)';
     }else{
-      n.textContent='Next, the $40 deposit checkout opens to hold '+S.name+' on '+longDate(st.date)+': arrive '+fmt(st.t)+', leave '+fmt(st.t+st.len)+'. I\'ll confirm by message. (Prototype: no payment is taken.)';
+      n.textContent='Next, the $40 deposit checkout opens to hold '+S.name+' on '+longDate(st.date)+', '+fmt(st.t)+' to '+fmt(st.t+st.len)+'. I\'ll confirm by message. (Prototype: no payment is taken.)';
     }
     n.classList.add('show');
   }
@@ -1812,7 +1812,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     $('okSub').textContent=check?'Thank you'+(c.name?', '+c.name.split(' ')[0]:'')+'. I\'ll check your '+(c.credit||'membership, package or gift card')+' and confirm by email shortly.':'Thank you'+(c.name?', '+c.name.split(' ')[0]:'')+'. Your time is held just for you. A confirmation is on its way to '+(c.email||'your email')+'.';
     var giftPaid=c.gift!=null;
     var paid=giftPaid?'<div class="ok-row"><span>From your gift card</span><span>'+m2(c.gift)+'</span></div>'+(c.card?'<div class="ok-row"><span>Paid by card today</span><span>'+m2(c.card)+'</span></div>':'')+'<div class="ok-row"><span>Paid in full</span><span>Nothing more to pay</span></div>'+(c.giftLeft!=null?'<div class="ok-row"><span>Left on your gift card</span><span>'+m2(c.giftLeft)+'</span></div>':''):c.pay==='deposit'?'<div class="ok-row"><span>Deposit paid today</span><span>$'+c.deposit+'</span></div><div class="ok-row"><span>Due after your session</span><span>$'+(c.total-c.deposit)+'</span></div>':'<div class="ok-row"><span>Paid with</span><span>Your '+(c.credit||'credit')+' · $0 today</span></div>';
-    $('okCard').innerHTML='<div class="ok-times"><div><small>Arrive</small><b>'+t(c.start)+'</b></div><div><small>Leave</small><b>'+t(c.end)+'</b></div></div>'+
+    $('okCard').innerHTML='<div class="ok-times"><div><small>Start</small><b>'+t(c.start)+'</b></div><div><small>End</small><b>'+t(c.end)+'</b></div></div>'+
       '<div class="ok-row"><span>'+day+'</span><span>'+c.minutes+' min</span></div><div class="ok-row"><span>'+c.service+'</span><span>$'+c.total+'</span></div>'+paid;
     var next=[check?'I\'ll email you once I\'ve matched your '+(c.credit||'purchase')+'. Nothing to pay today.':'Your confirmation email has the details and the studio address in Northwest Calgary.',
       'I\'ll send you a reminder about 3 days before.',

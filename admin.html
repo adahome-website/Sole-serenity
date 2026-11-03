@@ -181,7 +181,7 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
 <dialog id="dlgUse"><form class="f" id="fUse">
   <h2>Log a session</h2>
   <div class="row"><label>Date<i class="req" aria-hidden="true">*</i><input name="date" type="date" required></label><label>Service<select name="service"><option>Reflexology Treatment</option><option>Reiki Treatment</option><option>Combination Treatment</option><option>Foot bath</option></select></label></div>
-  <div class="row"><label>Arrive<i class="req" aria-hidden="true">*</i><input name="start" type="time" required></label><label>Leave<i class="req" aria-hidden="true">*</i><input name="end" type="time" required></label></div>
+  <div class="row"><label>Start<i class="req" aria-hidden="true">*</i><input name="start" type="time" required></label><label>End<i class="req" aria-hidden="true">*</i><input name="end" type="time" required></label></div>
   <div class="row"><label>What happened<select name="status"><option value="used">Came</option><option value="noshow">No-show (lost)</option><option value="late">Cancelled within 48h (lost)</option></select></label><label id="amtL">Taken from card ($)<input name="amount" type="number" min="0" step="0.01"></label></div>
   <p class="err" id="useErr" role="alert"></p>
   <div class="end"><button class="btn ghost" type="button" data-close>Cancel</button><button class="btn" type="submit">Log it</button></div>
@@ -324,7 +324,7 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
     if(editing)d.id=editing.id;
     call('/credits/save',d).then(function(r){$('dlgRec').close();toast(r&&r.code&&!editing?'Gift card '+r.code+' created'+(d.send_code&&(d.email||d.recipient_email)?' and emailed.':'.'):'Saved.');load()},function(er){$('recErr').textContent=er.error||'Didn\'t save.'})});
   var fU=$('fUse');
-  fU.addEventListener('submit',function(e){e.preventDefault();if(fU.end.value<=fU.start.value){$('useErr').textContent='Leave time needs to be after arrive time.';return}
+  fU.addEventListener('submit',function(e){e.preventDefault();if(fU.end.value<=fU.start.value){$('useErr').textContent='End time needs to be after the start time.';return}
     call('/uses/add',{credit_id:cur.id,date:fU.date.value,start:fU.start.value,end:fU.end.value,service:fU.service.value,status:fU.status.value,amount_cents:cur.kind==='gift'?Math.round(+fU.amount.value*100):0})
       .then(function(){open[cur.id]=true;$('dlgUse').close();toast('Logged.');load()},function(er){$('useErr').textContent=er.error||'Didn\'t save.'})});
 
