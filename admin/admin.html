@@ -44,6 +44,9 @@ header p{margin:2px 0 0;color:var(--ink2);font-size:14px}
 :root[data-theme="dark"] .tab.appt{background:#4a3d31}
 @media (max-width:640px){.tabs{grid-template-columns:1fr 1fr}}
 .bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.addm{display:none}
+/* phones: Add sits beside the search inside the category, so it doesn't push the page down */
+@media (max-width:640px){header #addBtn{display:none!important}.bar .addm:not([hidden]){display:inline-flex;flex:none}.bar #q{flex:1 1 0;min-width:0}}
 .bar input[type=search]{flex:1 1 220px;min-width:0;font:500 15px var(--body);padding:10px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--cell);color:var(--ink)}
 .seg{display:inline-flex;border:1.5px solid var(--line);border-radius:999px;padding:3px}
 .seg button{appearance:none;border:0;background:transparent;color:var(--ink);font:600 14px var(--body);padding:8px 14px;border-radius:999px;cursor:pointer}
@@ -126,7 +129,7 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
   </div>
 
   <div class="bar">
-    <input type="search" id="q" placeholder="Search name, phone, email or code" aria-label="Search">
+    <input type="search" id="q" placeholder="Search name, phone, email or code" aria-label="Search"><button class="btn ghost addm" id="addBtn2" type="button" hidden><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add</button>
     <div class="seg" id="scope" role="group" aria-label="Which appointments"><button type="button" data-v="upcoming" aria-pressed="true">Upcoming</button><button type="button" data-v="past" aria-pressed="false">Past</button></div>
   </div>
   <div id="out"><div class="state">Loading…</div></div>
@@ -230,7 +233,7 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
     $('n-appt').textContent=appts.filter(function(a){return scope==='upcoming'}).length||(scope==='upcoming'?0:'·');
     ['package','membership','gift'].forEach(function(k){$('n-'+k).textContent=credits.filter(function(c){return c.kind===k&&!bal(c).done}).length});
     document.querySelectorAll('.tab').forEach(function(t){t.setAttribute('aria-selected',String(t.dataset.k===tab))});
-    $('scope').hidden=tab!=='appt';$('addBtn').hidden=tab==='appt';
+    $('scope').hidden=tab!=='appt';$('addBtn').hidden=tab==='appt';$('addBtn2').hidden=tab==='appt';
     var q=$('q').value.trim().toLowerCase();
     if(tab==='appt')return renderAppts(q);
     var list=credits.filter(function(c){return c.kind===tab&&(!q||[c.buyer,c.recipient,c.email,c.phone,c.code].join(' ').toLowerCase().indexOf(q)>=0)});
@@ -311,7 +314,7 @@ dialog::backdrop{background:rgba(26,22,19,.55)}
   $('caGo').addEventListener('click',function(){var early=$('caWhen').value==='early';call('/cancel',{id:cur.id,refund:early}).then(function(){$('dlgCancel').close();toast(early?(cur.pay==='deposit'?'Cancelled. Deposit refunded.':'Cancelled. Session returned.'):'Cancelled. '+(cur.pay==='deposit'?'Deposit kept.':'Session used.'));load()},function(e){$('caErr').textContent=e.error||'That didn\'t work.'})});
   $('lkGo').addEventListener('click',function(){call('/attach',{id:cur.id,credit_id:$('lkSel').value}).then(function(){$('dlgLink').close();toast('Booking confirmed and logged against it.');load()},function(e){$('lkErr').textContent=e.error||'That didn\'t work.'})});
   $('q').addEventListener('input',render);
-  $('addBtn').addEventListener('click',function(){openRec(null)});
+  $('addBtn').addEventListener('click',function(){openRec(null)});$('addBtn2').addEventListener('click',function(){openRec(null)});
   $('dlBtn').addEventListener('click',function(){var y=today().slice(0,4);if(!$('dlFrom').value)$('dlFrom').value=y+'-01-01';if(!$('dlTo').value)$('dlTo').value=today();$('dlWhat').value=tab==='appt'?'bookings':tab;$('dlErr').textContent='';$('dlgDl').showModal()});
   $('dlGo').addEventListener('click',function(){
     var w=$('dlWhat').value,f=$('dlFrom').value,t=$('dlTo').value;if(!f||!t||f>t){$('dlErr').textContent='Pick a start date before the end date.';return}
