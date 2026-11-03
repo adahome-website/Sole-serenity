@@ -858,11 +858,11 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
           <div class="found-btns"><button class="btn btn-cream" type="button" id="useCred">Use it for this visit</button><button class="btn btn-cream" type="button" id="switch60" data-s="refl" hidden>Use membership for Reflexology 60 min</button><button class="btn btn-cream" type="button" id="switch60b" data-s="reiki" hidden>Use membership for Reiki 60 min</button><button class="btn btn-cream" type="button" id="toCombo" hidden>Book the Combination (2 hours) instead</button><button class="btn btn-ghost" type="button" id="payDepInstead" hidden>Pay the $40 deposit</button></div>
         </div>
         <ul class="bk-pol">
-          <li id="polDep" hidden><b>Deposit:</b> holds your time and comes off your total. To cancel, text or email me at least 48 hours before and I'll refund it in full; within 48 hours it isn't refunded.</li>
+          <li id="polDep" hidden><b>Deposit:</b> books your time and comes off your total. To cancel, text or email me at least 48 hours before and I'll refund it in full; within 48 hours it isn't refunded.</li>
         </ul>
         <button class="btn go" type="button" id="goBtn" disabled>Book with $40 deposit</button>
         <button type="button" class="linkish" id="giftLink">Have a gift card code?</button>
-        <p class="fine" id="goFine">If you don't have an active membership, package or gift card, you'll be asked for a $40 deposit to hold your time. It comes off your session total. Cancel at least 48 hours before your appointment and I'll refund it in full; cancellations within 48 hours and no-shows aren't refunded. Membership and package holders don't pay a deposit, but a no-show or a cancellation within 48 hours uses up that session and isn't refunded.</p>
+        <p class="fine" id="goFine">If you don't have an active membership, package or gift card, your time is booked with a $40 deposit, which comes off your session total. Cancel at least 48 hours before your appointment and I'll refund it in full; cancellations within 48 hours and no-shows aren't refunded. Membership and package holders don't pay a deposit, but a no-show or a cancellation within 48 hours uses up that session and isn't refunded.</p>
       </div>
     </div>
   </div>
@@ -1824,7 +1824,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         .then(function(d){
           if(d.checkout_url){window.SSDEMO.checkout(d.checkout_url.split(':')[1],function(ok){var bid=d.checkout_url.split(':')[1];if(ok){b.textContent=prev;showBooked(bid)}else{b.disabled=false;b.textContent=prev;loadBusy();var n=$('goNote');n.textContent='Payment not completed, so nothing was charged. Your time isn\u2019t held yet: press Book with $40 deposit, or pick another time.';n.classList.add('show');setTimeout(function(){n.classList.add('show');n.scrollIntoView({block:'center'})},500)}if(ok)loadBusy()});return}
           if(true){var gx={status:d.status,pay:'credit'};if(FOUND&&FOUND.kind==='gift'&&pay==='credit'){var g=giftMath(FOUND);gx.gift=g.cover;gx.giftLeft=g.left;gx.card=0}showConfirmation(confFromState(gx));b.textContent=prev;loadBusy();return}
-          n.textContent=d.status==='needs_check'?'Thank you. I\'ve got your request for '+S.name+' on '+longDate(st.date)+' at '+fmt(st.t)+'. I\'ll check your membership, package or gift card and confirm by email.':'You\'re booked: '+S.name+' on '+longDate(st.date)+', '+fmt(st.t)+' to '+fmt(st.t+st.len)+'. A confirmation is on its way to your email.';
+          n.textContent=d.status==='needs_check'?'You\'re booked: '+S.name+' on '+longDate(st.date)+' at '+fmt(st.t)+'. I\'ll double-check your membership, package or gift card and email you a confirmation.':'You\'re booked: '+S.name+' on '+longDate(st.date)+', '+fmt(st.t)+' to '+fmt(st.t+st.len)+'. A confirmation is on its way to your email.';
           n.classList.add('show');b.textContent=prev;loadBusy();
         },function(e){b.disabled=false;b.textContent=prev;loadBusy();showIssue({sub:(e&&e.error)||'Something went wrong on my side, so your time wasn’t booked.',retryLabel:'Back to booking'})});
       return;
@@ -1832,7 +1832,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     if(pay==='credit'){
       var k=$('crType').value,ref=$('crRef').value.trim();
       if(!ref){n.textContent='Please add the '+CREDIT[k].label.toLowerCase()+' so I can match your booking.';n.classList.add('show');$('crRef').focus();return}
-      n.textContent='Thank you. Your request for '+S.name+' on '+longDate(st.date)+' ('+fmt(st.t)+' to '+fmt(st.t+st.len)+') goes straight to me, with nothing to pay today. I\'ll check your '+(k==='gift'?'gift card':k)+' and confirm by message. (Prototype: nothing is sent.)';
+      n.textContent='You\'re booked: '+S.name+' on '+longDate(st.date)+' ('+fmt(st.t)+' to '+fmt(st.t+st.len)+'), with nothing to pay today. I\'ll check your '+(k==='gift'?'gift card':k)+' and confirm by message. (Prototype: nothing is sent.)';
     }else{
       n.textContent='Next, the $40 deposit checkout opens to hold '+S.name+' on '+longDate(st.date)+', '+fmt(st.t)+' to '+fmt(st.t+st.len)+'. I\'ll confirm by message. (Prototype: no payment is taken.)';
     }
@@ -1847,7 +1847,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     rememberMe(c.email,c.name,c.phone||$('ctPhone').value);resetPay();
     var check=c.status==='needs_check',day=TZf({weekday:'long',month:'long',day:'numeric'}).format(c.start),t=function(d){return TZf({hour:'numeric',minute:'2-digit'}).format(d).toLowerCase()};
     $('okNextH').hidden=false;
-    $('okTitle').textContent=check?'Request received':'You\'re booked';
+    $('okTitle').textContent='You\'re booked';
     $('okSub').textContent=check?'Thank you'+(c.name?', '+c.name.split(' ')[0]:'')+'. I\'ll check your '+(c.credit||'membership, package or gift card')+' and confirm by email shortly.':'Thank you'+(c.name?', '+c.name.split(' ')[0]:'')+'. Your time is held just for you. A confirmation is on its way to '+(c.email||'your email')+'.';
     var giftPaid=c.gift!=null;
     var paid=giftPaid?'<div class="ok-row"><span>From your gift card</span><span>'+m2(c.gift)+'</span></div>'+(c.card?'<div class="ok-row"><span>Paid by card today</span><span>'+m2(c.card)+'</span></div>':'')+'<div class="ok-row"><span>Paid in full</span><span>Nothing more to pay</span></div>'+(c.giftLeft!=null?'<div class="ok-row"><span>Left on your gift card</span><span>'+m2(c.giftLeft)+'</span></div>':''):c.pay==='deposit'?'<div class="ok-row"><span>Deposit paid today</span><span>$'+c.deposit+'</span></div><div class="ok-row"><span>Due after your session</span><span>$'+(c.total-c.deposit)+'</span></div>':'<div class="ok-row"><span>Paid with</span><span>Your '+(c.credit||'credit')+' · $0 today</span></div>';

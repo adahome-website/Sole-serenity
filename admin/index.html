@@ -183,9 +183,9 @@ window.SS_PERSIST = true;
   }
   function confirmEmail(bk) {
     var check = bk.status === 'needs_check', s = new Date(bk.start_utc);
-    sendEmail(bk.email, check ? 'I’ve got your booking request' : 'You’re booked · ' + fmtDate(s) + ' at ' + fmtTime(s),
-      '<h1 style="font-family:Georgia,serif;font-size:26px;margin:0 0 6px">' + (check ? 'Request received' : 'You’re booked') + '</h1>' +
-      '<p>Hi ' + esc(bk.name.split(' ')[0]) + ', ' + (check ? 'thank you. I’ll check your membership, package or gift card and confirm by email shortly.' : 'thank you for booking. Here are your details:') + '</p>' +
+    sendEmail(bk.email, 'You’re booked · ' + fmtDate(s) + ' at ' + fmtTime(s),
+      '<h1 style="font-family:Georgia,serif;font-size:26px;margin:0 0 6px">' + 'You’re booked' + '</h1>' +
+      '<p>Hi ' + esc(bk.name.split(' ')[0]) + ', ' + (check ? 'thank you for booking. I’ll double-check your membership, package or gift card and confirm shortly. Here are your details:' : 'thank you for booking. Here are your details:') + '</p>' +
       detailsCard(bk, !check) +
       '<p><b>Before you come:</b> wear something comfortable. For reflexology only your shoes and socks come off; for Reiki you stay fully clothed. Please arrive a few minutes early; your session ends at the time above. Let me know about any allergies or if you’d like it scent-free.</p>' +
       '<p style="color:#5a4430;font-size:14px">' + policyLine(bk) + '</p><p>I’ll send you a reminder a few days before. See you soon,<br>Melanie · 587-216-8588</p>', 'confirmation');
@@ -487,7 +487,7 @@ window.SS_PERSIST = true;
 <main>
   <section class="pane" id="p-site" role="tabpanel" aria-labelledby="t-site">
     <p class="strip"><b>What a client sees.</b> Book a session, buy a gift card, or try booking with <b>pat@example.com</b> (has a package), <b>jordan@example.com</b> (member) or <b>lee@example.com</b> (small gift card). Payments open a pretend Stripe checkout.</p>
-    <iframe id="f-site" src="site.html?v=1793682694" title="Client website"></iframe>
+    <iframe id="f-site" src="site.html?v=1793682725" title="Client website"></iframe>
   </section>
   <section class="pane" id="p-admin" role="tabpanel" aria-labelledby="t-admin" hidden>
     <p class="strip"><b>What Melanie sees</b> after signing in. Appointments start empty and fill up as you book on the website. Then try <b>Charge balance</b>, <b>Cancel</b> or <b>No-show</b>.</p>
