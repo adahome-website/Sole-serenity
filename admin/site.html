@@ -577,7 +577,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
 .found{margin-top:14px;background:rgba(252,249,244,.1);border:1.5px solid var(--ochre);border-radius:14px;padding:14px}
 .found[hidden]{display:none}
 .found p{margin:0 0 12px;font-size:14.5px}
-.contact .req{font:400 11px var(--mono);letter-spacing:.06em;opacity:.65;margin-left:4px}
+.contact .req{color:#d6b48c;font-weight:700;margin-left:1px}
 .found-btns{display:flex;flex-wrap:wrap;gap:8px}.found-btns [hidden],#goBtn[hidden],#giftLink[hidden]{display:none}
 .found-btns .btn{padding:11px 15px;font-size:14px}
 .linkish{appearance:none;border:0;background:none;color:var(--ochre);font:600 14px var(--body);text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:10px 0 0;display:block;margin:0 auto}
@@ -776,8 +776,8 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         </div>
         <div class="credit contact" id="contactBox">
           <span class="pay-l" style="margin:6px 0 0">Your details</span>
-          <label for="ctName"><span>Name <span class="req">required</span></span><input id="ctName" type="text" autocomplete="name" placeholder="First and last name" required aria-required="true"></label>
-          <div class="ct-row"><label for="ctEmail"><span>Email <span class="req">required</span></span><input id="ctEmail" type="email" autocomplete="email" placeholder="you@email.com" required aria-required="true"></label>
+          <label for="ctName"><span>Name <span class="req" aria-hidden="true">*</span></span><input id="ctName" type="text" autocomplete="name" placeholder="First and last name" required aria-required="true"></label>
+          <div class="ct-row"><label for="ctEmail"><span>Email <span class="req" aria-hidden="true">*</span></span><input id="ctEmail" type="email" autocomplete="email" placeholder="you@email.com" required aria-required="true"></label>
           <label for="ctPhone"><span>Phone</span><input id="ctPhone" type="tel" autocomplete="tel" placeholder="587-000-0000"></label></div>
         </div>
         <div class="note" id="goNote" role="alert"></div>
@@ -1253,8 +1253,8 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
           <div><b>Soon</b><span>dates announced</span></div>
         </div>
         <form class="join" id="joinForm" novalidate>
-          <label><span class="sr">Your name</span><input type="text" id="joinName" name="name" placeholder="Your name (required)" autocomplete="name" required aria-required="true"></label>
-          <label><span class="sr">Your email</span><input type="email" id="joinEmail" name="email" placeholder="Your email (required)" autocomplete="email" required aria-required="true"></label>
+          <label><span class="sr">Your name</span><input type="text" id="joinName" name="name" placeholder="Your name*" autocomplete="name" required aria-required="true"></label>
+          <label><span class="sr">Your email</span><input type="email" id="joinEmail" name="email" placeholder="Your email*" autocomplete="email" required aria-required="true"></label>
           <label class="full"><span class="sr">Phone</span><input type="tel" id="joinPhone" name="phone" placeholder="Phone" autocomplete="tel"></label>
           <fieldset class="join-int">
             <legend>I'm interested in</legend>
@@ -2077,8 +2077,8 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     ev.preventDefault();var gift=it.kind==='gift';
     dlgP.innerHTML='<div class="h"><small>Sole Serenity · secure checkout (preview, nothing is charged)</small><b>'+(it.custom?'Gift card':'$'+it.price)+'</b>'+e(it.label)+(it.kind==='membership'?' · billed monthly':'')+'</div><div class="b">'+
       (it.custom?'<label>Amount ($)<input id="pcAmt" type="number" min="20" value="150"></label>':'')+
-      '<label>'+(gift?'Your name (required)':'Your name, the person using it (required)')+'<input id="pcName" autocomplete="name"></label><label>Your email (required)<input id="pcEmail" type="email" autocomplete="email"></label>'+
-      (gift?'<label>Who is the gift for? (required)<input id="pcRec"></label><label>Their email, so we can send them the code<input id="pcRecE" type="email"></label>':'')+
+      '<label>'+(gift?'Your name*':'Your name, the person using it*')+'<input id="pcName" autocomplete="name"></label><label>Your email*<input id="pcEmail" type="email" autocomplete="email"></label>'+
+      (gift?'<label>Who is the gift for?*<input id="pcRec"></label><label>Their email, so we can send them the code<input id="pcRecE" type="email"></label>':'')+
       '<label>Card number<input value="4242 4242 4242 4242" inputmode="numeric"></label><p class="err" id="pcErr"></p><button class="pay" type="button" id="pcPay">Pay</button><p class="fine">On the live site this opens Stripe\u2019s secure checkout.</p><button class="cx" type="button" id="pcCx">\u2039 Back to Sole Serenity</button></div>';
     dlgP.showModal();document.getElementById('pcName').focus();
     document.getElementById('pcCx').onclick=function(){dlgP.close()};
