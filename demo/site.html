@@ -852,7 +852,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
         <ul class="bk-pol">
           <li id="polDep" hidden><b>Deposit:</b> holds your time and comes off your total. To cancel, text or email me at least 48 hours before and I'll refund it in full; within 48 hours it isn't refunded.</li>
         </ul>
-        <button class="btn go" type="button" id="goBtn" disabled>Continue</button>
+        <button class="btn go" type="button" id="goBtn" disabled>Continue with $40 deposit</button>
         <button type="button" class="linkish" id="giftLink">Have a gift card code?</button>
         <p class="fine" id="goFine">If you don't have an active membership, package or gift card, you'll be asked for a $40 deposit to hold your time. It comes off your session total. Cancel at least 48 hours before your appointment and I'll refund it in full; cancellations within 48 hours and no-shows aren't refunded. Membership and package holders don't pay a deposit, but a no-show or a cancellation within 48 hours uses up that session and isn't refunded.</p>
       </div>
@@ -1654,17 +1654,19 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
     if(c){
       $('crRefL').innerHTML=C.label+'<span class="req" aria-hidden="true">*</span>';$('crRef').placeholder=C.ph;$('crRef').setAttribute('autocomplete',C.ac);
       $('depRow').innerHTML=C.dep;$('depRow').hidden=false;$('polDep').innerHTML=C.pol;$('polDep').hidden=false;$('crWarn').innerHTML=C.warn;
-      $('goBtn').textContent='Continue';
+      $('goBtn').textContent=goLabel();
       $('goFine').textContent='Press Continue to see what’s on your '+(k==='gift'?'gift card':k)+' before you book.';
     }else{
       $('depRow').innerHTML=DEP_ROW;$('depRow').hidden=true;$('polDep').innerHTML=DEP_POL;$('polDep').hidden=true;
-      $('goBtn').textContent='Continue';$('goFine').textContent=DEP_FINE;
+      $('goBtn').textContent=goLabel();$('goFine').textContent=DEP_FINE;
     }
     $('goNote').classList.remove('show');
   }
   $('segPay').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;pay=b.dataset.v;payRender();if(pay==='credit')$('crRef').focus()});
   $('crType').addEventListener('change',payRender);
 
+  // the main button says what happens next: a gift card is checked first, everything else holds the time with the $40 deposit
+  function goLabel(){return giftMode?'Check my gift card':'Continue with $40 deposit'}
   var looked=false,FOUND=null,giftMode=false,KNOWN=false,PERSON=null;
   // Once a membership/package/gift card is recognised, the only choice is the one in the "found" box
   // gift cards always pay for the full session: the card covers what it can, the rest is paid by card at booking
@@ -1773,16 +1775,16 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
       var code=$('crRef').value.trim();
       if(!code){n.textContent='Please add your gift card code.';n.classList.add('show');$('crRef').focus();return}
       b.disabled=true;b.textContent='Checking…';
-      lookup(nm,em,code).then(function(f){b.disabled=false;b.textContent='Continue';
+      lookup(nm,em,code).then(function(f){b.disabled=false;b.textContent=goLabel();
         if(!f){n.textContent='I couldn\'t find a gift card with money left for that code. Please check it, or tap “I don\'t have a code”.';n.classList.add('show');$('crRef').focus();return}
         n.classList.remove('show');showFound(f,'')});
       return;
     }
-    if(st.s==='intro'){b.disabled=true;b.textContent='Checking…';KNOWN=false;lookup(nm,em).then(function(f){b.disabled=false;b.textContent='Continue';if(KNOWN)return showNotNew(nm,f);doBook()});return}
+    if(st.s==='intro'){b.disabled=true;b.textContent='Checking…';KNOWN=false;lookup(nm,em).then(function(f){b.disabled=false;b.textContent=goLabel();if(KNOWN)return showNotNew(nm,f);doBook()});return}
     if(pay==='credit')return doBook(); // every Continue checks for a package, membership or gift card again
     b.disabled=true;b.textContent='Checking…';
     lookup(nm,em).then(function(f){
-      looked=true;b.disabled=false;b.textContent='Continue';
+      looked=true;b.disabled=false;b.textContent=goLabel();
       if(!f)return doBook();
       showFound(f,nm);
     });
@@ -1931,7 +1933,7 @@ html.bk-lock,html.bk-lock body{overflow:hidden}
   var dlg=$('bookDlg'),opener=null,mobile=matchMedia('(max-width:899px)'),prevView='home';
   // Every visit to booking starts fresh: no gift card, package or membership is remembered from last time
   function resetPay(){
-    giftMode=false;$('giftLink').textContent='Have a gift card code?';looked=false;FOUND=null;
+    giftMode=false;$('giftLink').textContent='Have a gift card code?';$('goBtn').textContent=goLabel();looked=false;FOUND=null;
     $('crFound').hidden=true;$('crRef').value='';$('crType').value='package';pay='deposit';payRender();foundMode(false);$('goNote').classList.remove('show');
   }
   function openBook(pick,from){
